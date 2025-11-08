@@ -43,9 +43,13 @@ function preload() {
     // تحميل الخلفية
     this.load.image('background', 'assets/images/background.png');
     
-    // تحميل ملفات الصوت الأساسية (كما اتفقنا)
+    // تحميل ملفات الصوت الأساسية (الـ 6 ملفات)
     this.load.audio('ui_click', 'assets/audio/ui_click.mp3');
     this.load.audio('winning', 'assets/audio/Winning.mp3');
+    this.load.audio('Beginning_game', 'assets/audio/Beginning_game.mp3'); 
+    this.load.audio('Flip_letter', 'assets/audio/Flip_letter.mp3');
+    this.load.audio('correct_answer', 'assets/audio/correct_answer.mp3');
+    this.load.audio('wrong_answer', 'assets/audio/wrong_answer.mp3');
     
     // تحميل أصول الخلايا السداسية (Hex Cells)
     this.load.image('hex_cell_default', 'assets/images/hex_cell_default.png');
