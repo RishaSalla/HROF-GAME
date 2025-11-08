@@ -1,1 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <title>NEO حروف - اللعبة النهائية</title>
+    <style>
+        /* تصميم أساسي لضمان عمل اللعبة في المتصفح */
+        body { margin: 0; padding: 0; background-color: #111; overflow: hidden; }
+        canvas { display: block; margin: 0 auto; }
+        
+        /* هذا هو تصميم الحماية المؤقت (شاشة إدخال الكود) */
+        #code-entry-container {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #111; /* يتناسب مع خلفية اللعبة الداكنة */
+            color: #eee;
+            display: none; /* يتم إخفاؤه في البداية */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Cairo', Arial, sans-serif;
+            z-index: 1000;
+        }
+        #code-entry-container input, #code-entry-container button {
+            padding: 12px 20px;
+            font-size: 1.2em;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+            text-align: center;
+        }
+        #code-entry-container input {
+            background-color: #333;
+            color: #eee;
+            border: 2px solid #555;
+        }
+        #code-entry-container button {
+            background-color: #198754; /* لون أخضر جذاب */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #code-entry-container button:hover {
+            background-color: #157347;
+        }
+        /* تعريف الخط العربي */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
+    </style>
+</head>
+<body>
+
+<div id="code-entry-container">
+    <h1>أدخل كود الدخول السري</h1>
+    <input type="password" id="secret-code-input" placeholder="الكود السري...">
+    <button id="code-entry-button">بدء اللعب</button>
+    <p id="code-entry-message" style="color: #dc3545;"></p>
+</div>
+
+
+<script src="js/vendor/phaser.min.js"></script>
+<script src="js/security.js"></script>
+<script src="js/turn_manager.js"></script>
+<script src="js/game.js"></script>
+
+</body>
+</html>
