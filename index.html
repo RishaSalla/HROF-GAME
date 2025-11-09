@@ -10,6 +10,48 @@
         
         /* تعريف الخط العربي */
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+        /* تصميم شاشة الحماية (تم نقله هنا ليعمل قبل تحميل JS) */
+        #code-entry-container {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #111; 
+            color: #eee;
+            display: none; /* يتم إظهاره لاحقاً بواسطة كود security.js */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Cairo', Arial, sans-serif;
+            z-index: 1000;
+        }
+        #code-entry-container h1 {
+            font-size: 2em; 
+            margin-bottom: 20px;
+        }
+        #code-entry-container input {
+            padding: 12px 20px;
+            font-size: 1.2em;
+            margin: 10px;
+            border: 2px solid #555;
+            border-radius: 8px;
+            text-align: center;
+            background-color: #333;
+            color: #eee;
+        }
+        #code-entry-container button {
+            padding: 12px 20px;
+            font-size: 1.2em;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #198754; 
+            color: white;
+            transition: background-color 0.2s;
+        }
+        #code-entry-container button:hover {
+            background-color: #157347;
+        }
     </style>
 </head>
 <body>
@@ -21,6 +63,7 @@
     <p id="code-entry-message" style="color: #dc3545;"></p>
 </div>
 
+<!-- الطريقة الصحيحة: استدعاء Phaser مباشرة عبر CDN -->
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
 <script src="js/security.js"></script>
 <script src="js/turn_manager.js"></script>
