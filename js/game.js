@@ -1,272 +1,247 @@
-// js/game.js - الكود 31 (إصلاح مشكلة الأصول وبناء الواجهة)
+// الكود 32: إصلاح شامل لملف منطق اللعبة
+// هذا الملف يستخدم إطار عمل Phaser v3.80.1 لبناء لعبة الحروف السداسية (Arabic Hex Game).
+// الهدف: التأكد من تحميل الأصول وعرض شريط النقاط وإنشاء الشبكة السداسية.
 
-// تعريف المتغيرات العامة اللازمة لاستدعائها من ملفات أخرى
-let globalGameConfig = {};
-let gameInstance = null;
-let currentScene = null;
-let allQuestions = {}; 
-
-// قائمة بأسماء ملفات الأسئلة المرقمة (لتجنب الخطأ في العد)
-const QUESTION_FILES = [
-    '01alif', '02ba', '03ta', '04tha', '05jeem', '06haa', '07khaa', '08dal', '09dhal', '10ra', 
-    '11zay', '12seen', '13sheen', '14sad', '15dad', '16ta_a', '17zha', '18ain', '19ghain', '20fa', 
-    '21qaf', '22kaf', '23lam', '24meem', '25noon', '26ha_a', '27waw', '28ya'
+const GAME_WIDTH = 1000;
+const GAME_HEIGHT = 700;
+const HEX_ASPECT_RATIO = 1.1547; // تقريباً (width / height) لـ hex_cell_default.png
+const HEX_SIZE = 70; // حجم الخلية السداسية (الارتفاع)
+const HEX_WIDTH = HEX_SIZE * HEX_ASPECT_RATIO;
+const ROWS = 4;
+const COLS = 6;
+const CHARACTERS = [
+    'ش', 'خ', 'غ', 'ق', 'ع', 'ح', 'أ', 'ب', 'ت', 'ث', 'ج', 'ح',
+    'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع'
 ];
 
-// التأكد من تحميل مدير الأدوار (يجب أن يتم تحميله في index.html قبل game.js)
-// const turnManager = new TurnManager(); // يتم افتراض وجوده ككائن عام من ملف turn_manager.js
+class MainScene extends Phaser.Scene {
+    constructor() {
+        super({ key: 'MainScene' });
+        this.score = { team1: 0, team2: 0 };
+        this.currentPlayer = 1;
+    }
 
+    // 1. تحميل الأصول (الصور والأصوات)
+    preload() {
+        console.log("Preloading assets...");
+        
+        // تحميل الصور
+        this.load.image('background', 'assets/images/background.png');
+        this.load.image('logo', 'assets/images/logo.png');
+        this.load.image('hex_default', 'assets/images/hex_cell_default.png');
+        this.load.image('hex_selected', 'assets/images/hex_cell_selected.png');
+        this.load.image('hex_team1', 'assets/images/hex_cell_team1.png');
+        this.load.image('hex_team2', 'assets/images/hex_cell_team2.png');
+        this.load.image('turn_left', 'assets/images/turn_indicator_arrow_to_left.png');
+        this.load.image('turn_right', 'assets/images/turn_indicator_arrow_to_right.png');
+        this.load.image('connector_g_down', 'assets/images/connector_green_horizontal_down.png');
+        this.load.image('connector_g_up', 'assets/images/connector_green_horizontal_upper.png');
+        this.load.image('connector_r_left', 'assets/images/connector_red_vertical_left.png');
+        this.load.image('connector_r_right', 'assets/images/connector_red_vertical_right.png');
+        
+        // تحميل الأصوات
+        this.load.audio('beginning_game', 'assets/audio/Beginning_game.mp3');
+        this.load.audio('flip_letter', 'assets/audio/Flip_letter.mp3');
+        this.load.audio('winning', 'assets/audio/Winning.mp3');
+        this.load.audio('correct_answer', 'assets/audio/correct_answer.mp3');
+        this.load.audio('ui_click', 'assets/audio/ui_click.mp3');
+        this.load.audio('wrong_answer', 'assets/audio/wrong_answer.mp3');
+    }
 
-// تعريف دالة startGame التي يتم استدعاؤها من security.js بعد التحقق من الكود
-startGame = function(config) {
-    globalGameConfig = config; 
+    // 2. إنشاء عناصر اللعبة
+    create() {
+        console.log("Creating game elements...");
 
-    // إعدادات Phaser
-    const phaserConfig = {
-        type: Phaser.AUTO,
-        width: 1280,       
-        height: 720,       
-        parent: 'game-container',
-        scene: {
-            preload: preload,
-            create: create,
-            update: update
-        },
-        render: {
-            pixelArt: true 
-        },
-        scale: {
-            mode: Phaser.Scale.FIT, 
-            autoCenter: Phaser.Scale.CENTER_BOTH
+        // 2.1 إضافة الخلفية (التي تظهر حالياً)
+        const bg = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'background');
+        bg.displayWidth = GAME_WIDTH;
+        bg.displayHeight = GAME_HEIGHT;
+
+        // 2.2 إنشاء شريط النقاط وواجهة المستخدم العلوية
+        this.createTopBar();
+
+        // 2.3 إنشاء الشبكة السداسية المفقودة
+        this.hexGrid = this.createHexGrid();
+        
+        // تشغيل صوت بداية اللعبة
+        this.sound.play('beginning_game', { volume: 0.5 });
+    }
+
+    // 3. بناء شريط النقاط وشعارات الفرق
+    createTopBar() {
+        const barY = 50;
+        const logoScale = 0.5;
+
+        // الشعار في المنتصف
+        const logo = this.add.image(GAME_WIDTH / 2, barY - 5, 'logo').setScale(logoScale);
+        logo.setDepth(1); // تأكد من أنه فوق شريط النقاط
+
+        // شريط النقاط الأسود (كخلفية للنقاط)
+        const scoreBar = this.add.rectangle(GAME_WIDTH / 2, barY, GAME_WIDTH - 50, 60, 0x000000);
+        scoreBar.setStrokeStyle(4, 0x00FF00); // إطار أخضر حول شريط النقاط
+        scoreBar.setDepth(0);
+
+        // مؤشر الدور (الأيسر للفريق الأول)
+        this.turnIndicatorLeft = this.add.image(50, barY, 'turn_left').setScale(0.2).setInteractive();
+        // مؤشر الدور (الأيمن للفريق الثاني)
+        this.turnIndicatorRight = this.add.image(GAME_WIDTH - 50, barY, 'turn_right').setScale(0.2).setInteractive();
+
+        // إعداد النصوص (باستخدام خط مناسب يدعم العربية)
+        const textStyle = {
+            fontFamily: 'Neo Sans Arabic, Arial', // يجب أن يتم تحميل هذا الخط في CSS/index.html
+            fontSize: '24px',
+            color: '#FFD700', // لون ذهبي للنصوص
+            rtl: true // دعم الكتابة من اليمين لليسار
+        };
+        
+        // نص الفريق الأول
+        this.team1Text = this.add.text(this.turnIndicatorLeft.x + 150, barY - 20, 'الفريق الأول', textStyle).setOrigin(1, 0);
+        this.score1Text = this.add.text(this.turnIndicatorLeft.x + 150, barY + 10, 'النقاط: 0', { ...textStyle, fontSize: '18px' }).setOrigin(1, 0);
+
+        // نص الفريق الثاني
+        this.team2Text = this.add.text(this.turnIndicatorRight.x - 150, barY - 20, 'الفريق الثاني', textStyle).setOrigin(0, 0);
+        this.score2Text = this.add.text(this.turnIndicatorRight.x - 150, barY + 10, 'النقاط: 0', { ...textStyle, fontSize: '18px' }).setOrigin(0, 0);
+
+        this.updateTurnIndicator(this.currentPlayer);
+    }
+
+    // 4. إنشاء الشبكة السداسية (الجزء المفقود)
+    createHexGrid() {
+        const grid = [];
+        const startX = GAME_WIDTH / 2 - (COLS / 2) * HEX_WIDTH + HEX_WIDTH / 2;
+        const startY = GAME_HEIGHT / 2 - (ROWS / 2) * HEX_SIZE + HEX_SIZE * 1.5;
+        let charIndex = 0;
+
+        for (let r = 0; r < ROWS; r++) {
+            grid[r] = [];
+            // تعويض الصفوف الفردية لإزاحة الخلايا
+            const xOffset = (r % 2 === 1) ? HEX_WIDTH / 2 : 0; 
+            
+            for (let c = 0; c < COLS; c++) {
+                if (charIndex < CHARACTERS.length) {
+                    const x = startX + c * HEX_WIDTH + xOffset;
+                    const y = startY + r * HEX_SIZE * 0.75; // 0.75 هو عامل الإزاحة العمودية للسداسي
+
+                    // 4.1 إضافة صورة الخلية السداسية الافتراضية
+                    const hexCell = this.add.image(x, y, 'hex_default').setScale(1.1); // تكبير قليل للوضوح
+                    hexCell.setInteractive();
+                    hexCell.setData({ row: r, col: c, char: CHARACTERS[charIndex], state: 'default' });
+
+                    // 4.2 إضافة نص الحرف داخل الخلية
+                    const hexText = this.add.text(x, y, CHARACTERS[charIndex], {
+                        fontFamily: 'Neo Sans Arabic, Arial',
+                        fontSize: '36px',
+                        color: '#000000',
+                        align: 'center',
+                        rtl: true
+                    }).setOrigin(0.5);
+
+                    hexCell.data.set('textObject', hexText);
+
+                    // 4.3 إعداد وظيفة النقر
+                    hexCell.on('pointerdown', () => this.handleHexClick(hexCell));
+                    
+                    grid[r][c] = hexCell;
+                    charIndex++;
+                }
+            }
         }
-    };
+        console.log("Hexagonal grid created successfully.");
+        return grid;
+    }
+    
+    // 5. وظيفة معالجة النقر على الخلية
+    handleHexClick(cell) {
+        if (cell.getData('state') !== 'default') {
+            console.log('Cell already taken.');
+            this.sound.play('ui_click', { volume: 0.8 });
+            return;
+        }
 
-    gameInstance = new Phaser.Game(phaserConfig);
-    console.log("Phaser Game Instance Created. Ready for Preload.");
+        // هنا يمكنك إضافة منطق اختبار الإجابة (على سبيل المثال، إظهار شاشة السؤال)
+        console.log(`Cell clicked: Row ${cell.getData('row')}, Col ${cell.getData('col')}, Char: ${cell.getData('char')}`);
+        this.sound.play('flip_letter', { volume: 0.8 });
+        
+        // تغيير حالة الخلية مؤقتاً لعرضها كـ "محددة"
+        cell.setTexture('hex_selected');
+        cell.getData('textObject').setColor('#FFFFFF'); // تغيير لون النص
+        cell.setData('state', 'selected');
+
+        // في لعبة حقيقية، ستنتظر الآن إجابة المستخدم قبل تعيينها للفريق
+        // لغرض الاختبار، سنفترض إجابة صحيحة ونعطيها للفريق الحالي
+        setTimeout(() => this.assignCellToTeam(cell), 500);
+    }
+    
+    // 6. تعيين الخلية للفريق
+    assignCellToTeam(cell) {
+        const teamTexture = this.currentPlayer === 1 ? 'hex_team1' : 'hex_team2';
+        const teamColor = this.currentPlayer === 1 ? '#FFFFFF' : '#FFFFFF'; 
+
+        cell.setTexture(teamTexture);
+        cell.getData('textObject').setColor(teamColor);
+        cell.setData('state', `team${this.currentPlayer}`);
+        
+        this.updateScore();
+        this.switchTurn();
+    }
+    
+    // 7. تحديث النقاط (للتجربة)
+    updateScore() {
+        // هذه وظيفة تجريبية بسيطة تزيد النقاط عشوائياً عند التعيين
+        this.score[`team${this.currentPlayer}`] += 1; 
+        
+        this.score1Text.setText(`النقاط: ${this.score.team1}`);
+        this.score2Text.setText(`النقاط: ${this.score.team2}`);
+        
+        this.sound.play('correct_answer', { volume: 0.5 });
+    }
+    
+    // 8. تبديل الدور
+    switchTurn() {
+        this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+        this.updateTurnIndicator(this.currentPlayer);
+    }
+
+    // 9. تحديث مؤشر الدور
+    updateTurnIndicator(player) {
+        if (player === 1) {
+            this.turnIndicatorLeft.setAlpha(1);
+            this.turnIndicatorRight.setAlpha(0.3);
+            this.team1Text.setColor('#FFFFFF');
+            this.team2Text.setColor('#FFD700');
+        } else {
+            this.turnIndicatorLeft.setAlpha(0.3);
+            this.turnIndicatorRight.setAlpha(1);
+            this.team1Text.setColor('#FFD700');
+            this.team2Text.setColor('#FFFFFF');
+        }
+    }
+    
+    // 10. وظيفة التحديث (إذا لزم الأمر)
+    update() {
+        // المنطق الذي يتم تنفيذه في كل إطار (Frame)
+    }
+}
+
+// تهيئة Phaser
+const config = {
+    type: Phaser.AUTO,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
+    parent: 'game-container', // تأكد من أن هذا يتطابق مع معرف DIV في index.html
+    scene: MainScene,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            debug: false
+        }
+    },
+    // إعدادات الخط الافتراضي لدعم الخطوط العربية
+    callbacks: {
+        postBoot: function (game) {
+            game.canvas.style.fontFamily = 'Neo Sans Arabic, Arial';
+        }
+    }
 };
 
-// ===================================================
-// وظائف دورة حياة Phaser
-// ===================================================
-
-function preload() {
-    currentScene = this; 
-    
-    // تحميل الخلفية
-    this.load.image('background', 'assets/images/background.png');
-    
-    // تحميل ملفات الصوت (6 ملفات موجودة)
-    this.load.audio('ui_click', 'assets/audio/ui_click.mp3');
-    this.load.audio('winning', 'assets/audio/Winning.mp3');
-    this.load.audio('Beginning_game', 'assets/audio/Beginning_game.mp3'); 
-    this.load.audio('Flip_letter', 'assets/audio/Flip_letter.mp3');
-    this.load.audio('correct_answer', 'assets/audio/correct_answer.mp3');
-    this.load.audio('wrong_answer', 'assets/audio/wrong_answer.mp3');
-
-    // تحميل أصول الخلايا السداسية والواجهة (الملفات الموجودة فقط)
-    this.load.image('hex_cell_default', 'assets/images/hex_cell_default.png');
-    this.load.image('hex_cell_team1', 'assets/images/hex_cell_team1.png'); 
-    this.load.image('hex_cell_team2', 'assets/images/hex_cell_team2.png'); 
-    this.load.image('hex_cell_selected', 'assets/images/hex_cell_selected.png'); 
-    this.load.image('logo', 'assets/images/logo.png');
-    this.load.image('turn_indicator_arrow_to_left', 'assets/images/turn_indicator_arrow_to_left.png');
-    this.load.image('turn_indicator_arrow_to_right', 'assets/images/turn_indicator_arrow_to_right.png');
-    this.load.image('ui_button_award_team1', 'assets/images/ui_button_award_team1.png'); 
-    this.load.image('ui_button_award_team2', 'assets/images/ui_button_award_team2.png');
-    this.load.image('ui_button_show_answer', 'assets/images/ui_button_show_answer.png');
-    this.load.image('connector_red_vertical_left', 'assets/images/connector_red_vertical_left.png');
-    this.load.image('connector_red_vertical_right', 'assets/images/connector_red_vertical_right.png');
-    this.load.image('connector_green_horizontal_upper', 'assets/images/connector_green_horizontal_upper.png');
-    this.load.image('connector_green_horizontal_down', 'assets/images/connector_green_horizontal_down.png');
-
-    // تحميل ملفات الأسئلة (JSON)
-    QUESTION_FILES.forEach(fileName => {
-        this.load.json(fileName, `data/questions/${fileName}.json`);
-    });
-}
-
-function create() {
-    // 1. تثبيت الأبعاد النهائية للشاشة
-    this.game.scale.resize(1280, 720); 
-
-    // 2. وضع الخلفية
-    const centerX = this.game.config.width / 2;
-    const centerY = this.game.config.height / 2;
-    this.add.image(centerX, centerY, 'background').setDisplaySize(this.game.config.width, this.game.config.height);
-
-    // 2.5 معالجة بيانات الأسئلة
-    // نقوم بتخزين الأسئلة بحيث يكون مفتاح كل مجموعة هو الحرف ('أ', 'ب', ...)
-    QUESTION_FILES.forEach(fileName => {
-        const data = this.cache.json.get(fileName);
-        if (data && data.letter) {
-            allQuestions[data.letter] = data.questions;
-        } else {
-            console.warn(`Failed to load or process questions for ${fileName}.`);
-        }
-    });
-
-    // ===================================================
-    // 3. بناء واجهة المستخدم وشريط النقاط (استخدام الرسم المباشر لخلفية Scoreboard)
-    // ===================================================
-    
-    const scene = this;
-    const gameWidth = scene.game.config.width;
-    const padding = 50;
-    const scoreboardY = 50;
-    
-    // خلفية شريط النقاط (مستطيل أسود مرسوم مباشرة بدلاً من الصورة المفقودة)
-    const scoreboardBG = scene.add.rectangle(gameWidth / 2, scoreboardY, gameWidth - 100, 100, 0x000000, 0.9); // 0x000000 = أسود
-
-    // عرض اللوجو
-    const logoImage = scene.add.image(gameWidth / 2, scoreboardY, 'logo');
-    logoImage.setDisplaySize(300, 80); 
-
-    // تصميم النص العربي 
-    const textStyle = { 
-        fontFamily: 'Cairo', 
-        fontSize: '24px', 
-        color: '#ffffff',
-        rtl: true
-    };
-
-    // نص الفريق الأول وموقعه
-    const team1X = padding + 150;
-    const team1Text = scene.add.text(team1X, scoreboardY - 10, 'الفريق الأول', textStyle).setOrigin(0.5);
-    const score1Text = scene.add.text(team1X, scoreboardY + 20, 'النقاط: 0', textStyle).setOrigin(0.5).setFontSize(18);
-
-    // نص الفريق الثاني وموقعه
-    const team2X = gameWidth - padding - 150;
-    const team2Text = scene.add.text(team2X, scoreboardY - 10, 'الفريق الثاني', textStyle).setOrigin(0.5);
-    const score2Text = scene.add.text(team2X, scoreboardY + 20, 'النقاط: 0', textStyle).setOrigin(0.5).setFontSize(18);
-
-    // مؤشر الدور (السهم)
-    const arrowLeft = scene.add.image(team1X - 80, scoreboardY, 'turn_indicator_arrow_to_left').setDisplaySize(64, 64);
-    const arrowRight = scene.add.image(team2X + 80, scoreboardY, 'turn_indicator_arrow_to_right').setDisplaySize(64, 64);
-    
-    // وظيفة بسيطة لتحديث المؤشر البصري 
-    turnManager.onTurnChange = (player) => {
-        if (player === 1) {
-            arrowLeft.setVisible(true);
-            arrowRight.setVisible(false);
-            team1Text.setColor('#ffcc00'); 
-            team2Text.setColor('#ffffff');
-        } else {
-            arrowLeft.setVisible(false);
-            arrowRight.setVisible(true);
-            team1Text.setColor('#ffffff');
-            team2Text.setColor('#ffcc00');
-        }
-    };
-    
-    // تطبيق الحالة الأولية للدور (الفريق 1 يبدأ)
-    turnManager.onTurnChange(turnManager.getCurrentPlayer()); 
-    
-    // حفظ نصوص النقاط لتحديثها لاحقاً
-    scene.data.set('scoreTexts', { 1: score1Text, 2: score2Text });
-
-    // 4. استدعاء دالة بناء شبكة الهيكساجون 
-    buildHexGrid.call(this); 
-
-    console.log("Game Created. Scoreboard & Hex Grid Loaded.");
-}
-
-function update() {
-    // تُستخدم للحركة والتحقق المستمر إذا لزم الأمر
-}
-
-// ===================================================
-// وظيفة معالجة النقر على الخلية
-// ===================================================
-
-function handleHexClick(cellData) {
-    // هذه الدالة سيتم تطويرها لتظهر شاشة السؤال
-    console.log(`Hex clicked at R${cellData.row}, C${cellData.col}. Content: ${cellData.content}`);
-    
-    if (cellData.state === 'default') {
-        // مؤقتاً: نقوم بتلوين الخلية باللون الحالي للفريق
-        const player = turnManager.getCurrentPlayer();
-        const texture = (player === 1) ? 'hex_cell_team1' : 'hex_cell_team2';
-        
-        cellData.image.setTexture(texture);
-        cellData.state = (player === 1) ? 'team1' : 'team2';
-
-        // نبدل الدور مؤقتاً لغرض التجربة البصرية فقط
-        turnManager.switchTurn(); 
-    }
-}
-
-
-// ===================================================
-// وظيفة بناء الشبكة السداسية
-// ===================================
-function buildHexGrid() {
-    const scene = this;
-    const gridData = [];
-    
-    // الأبعاد المعتمدة: (5x5 Grid)
-    const HEX_WIDTH = 138;
-    const HEX_HEIGHT = 160;
-    
-    // منطقة بدء الشبكة (تعديل طفيف لتوسيطها تحت شريط النقاط)
-    const startX = 350; // تم تعديلها لتوسيط شبكة 5x5 على عرض 1280
-    const startY = 200;
-
-    const ROWS = 5;
-    const COLS = 5;
-
-    // الحروف/الأرقام الأولية (يجب أن تتطابق مع مفاتيح ملفات JSON المحملة)
-    const initialContent = ['أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه']; // 25 حرف لـ 5x5
-    let contentIndex = 0;
-
-    for (let row = 0; row < ROWS; row++) {
-        for (let col = 0; col < COLS; col++) {
-            
-            // حساب الإزاحة للصفوف الفردية (للرص المتلاصق)
-            const xOffset = (row % 2 === 1) ? HEX_WIDTH / 2 : 0;
-            
-            // حساب موقع الخلية
-            const x = startX + col * HEX_WIDTH + xOffset;
-            const y = startY + row * (HEX_HEIGHT * 0.75); // 0.75 لتقليل التداخل العمودي
-
-            // 1. إنشاء الخلية السداسية (الصورة)
-            const hexImage = scene.add.image(x, y, 'hex_cell_default').setInteractive();
-            hexImage.setDisplaySize(HEX_WIDTH, HEX_HEIGHT);
-            
-            // 2. إنشاء النص العربي داخل الخلية
-            const letter = initialContent[contentIndex++];
-
-            // تحقق بسيط للتأكد من أن الحرف موجود في بيانات الأسئلة
-            const textColor = allQuestions[letter] ? '#111111' : '#dc3545'; 
-
-            const hexText = scene.add.text(x, y, letter, {
-                fontFamily: 'Cairo',
-                fontSize: '32px',
-                color: textColor, // استخدم اللون للتنبيه إذا كان الحرف مفقوداً
-                rtl: true
-            }).setOrigin(0.5);
-
-            // 3. تخزين بيانات الخلية
-            const cellData = {
-                row: row,
-                col: col,
-                content: letter,
-                state: 'default', // 'default', 'team1', 'team2'
-                image: hexImage,
-                text: hexText
-            };
-            gridData.push(cellData);
-
-            // 4. تفعيل حدث النقر (يرتبط بالدالة handleHexClick المعرفة أعلاه)
-            hexImage.on('pointerdown', () => {
-                // تأكد أن الخلية غير مستخدمة وأن هناك أسئلة للحرف قبل النقر
-                if (cellData.state === 'default' && allQuestions[letter]) { 
-                    scene.sound.play('ui_click');
-                    handleHexClick.call(scene, cellData);
-                }
-            });
-        }
-    }
-
-    // حفظ الشبكة للاستخدام لاحقاً (لمنطق الفوز)
-    scene.data.set('hexGrid', gridData);
-}
+new Phaser.Game(config);
