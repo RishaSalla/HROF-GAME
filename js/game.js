@@ -1,9 +1,18 @@
-// js/game.js - الكود 19 (التجميع النهائي)
+// js/game.js - الكود 21 (التنقية والتشغيل النهائي)
 
 // تعريف المتغيرات العامة اللازمة لاستدعائها من ملفات أخرى
 let globalGameConfig = {};
 let gameInstance = null;
 let currentScene = null;
+let allQuestions = {}; // متغير لتخزين جميع بيانات الأسئلة
+
+// قائمة بأسماء ملفات الأسئلة المرقمة (لتجنب الخطأ في العد)
+const QUESTION_FILES = [
+    '01alif', '02ba', '03ta', '04tha', '05jeem', '06haa', '07khaa', '08dal', '09dhal', '10ra', 
+    '11zay', '12seen', '13sheen', '14sad', '15dad', '16ta_a', '17zha', '18ain', '19ghain', '20fa', 
+    '21qaf', '22kaf', '23lam', '24meem', '25noon', '26ha_a', '27waw', '28ya'
+];
+
 
 // تعريف دالة startGame التي يتم استدعاؤها من security.js بعد التحقق من الكود
 startGame = function(config) {
@@ -50,14 +59,12 @@ function preload() {
     this.load.audio('correct_answer', 'assets/audio/correct_answer.mp3');
     this.load.audio('wrong_answer', 'assets/audio/wrong_answer.mp3');
 
-    // تحميل أصول الخلايا السداسية (Hex Cells)
+    // تحميل أصول الخلايا السداسية والواجهة (الملفات الموجودة فقط)
     this.load.image('hex_cell_default', 'assets/images/hex_cell_default.png');
     this.load.image('hex_cell_team1', 'assets/images/hex_cell_team1.png'); 
     this.load.image('hex_cell_team2', 'assets/images/hex_cell_team2.png'); 
     this.load.image('hex_cell_selected', 'assets/images/hex_cell_selected.png'); 
-
-    // تحميل المؤشرات والأزرار والموصلات (الملفات الموجودة فقط)
-    this.load.image('logo', 'assets/images/logo.png'); // اللوجو موجود
+    this.load.image('logo', 'assets/images/logo.png');
     this.load.image('turn_indicator_arrow_to_left', 'assets/images/turn_indicator_arrow_to_left.png');
     this.load.image('turn_indicator_arrow_to_right', 'assets/images/turn_indicator_arrow_to_right.png');
     this.load.image('ui_button_award_team1', 'assets/images/ui_button_award_team1.png'); 
@@ -67,104 +74,12 @@ function preload() {
     this.load.image('connector_red_vertical_right', 'assets/images/connector_red_vertical_right.png');
     this.load.image('connector_green_horizontal_upper', 'assets/images/connector_green_horizontal_upper.png');
     this.load.image('connector_green_horizontal_down', 'assets/images/connector_green_horizontal_down.png');
-    
-    // تم إزالة تحميل 'ui_scoreboard_bg.png' و 'logo.png' من هنا لضمان عدم فشل التحميل
+
+    // تحميل ملفات الأسئلة (JSON)
+    QUESTION_FILES.forEach(fileName => {
+        this.load.json(fileName, `data/questions/${fileName}.json`);
+    });
 }
-
-// ===================================================
-// وظيفة معالجة النقر على الخلية (تبقى كما هي)
-// ===================================================
-
-function handleHexClick(cellData) {
-    // هذه الدالة سيتم تطويرها لتظهر شاشة السؤال
-    console.log(`Hex clicked at R${cellData.row}, C${cellData.col}. Content: ${cellData.content}`);
-    
-    if (cellData.state === 'default') {
-        // مؤقتاً: نقوم بتلوين الخلية باللون الحالي للفريق
-        const player = turnManager.getCurrentPlayer();
-        const texture = (player === 1) ? 'hex_cell_team1' : 'hex_cell_team2';
-        
-        cellData.image.setTexture(texture);
-        cellData.state = (player === 1) ? 'team1' : 'team2';
-
-        // نبدل الدور مؤقتاً لغرض التجربة البصرية فقط
-        turnManager.switchTurn(); 
-    }
-}
-
-
-// ===================================================
-// وظيفة بناء الشبكة السداسية (تبقى كما هي)
-// ===================================================
-
-function buildHexGrid() {
-    const scene = this;
-    const gridData = [];
-    
-    // الأبعاد المعتمدة: (5x5 Grid)
-    const HEX_WIDTH = 138;
-    const HEX_HEIGHT = 160;
-    
-    // منطقة بدء الشبكة (تعديل طفيف لتوسيطها تحت شريط النقاط)
-    const startX = 350; 
-    const startY = 200;
-
-    const ROWS = 5;
-    const COLS = 5;
-
-    // الحروف/الأرقام الأولية (سيتم استخدامها لحين تحميل بيانات الأسئلة)
-    const initialContent = ['أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه']; // 25 حرف لـ 5x5
-    let contentIndex = 0;
-
-    for (let row = 0; row < ROWS; row++) {
-        for (let col = 0; col < COLS; col++) {
-            
-            // حساب الإزاحة للصفوف الفردية (للرص المتلاصق)
-            const xOffset = (row % 2 === 1) ? HEX_WIDTH / 2 : 0;
-            
-            // حساب موقع الخلية
-            const x = startX + col * HEX_WIDTH + xOffset;
-            const y = startY + row * (HEX_HEIGHT * 0.75); // 0.75 لتقليل التداخل العمودي
-
-            // 1. إنشاء الخلية السداسية (الصورة)
-            const hexImage = scene.add.image(x, y, 'hex_cell_default').setInteractive();
-            hexImage.setDisplaySize(HEX_WIDTH, HEX_HEIGHT);
-            
-            // 2. إنشاء النص العربي داخل الخلية
-            const letter = initialContent[contentIndex++];
-            const hexText = scene.add.text(x, y, letter, {
-                fontFamily: 'Cairo',
-                fontSize: '32px',
-                color: '#111111', 
-                rtl: true
-            }).setOrigin(0.5);
-
-            // 3. تخزين بيانات الخلية
-            const cellData = {
-                row: row,
-                col: col,
-                content: letter,
-                state: 'default', // 'default', 'team1', 'team2'
-                image: hexImage,
-                text: hexText
-            };
-            gridData.push(cellData);
-
-            // 4. تفعيل حدث النقر (يرتبط بالدالة handleHexClick المعرفة أعلاه)
-            hexImage.on('pointerdown', () => {
-                handleHexClick.call(scene, cellData);
-            });
-        }
-    }
-
-    // حفظ الشبكة للاستخدام لاحقاً (لمنطق الفوز)
-    scene.data.set('hexGrid', gridData);
-}
-
-
-// ===================================================
-// دالة Create (تجميع المكونات)
-// ===================================================
 
 function create() {
     // 1. تثبيت الأبعاد النهائية للشاشة
@@ -174,6 +89,16 @@ function create() {
     const centerX = this.game.config.width / 2;
     const centerY = this.game.config.height / 2;
     this.add.image(centerX, centerY, 'background').setDisplaySize(this.game.config.width, this.game.config.height);
+
+    // 2.5 معالجة بيانات الأسئلة
+    QUESTION_FILES.forEach(fileName => {
+        const data = this.cache.json.get(fileName);
+        if (data) {
+            allQuestions[data.letter] = data.questions;
+        } else {
+            console.warn(`Failed to load questions for ${fileName}. Ensure file exists and is valid JSON.`);
+        }
+    });
 
     // ===================================================
     // 3. بناء واجهة المستخدم وشريط النقاط (الرسم المباشر لخلفية Scoreboard)
@@ -242,4 +167,95 @@ function create() {
 
 function update() {
     // تُستخدم للحركة والتحقق المستمر إذا لزم الأمر
+}
+
+// ... (handleHexClick و buildHexGrid تبقى كما هي) ...
+
+// ===================================================
+// وظيفة معالجة النقر على الخلية
+// ===================================================
+
+function handleHexClick(cellData) {
+    // هذه الدالة سيتم تطويرها لتظهر شاشة السؤال
+    console.log(`Hex clicked at R${cellData.row}, C${cellData.col}. Content: ${cellData.content}`);
+    
+    if (cellData.state === 'default') {
+        // مؤقتاً: نقوم بتلوين الخلية باللون الحالي للفريق
+        const player = turnManager.getCurrentPlayer();
+        const texture = (player === 1) ? 'hex_cell_team1' : 'hex_cell_team2';
+        
+        cellData.image.setTexture(texture);
+        cellData.state = (player === 1) ? 'team1' : 'team2';
+
+        // نبدل الدور مؤقتاً لغرض التجربة البصرية فقط
+        turnManager.switchTurn(); 
+    }
+}
+
+
+// ===================================================
+// وظيفة بناء الشبكة السداسية
+// ===================================
+function buildHexGrid() {
+    const scene = this;
+    const gridData = [];
+    
+    // الأبعاد المعتمدة: (5x5 Grid)
+    const HEX_WIDTH = 138;
+    const HEX_HEIGHT = 160;
+    
+    // منطقة بدء الشبكة (تعديل طفيف لتوسيطها تحت شريط النقاط)
+    const startX = 350; // تم تعديلها لتوسيط شبكة 5x5 على عرض 1280
+    const startY = 200;
+
+    const ROWS = 5;
+    const COLS = 5;
+
+    // الحروف/الأرقام الأولية (سيتم استخدامها لحين تحميل بيانات الأسئلة)
+    const initialContent = ['أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه']; // 25 حرف لـ 5x5
+    let contentIndex = 0;
+
+    for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
+            
+            // حساب الإزاحة للصفوف الفردية (للرص المتلاصق)
+            const xOffset = (row % 2 === 1) ? HEX_WIDTH / 2 : 0;
+            
+            // حساب موقع الخلية
+            const x = startX + col * HEX_WIDTH + xOffset;
+            const y = startY + row * (HEX_HEIGHT * 0.75); // 0.75 لتقليل التداخل العمودي
+
+            // 1. إنشاء الخلية السداسية (الصورة)
+            const hexImage = scene.add.image(x, y, 'hex_cell_default').setInteractive();
+            hexImage.setDisplaySize(HEX_WIDTH, HEX_HEIGHT);
+            
+            // 2. إنشاء النص العربي داخل الخلية
+            const letter = initialContent[contentIndex++];
+            const hexText = scene.add.text(x, y, letter, {
+                fontFamily: 'Cairo',
+                fontSize: '32px',
+                color: '#111111', 
+                rtl: true
+            }).setOrigin(0.5);
+
+            // 3. تخزين بيانات الخلية
+            const cellData = {
+                row: row,
+                col: col,
+                content: letter,
+                state: 'default', // 'default', 'team1', 'team2'
+                image: hexImage,
+                text: hexText
+            };
+            gridData.push(cellData);
+
+            // 4. تفعيل حدث النقر (يرتبط بالدالة handleHexClick المعرفة أعلاه)
+            hexImage.on('pointerdown', () => {
+                handleHexClick.call(scene, cellData);
+            });
+        }
+    }
+
+    // حفظ الشبكة للاستخدام لاحقاً (لمنطق الفوز)
+    scene.data.set('hexGrid', gridData);
 }
