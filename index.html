@@ -1,1 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HROF-GAME</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-mode"> <div id="rotate-device-overlay">
+        <p>لتجربة لعب أفضل، الرجاء تدوير جهازك</p>
+    </div>
 
+    <main id="security-screen" class="screen active">
+        <div class="login-container">
+            <img src="assets/images/logo.hrof.png" alt="Logo" class="login-logo">
+            <label for="game-code-input">أدخل كود اللعبة</label>
+            <input type="password" id="game-code-input" placeholder="********">
+            <button id="login-button">دخول</button>
+            <p id="login-error-message"></p> </div>
+    </main>
+
+    <div id="main-menu-screen" class="screen">
+        <h2>إعدادات اللعبة</h2>
+        
+        <div class="setting-group">
+            <h3>نوع اللعب:</h3>
+            <button class="setting-button active" data-setting="mode" data-value="turns">أدوار</button>
+            <button class="setting-button" data-setting="mode" data-value="competitive">تنافسي</button>
+        </div>
+
+        <div class="setting-group">
+            <h3>الفرق:</h3>
+            <button class="setting-button active" data-setting="teams" data-value="2p">لاعبين فقط</button>
+            <button class="setting-button" data-setting="teams" data-value="full">فرق (لاعبين أو أكثر)</button>
+        </div>
+
+        <div class="setting-group">
+            <h3>المؤقت:</h3>
+            <button class="setting-button active" data-setting="timer" data-value="off">إيقاف</button>
+            <button class="setting-button" data-setting="timer" data-value="on">تشغيل</button>
+        </div>
+
+        <button id="start-game-button" class="start-button">ابدأ اللعبة</button>
+        <button id="instructions-button">التعليمات</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <header class="game-header">
+            <div id="team-purple-scoreboard" class="scoreboard-container left">
+                <span class="score" id="purple-score">0</span>
+                <span class="team-name">الفريق البنفسجي</span>
+            </div>
+            <div id="turn-indicator-left" class="turn-indicator"></div>
+            
+            <img src="assets/images/logo.hrof.png" alt="HROF Logo" class="game-logo">
+            
+            <div id="turn-indicator-right" class="turn-indicator"></div>
+            <div id="team-red-scoreboard" class="scoreboard-container right">
+                <span class="team-name">الفريق الأحمر</span>
+                <span class="score" id="red-score">0</span>
+            </div>
+        </header>
+
+        <div id="game-board-container">
+            </div>
+
+        <div class="game-controls">
+            <button id="exit-game-button">الخروج للقائمة</button>
+            <button id="toggle-theme-button">تبديل الوضع (فاتح)</button>
+        </div>
+
+        <div id="question-modal-overlay">
+            <div class="modal-content">
+                <h3 id="question-text">نص السؤال سيظهر هنا...</h3>
+                <button id="show-answer-button">أظهر الإجابة</button>
+                
+                <div id="answer-reveal-section">
+                    <p id="answer-text">نص الجواب سيظهر هنا...</p>
+                    <h4>من الذي حصل على الإجابة؟</h4>
+                    <div class="team-choice-buttons">
+                        <button id="team-purple-win-button"></button>
+                        <button id="team-red-win-button"></button>
+                        <button id="skip-question-button">تخطي</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="js/security.js" type="module"></script>
+    <script src="js/turn_manager.js" type="module"></script>
+    <script src="js/game.js" type="module"></script>
+</body>
+</html>
