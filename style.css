@@ -137,3 +137,59 @@ body.light-mode {
         display: flex;
     }
 }
+
+/* ===== 6. تصميم القائمة الرئيسية (Main Menu) ===== */
+#main-menu-screen h2 {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    border-bottom: 3px solid var(--color-yellow);
+}
+
+.setting-group {
+    margin-bottom: 25px;
+}
+
+.setting-group h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.setting-button {
+    font-family: var(--font-primary);
+    font-size: 1.1rem;
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: 2px solid var(--color-grey);
+    background-color: transparent;
+    color: var(--color-grey);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* هذا هو تنسيق الزر النشط */
+.setting-button.active {
+    background-color: var(--color-yellow);
+    color: var(--color-dark-bg);
+    border-color: var(--color-yellow);
+    transform: scale(1.1);
+}
+
+.start-button {
+    font-family: var(--font-primary);
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 15px 40px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--color-purple);
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.start-button:hover {
+    transform: scale(1.05);
+}
