@@ -268,3 +268,168 @@ body.light-mode {
     filter: brightness(1.2);
     cursor: pointer;
 }
+
+/* ===== 8. تصميم هيدر اللعبة (Scoreboards & Logo) ===== */
+.game-header {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 90%;
+    margin-top: 20px;
+    position: relative;
+    z-index: 10;
+}
+
+.scoreboard-container {
+    width: 250px; /* يمكنك تعديل الحجم حسب صورة scoreboard.png */
+    height: 120px; /* يمكنك تعديل الحجم */
+    background-image: url('../assets/images/scoreboard.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.scoreboard-container.left {
+    text-align: left;
+}
+.scoreboard-container.right {
+    text-align: right;
+}
+
+.team-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+.score {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--color-yellow);
+}
+
+.game-logo {
+    width: 120px;
+}
+
+.turn-indicator {
+    width: 50px;
+    height: 50px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: all 0.3s ease;
+    opacity: 0.3; /* مطفأ افتراضياً */
+}
+
+/* (مؤقتاً) تطبيق الصور لمؤشر الدور */
+#turn-indicator-left {
+    background-image: url('../assets/images/turn.indicator.to.left.png');
+}
+#turn-indicator-right {
+    background-image: url('../assets/images/turn.indicator.to.right.png');
+}
+
+/* كلاس سيتم إضافته بالجافاسكريبت لاحقاً */
+.turn-indicator.active {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px var(--color-yellow));
+    transform: scale(1.1);
+}
+
+
+/* ===== 9. تصميم نافذة السؤال المنبثقة (Modal) ===== */
+#question-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7); /* تعتيم الخلفية */
+    display: none; /* مخفي افتراضياً */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--color-light-bg);
+    color: var(--color-dark-bg);
+    padding: 30px;
+    border-radius: 15px;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
+
+#question-text {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+}
+
+#show-answer-button {
+    font-family: var(--font-primary);
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    background-image: url('../assets/images/ui.button.show.answer.png');
+    background-size: 100% 100%;
+    border: none;
+    background-color: transparent;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    min-height: 50px; /* لضمان ظهور الخلفية */
+    width: 200px; /* لضمان ظهور الخلفية */
+}
+
+#answer-reveal-section {
+    display: none; /* مخفي افتراضياً */
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid var(--color-grey);
+}
+
+#answer-text {
+    font-size: 1.5rem;
+    color: var(--color-purple);
+    font-weight: bold;
+}
+
+#answer-reveal-section h4 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.team-choice-buttons button {
+    font-family: var(--font-primary);
+    border: none;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    width: 150px;
+    height: 60px;
+    cursor: pointer;
+    margin: 0 10px;
+}
+
+#team-purple-win-button {
+    background-image: url('../assets/images/ui.purple.team.png');
+}
+#team-red-win-button {
+    background-image: url('../assets/images/ui.red.team.png');
+}
+#skip-question-button {
+    /* (مؤقتاً) سنستخدم تصميم زر عادي */
+    background-image: none;
+    background-color: var(--color-grey);
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+}
