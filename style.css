@@ -1,5 +1,5 @@
 /* ================================
-   1. إعدادات عامة (Global)
+    1. إعدادات عامة (Global)
 ================================ */
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
@@ -50,7 +50,7 @@ body.light-mode {
 }
 
 /* ================================
-   2. نظام إدارة الشاشات (Screens)
+    2. نظام إدارة الشاشات (Screens)
 ================================ */
 .screen {
     display: none;
@@ -65,7 +65,7 @@ body.light-mode {
 }
 
 /* ================================
-   3. شاشة الدخول (Login)
+    3. شاشة الدخول (Login)
 ================================ */
 .login-container {
     display: flex;
@@ -126,7 +126,7 @@ body.light-mode {
 }
 
 /* ================================
-   4. اهتزاز (Shake Animation)
+    4. اهتزاز (Shake Animation)
 ================================ */
 .shake-animation {
     animation: shake 0.5s ease;
@@ -138,7 +138,7 @@ body.light-mode {
 }
 
 /* ================================
-   5. شاشة تدوير الجهاز (Rotate Overlay)
+    5. شاشة تدوير الجهاز (Rotate Overlay)
 ================================ */
 #rotate-device-overlay {
     display: none;
@@ -161,7 +161,7 @@ body.light-mode {
 }
 
 /* ================================
-   6. القائمة الرئيسية (Main Menu)
+    6. القائمة الرئيسية (Main Menu)
 ================================ */
 #main-menu-screen h2 {
     font-size: 2.5rem;
@@ -208,15 +208,15 @@ body.light-mode {
 .start-button:hover { transform: scale(1.05); }
 
 /* ================================
-   7. لوحة اللعبة (Game Board)
+    7. لوحة اللعبة (Game Board)
 ================================ */
 #game-board-container {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
+    /* (ملاحظة: تم حذف 'flex-wrap: wrap' من الكود الأصلي لأنه غير ضروري ويسبب مشاكل) */
     justify-content: center;
-    align-items: flex-start;
-    margin-top: 20px; /* تحت اللوغو */
+    align-items: flex-start; /* (تم التعديل من 'center' لضمان محاذاة الأعمدة بشكل صحيح) */
+    margin-top: -30px; /* (تم التعديل من 20px لتقريب اللوحة من الهيدر) */
 }
 
 .hex-column {
@@ -254,7 +254,7 @@ body.light-mode {
 }
 
 /* ================================
-   8. هيدر اللعبة (Scoreboards & Logo)
+    8. هيدر اللعبة (Scoreboards & Logo)
 ================================ */
 .game-header {
     display: flex;
@@ -310,7 +310,7 @@ body.light-mode {
 #turn-indicator-right { background-image: url('assets/images/turn.indicator.to.right.png'); }
 
 /* ================================
-   9. نافذة السؤال (Modal)
+    9. نافذة السؤال (Modal)
 ================================ */
 #question-modal-overlay {
     position: fixed;
@@ -376,7 +376,7 @@ body.light-mode {
 }
 
 /* ================================
-   10. الحروف داخل الخلايا
+    10. الحروف داخل الخلايا
 ================================ */
 .hex-letter {
     font-size:2rem;
@@ -390,7 +390,7 @@ body.light-mode {
 }
 
 /* ================================
-   11. الخلايا المملوكة (Owned Cells)
+    11. الخلايا المملوكة (Owned Cells)
 ================================ */
 .hex-cell-purple-owned,
 .hex-cell-red-owned { background-image:none !important; }
@@ -400,7 +400,7 @@ body.light-mode {
 .hex-cell-red-owned .hex-letter { color:white; text-shadow:1px 1px 2px rgba(0,0,0,0.5); }
 
 /* ================================
-   12. شاشة الفوز بالجولة
+    12. شاشة الفوز بالجولة
 ================================ */
 #round-win-overlay {
     position: fixed;
@@ -434,7 +434,7 @@ body.light-mode {
 #next-round-button:hover { transform: scale(1.05); }
 
 /* ================================
-   13. أزرار التحكم باللعبة
+    13. أزرار التحكم باللعبة
 ================================ */
 .game-controls {
     position: fixed;
