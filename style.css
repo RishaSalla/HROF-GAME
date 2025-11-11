@@ -20,15 +20,26 @@ body {
     overflow: hidden; /* إخفاء أي 'scrollbars' */
     color: var(--color-text-dark);
     transition: background-color 0.3s ease;
+    
+    /* (جديد) إعدادات الخلفية العامة */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* ضمان أن المحتوى يملأ الشاشة */
+    height: 100vh;
 }
 
-/* نظام تبديل الأوضاع (فاتح/غامق) */
+/* (تم التعديل) 
+  نظام تبديل الأوضاع (فاتح/غامق) مع الخلفيات 
+*/
 body.dark-mode {
-    background-color: var(--color-dark-bg);
+    background-color: var(--color-dark-bg); /* لون احتياطي */
+    background-image: url('assets/images/background.dark.png');
     color: var(--color-text-dark);
 }
 body.light-mode {
-    background-color: var(--color-light-bg);
+    background-color: var(--color-light-bg); /* لون احتياطي */
+    background-image: url('assets/images/background.light.png');
     color: var(--color-text-light);
 }
 
@@ -46,7 +57,9 @@ body.light-mode {
     display: flex; /* إظهار الشاشة 'النشطة' فقط */
 }
 
-/* ===== 3. تصميم شاشة الدخول (Security Screen) ===== */
+/* (تم التعديل) 
+  تصميم شاشة الدخول (Security Screen)
+*/
 .login-container {
     display: flex;
     flex-direction: column;
@@ -55,6 +68,10 @@ body.light-mode {
     background-color: rgba(0, 0, 0, 0.2);
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    
+    /* (جديد) تحديد عرض لجعلها مضغوطة */
+    max-width: 400px;
+    width: 90%;
 }
 
 .login-logo {
@@ -75,7 +92,8 @@ body.light-mode {
     text-align: center;
     font-size: 1.1rem;
     margin-bottom: 20px;
-    direction: ltr; /* لضمان أن كتابة الباسورد من اليسار */
+    direction: ltr; 
+    width: 80%; /* (جديد) تعديل العرض */
 }
 
 .login-container button {
@@ -89,6 +107,7 @@ body.light-mode {
     color: var(--color-dark-bg);
     cursor: pointer;
     transition: transform 0.2s ease;
+    width: 85%; /* (جديد) تعديل العرض */
 }
 
 .login-container button:hover {
@@ -99,7 +118,7 @@ body.light-mode {
     color: var(--color-red);
     font-weight: bold;
     margin-top: 15px;
-    min-height: 1.2em; /* حجز مساحة لرسالة الخطأ */
+    min-height: 1.2em; 
 }
 
 /* ===== 4. أنيميشن الاهتزاز (Shake Animation) ===== */
@@ -115,7 +134,7 @@ body.light-mode {
 
 /* ===== 5. تصميم شاشة تدوير الجوال (Rotate Overlay) ===== */
 #rotate-device-overlay {
-    display: none; /* مخفي افتراضياً */
+    display: none; 
     position: fixed;
     top: 0;
     left: 0;
@@ -131,7 +150,6 @@ body.light-mode {
     font-size: 1.5rem;
 }
 
-/* سنستخدم Media Query لإظهارها فقط على الجوالات بالوضع الطولي */
 @media screen and (max-width: 768px) and (orientation: portrait) {
     #rotate-device-overlay {
         display: flex;
@@ -168,7 +186,6 @@ body.light-mode {
     transition: all 0.3s ease;
 }
 
-/* هذا هو تنسيق الزر النشط */
 .setting-button.active {
     background-color: var(--color-yellow);
     color: var(--color-dark-bg);
@@ -198,71 +215,58 @@ body.light-mode {
 
 /* تحديد أحجام الخلايا السداسية */
 :root {
-    --hex-width: 90px;  /* عرض الخلية */
-    --hex-height: 104px; /* ارتفاع الخلية (العرض * 1.1547) */
-    
-    /* هذه هي أهم المتغيرات لحل "التلاصق"
-      نستخدم الهوامش السلبية (negative margins) لجعلها تتداخل
-    */
-    --hex-vertical-overlap: -26px;  /* مقدار تداخلها عمودياً */
-    --hex-horizontal-overlap: -13px; /* مقدار تداخلها أفقياً */
-
-    /* مقدار إزاحة الأعمدة الزوجية (نصف الارتفاع) */
-    --hex-vertical-offset: 52px; /* (var(--hex-height) / 2) */
+    --hex-width: 90px;
+    --hex-height: 104px; 
+    --hex-vertical-overlap: -26px;
+    --hex-horizontal-overlap: -13px; 
+    --hex-vertical-offset: 52px; 
 }
 
-/* 1. الحاوية الرئيسية للوحة */
 #game-board-container {
-    display: flex; /* نستخدم flex لترتيب الأعمدة بجانب بعضها */
+    display: flex; 
     justify-content: center;
     align-items: center;
     padding: 20px;
-    margin-top: calc(var(--hex-vertical-offset) * -1); /* سحب اللوحة للأعلى */
+    margin-top: calc(var(--hex-vertical-offset) * -1); 
 }
 
-/* 2. تصميم العمود */
 .hex-column {
     display: flex;
-    flex-direction: column; /* ترتيب الخلايا داخل العمود بشكل عمودي */
-    margin: 0 var(--hex-horizontal-overlap); /* التداخل الأفقي */
+    flex-direction: column; 
+    margin: 0 var(--hex-horizontal-overlap); 
 }
 
-/* 3. إزاحة الأعمدة "الزوجية" (الثاني، الرابع، السادس) */
 .hex-column:nth-child(even) {
-    margin-top: var(--hex-vertical-offset); /* <-- هذا هو سر الترتيب السداسي */
+    margin-top: var(--hex-vertical-offset); 
 }
 
-/* 4. تصميم الخلية السداسية الأساسية */
 .hex-cell {
+    position: relative; /* (مهم) أضفناه في خطوة سابقة */
     width: var(--hex-width);
     height: var(--hex-height);
-    
-    /* استخدام الصور كخلفية */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-
-    /* التداخل العمودي */
     margin-bottom: var(--hex-vertical-overlap); 
-    
     transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-/* 5. تطبيق صور الخلفية لكل نوع خلية */
+/* (تم التعديل) 
+  إصلاح جميع مسارات الصور بإزالة '../'
+*/
 .hex-cell-default {
-    background-image: url('../assets/images/hex.cell.default.png');
+    background-image: url('assets/images/hex.cell.default.png');
 }
 .hex-cell-red {
-    background-image: url('../assets/images/hex.red.png');
+    background-image: url('assets/images/hex.red.png');
 }
 .hex-cell-purple {
-    background-image: url('../assets/images/hex.purple.png');
+    background-image: url('assets/images/hex.purple.png');
 }
 .hex-cell-selected {
-    background-image: url('../assets/images/hex.cell.selected.png');
+    background-image: url('assets/images/hex.cell.selected.png');
 }
 
-/* 6. تأثير بسيط عند التمرير على الخلايا القابلة للعب */
 .hex-cell.playable:hover {
     transform: scale(1.05);
     filter: brightness(1.2);
@@ -281,13 +285,13 @@ body.light-mode {
 }
 
 .scoreboard-container {
-    width: 250px; /* يمكنك تعديل الحجم حسب صورة scoreboard.png */
-    height: 120px; /* يمكنك تعديل الحجم */
-    background-image: url('../assets/images/scoreboard.png');
+    width: 250px; 
+    height: 120px; 
+    /* (تم التعديل) */
+    background-image: url('assets/images/scoreboard.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    
     display: flex;
     align-items: center;
     justify-content: center;
@@ -323,24 +327,22 @@ body.light-mode {
     background-repeat: no-repeat;
     background-position: center;
     transition: all 0.3s ease;
-    opacity: 0.3; /* مطفأ افتراضياً */
+    opacity: 0.3; 
 }
 
-/* (مؤقتاً) تطبيق الصور لمؤشر الدور */
+/* (تم التعديل) */
 #turn-indicator-left {
-    background-image: url('../assets/images/turn.indicator.to.left.png');
+    background-image: url('assets/images/turn.indicator.to.left.png');
 }
 #turn-indicator-right {
-    background-image: url('../assets/images/turn.indicator.to.right.png');
+    background-image: url('assets/images/turn.indicator.to.right.png');
 }
 
-/* كلاس سيتم إضافته بالجافاسكريبت لاحقاً */
 .turn-indicator.active {
     opacity: 1;
     filter: drop-shadow(0 0 10px var(--color-yellow));
     transform: scale(1.1);
 }
-
 
 /* ===== 9. تصميم نافذة السؤال المنبثقة (Modal) ===== */
 #question-modal-overlay {
@@ -349,8 +351,8 @@ body.light-mode {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.7); /* تعتيم الخلفية */
-    display: none; /* مخفي افتراضياً */
+    background-color: rgba(0, 0, 0, 0.7); 
+    display: none; 
     align-items: center;
     justify-content: center;
     z-index: 1000;
@@ -376,19 +378,20 @@ body.light-mode {
     font-family: var(--font-primary);
     font-size: 1.2rem;
     padding: 10px 20px;
-    background-image: url('../assets/images/ui.button.show.answer.png');
+    /* (تم التعديل) */
+    background-image: url('assets/images/ui.button.show.answer.png');
     background-size: 100% 100%;
     border: none;
     background-color: transparent;
     color: white;
     font-weight: bold;
     cursor: pointer;
-    min-height: 50px; /* لضمان ظهور الخلفية */
-    width: 200px; /* لضمان ظهور الخلفية */
+    min-height: 50px; 
+    width: 200px; 
 }
 
 #answer-reveal-section {
-    display: none; /* مخفي افتراضياً */
+    display: none; 
     margin-top: 20px;
     padding-top: 20px;
     border-top: 2px solid var(--color-grey);
@@ -418,14 +421,14 @@ body.light-mode {
     margin: 0 10px;
 }
 
+/* (تم التعديل) */
 #team-purple-win-button {
-    background-image: url('../assets/images/ui.purple.team.png');
+    background-image: url('assets/images/ui.purple.team.png');
 }
 #team-red-win-button {
-    background-image: url('../assets/images/ui.red.team.png');
+    background-image: url('assets/images/ui.red.team.png');
 }
 #skip-question-button {
-    /* (مؤقتاً) سنستخدم تصميم زر عادي */
     background-image: none;
     background-color: var(--color-grey);
     border-radius: 8px;
@@ -436,47 +439,20 @@ body.light-mode {
 
 /* ===== 10. تصميم الحروف داخل الخلايا ===== */
 .hex-letter {
-    font-size: 2rem; /* حجم كبير وواضح */
+    font-size: 2rem; 
     font-weight: bold;
-    color: var(--color-dark-bg); /* لون غامق ليكون واضحاً على الخلفية الرمادية */
-    
-    /* توسيط الحرف داخل الخلية */
+    color: var(--color-dark-bg); 
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    
-    /* منع المستخدم من "تحديد" الحرف بالفأرة */
     user-select: none; 
-    
-    /* ظل خفيف لإبراز الحرف */
     text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
 }
 
-/* (جديد) نحتاج للتأكد أن الخلية 'relative' لكي يعمل التوسيط */
-.hex-cell {
-    /* ... (التنسيقات السابقة كما هي) ... */
-    position: relative; /* <-- إضافة هذا السطر مهم */
-    
-    width: var(--hex-width);
-    height: var(--hex-height);
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    margin-bottom: var(--hex-vertical-overlap); 
-    transition: transform 0.2s ease, filter 0.2s ease;
-}
-
 /* ===== 11. تصميم الخلايا المملوكة (Owned Cells) ===== */
-
-/* هذه الكلاسات الجديدة ستحل محل 'hex-cell-default'
-  وتضمن بقاء الحرف ظاهراً
-*/
 .hex-cell-purple-owned,
 .hex-cell-red-owned {
-    /* نحتاج لوضع !important لضمان أن الخلفية 
-      الجديدة تتفوق على 'hex.cell.default.png'
-    */
     background-image: none !important; 
 }
 
@@ -488,13 +464,10 @@ body.light-mode {
     background-color: var(--color-red);
 }
 
-/* تغيير لون الحرف ليصبح أبيضاً 
-  ليكون واضحاً على الخلفية الملونة
-*/
 .hex-cell-purple-owned .hex-letter,
 .hex-cell-red-owned .hex-letter {
     color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* ظل غامق */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); 
 }
 
 /* ===== 12. تصميم شاشة الفوز بالجولة ===== */
@@ -504,13 +477,13 @@ body.light-mode {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(26, 26, 46, 0.85); /* 85% opacity of dark-bg */
-    display: none; /* مخفي افتراضياً */
+    background-color: rgba(26, 26, 46, 0.85); 
+    display: none; 
     align-items: center;
     justify-content: center;
     flex-direction: column;
     z-index: 2000;
-    backdrop-filter: blur(5px); /* تأثير ضبابي جميل للخلفية */
+    backdrop-filter: blur(5px); 
 }
 
 .win-content {
@@ -546,4 +519,29 @@ body.light-mode {
 
 #next-round-button:hover {
     transform: scale(1.05);
+}
+
+/* (جديد) تصميم أزرار التحكم باللعبة */
+.game-controls {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 500;
+}
+
+.game-controls button {
+    font-family: var(--font-primary);
+    font-size: 0.9rem;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.game-controls button:hover {
+    background-color: rgba(255, 255, 255, 0.4);
 }
