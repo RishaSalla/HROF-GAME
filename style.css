@@ -16,12 +16,12 @@
     --color-grey: #bdc3c7;
     --color-yellow: #f1c40f;
 
-    /* متغيرات الخلايا السداسية */
+    /* (تم التعديل) متغيرات الخلايا السداسية (لتوجيه مدبب الرأس) */
     --hex-width: 90px;
     --hex-height: 104px;
-    --hex-vertical-overlap: -26px;
-    --hex-horizontal-overlap: -22px;
-    --hex-vertical-offset: 52px;
+    --hex-vertical-overlap: -26px;   /* (height * 0.25) بالسالب */
+    --hex-horizontal-overlap: -22px; /* (width * 0.25) بالسالب */
+    --hex-horizontal-offset: 45px; /* (width * 0.5) */
 }
 
 body {
@@ -208,26 +208,27 @@ body.light-mode {
 .start-button:hover { transform: scale(1.05); }
 
 /* ================================
-    7. لوحة اللعبة (Game Board)
+    7. لوحة اللعبة (Game Board) - (تعديل لتوجيه مدبب الرأس)
 ================================ */
 #game-board-container {
     display: flex;
-    flex-direction: row;
-    /* (ملاحظة: تم حذف 'flex-wrap: wrap' من الكود الأصلي لأنه غير ضروري ويسبب مشاكل) */
+    flex-direction: column; /* (تعديل) نرتب الصفوف عمودياً */
     justify-content: center;
-    align-items: flex-start; /* (تم التعديل من 'center' لضمان محاذاة الأعمدة بشكل صحيح) */
-    margin-top: -30px; /* (تم التعديل من 20px لتقريب اللوحة من الهيدر) */
+    align-items: center; /* (تعديل) توسيط الصفوف */
+    margin-top: -30px; /* تقريب اللوحة من الهيدر */
 }
 
-.hex-column {
+/* (جديد) هذا هو الصف الأفقي */
+.hex-row {
     display: flex;
-    flex-direction: column;
-    margin-left: var(--hex-horizontal-overlap);
-    margin-right: var(--hex-horizontal-overlap);
+    flex-direction: row;
+    justify-content: center; /* توسيط الخلايا في الصف */
+    /* (إزالة الهوامش من هنا) */
 }
 
-.hex-column:nth-child(even) {
-    margin-top: var(--hex-vertical-offset);
+/* (تعديل) إزاحة الصفوف "الزوجية" أفقياً */
+.hex-row:nth-child(even) {
+    margin-left: var(--hex-horizontal-offset); 
 }
 
 .hex-cell {
@@ -237,10 +238,20 @@ body.light-mode {
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
+    /* (تعديل) تداخل أفقي بين الخلايا في نفس الصف */
+    margin-left: var(--hex-horizontal-overlap);
+    /* (تعديل) تداخل عمودي بين الصفوف */
     margin-top: var(--hex-vertical-overlap);
     transition: transform 0.2s ease, filter 0.2s ease;
 }
-.hex-column .hex-cell:first-child { margin-top:0; }
+
+/* (تعديل) إصلاح التداخل لأول صف وأول خلية */
+.hex-row:first-child .hex-cell {
+    margin-top: 0;
+}
+.hex-row .hex-cell:first-child { 
+    margin-left: 0; 
+}
 
 .hex-cell-default { background-image: url('assets/images/hex.cell.default.png'); }
 .hex-cell-red { background-image: url('assets/images/hex.red.png'); }
