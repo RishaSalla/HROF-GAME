@@ -46,7 +46,7 @@ let currentQuestion = null;
 let gameActive = true; 
 let scores = { purple: 0, red: 0 };
 
-// --- (تم الإصلاح) قائمة الحروف الأساسية بالأسماء الصحيحة ---
+// --- قائمة الحروف الأساسية ---
 const ALL_LETTERS = [
     { id: '01alif', char: 'أ' }, { id: '02ba', char: 'ب' }, { id: '03ta', char: 'ت' },
     { id: '04tha', char: 'ث' }, { id: '05jeem', char: 'ج' }, { id: '06haa', char: 'ح' },
@@ -60,8 +60,7 @@ const ALL_LETTERS = [
     { id: '28ya', char: 'ي' }
 ];
 
-// --- (جديد) هيكل اللوحة (47 خلية) ---
-// (تم نقله هنا ليصبح متاحاً للوظائف الأخرى)
+// --- هيكل اللوحة (47 خلية) ---
 const BOARD_LAYOUT = [
     ['dark','red','red','red','red','dark'],             // صف 0 (6 خلايا)
     ['purple','default','default','default','default','default','purple'], // صف 1 (7 خلايا)
@@ -127,21 +126,21 @@ function startNewRound() {
     TurnManager.startGame(); 
 }
 
-/** 6. بناء لوحة اللعب (47 خلية حسب طلبك) */
+/** 6. (تم التعديل) بناء لوحة اللعب كـ "صفوف" */
 function initializeGameBoard() {
     gameBoardContainer.innerHTML = '';
     const shuffledLetters = shuffleArray(ALL_LETTERS);
     const gameLetters = shuffledLetters.slice(0, 25);
     let letterIndex = 0;
 
-    // (الكود الذي أرسلته أنت، وهو صحيح)
+    // (تعديل) بناء صفوف بدلاً من أعمدة
     BOARD_LAYOUT.forEach((rowData, r) => {
-        const column = document.createElement('div');
-        column.classList.add('hex-column');
+        const row = document.createElement('div'); // (تعديل)
+        row.classList.add('hex-row'); // (تعديل)
         
         rowData.forEach((cellType, c) => {
             const cell = document.createElement('div');
-            cell.classList.add('hex-cell'); // (إضافة كلاس أساسي)
+            cell.classList.add('hex-cell'); 
             cell.dataset.row = r;
             cell.dataset.col = c;
 
@@ -158,7 +157,6 @@ function initializeGameBoard() {
                 case 'default':
                     cell.classList.add('hex-cell-default','playable');
                     
-                    // التأكد من أن لدينا حروف كافية (25)
                     if (letterIndex < gameLetters.length) {
                         const letter = gameLetters[letterIndex];
                         cell.dataset.letterId = letter.id;
@@ -172,9 +170,9 @@ function initializeGameBoard() {
                     cell.addEventListener('click', handleCellClick);
                     break;
             }
-            column.appendChild(cell);
+            row.appendChild(cell); // (تعديل)
         });
-        gameBoardContainer.appendChild(column);
+        gameBoardContainer.appendChild(row); // (تعديل)
     });
 }
 
@@ -196,7 +194,6 @@ async function handleCellClick(event) {
         answerRevealSection.style.display = 'none';
         questionModalOverlay.style.display = 'flex';
     } else {
-        // (إضافة معالجة خطأ)
         console.error(`لا يمكن جلب الأسئلة للملف: ${letterId}. هل الملف موجود؟`);
         questionText.textContent = 'عذراً، حدث خطأ في جلب السؤال.';
         answerText.textContent = '...';
@@ -215,7 +212,7 @@ async function getQuestionForLetter(letterId) {
         } catch (error) { console.error(error); return null; }
     }
     const allQuestions = questionCache[letterId];
-    if (!allQuestions || allQuestions.length === 0) return null; // (تحسين)
+    if (!allQuestions || allQuestions.length === 0) return null; 
     let unusedQuestions = [];
     for (let i = 0; i < allQuestions.length; i++) {
         const questionId = `${letterId}_q${i}`;
@@ -269,50 +266,46 @@ function getCell(r,c) {
     return document.querySelector(`.hex-cell[data-row="${r}"][data-col="${c}"]`);
 }
 
-/** 12. (تم الإصلاح) جلب الجيران لشبكة 47 خلية */
+/** 12. (تم التعديل) جلب الجيران (لتوجيه مدبب الرأس) */
 function getNeighbors(r, c) {
     r = parseInt(r);
     c = parseInt(c);
     
     let potentialNeighbors = [];
-    const isOddCol = c % 2 !== 0; // منطق الإزاحة السداسية لا يزال صحيحاً
+    const isOddRow = r % 2 !== 0; // (تعديل) نعتمد على الصف الفردي/الزوجي
 
-    if (isOddCol) { // عمود فردي (1, 3, 5) - (مزاح للأسفل)
+    if (isOddRow) { // صف فردي (1, 3, 5) - (مزاح لليمين)
         potentialNeighbors = [
-            [r - 1, c],     // أعلى
-            [r + 1, c],     // أسفل
-            [r, c - 1],     // أعلى-يسار
-            [r + 1, c - 1], // أسفل-يسار
-            [r, c + 1],     // أعلى-يمين
+            [r, c - 1],     // يسار
+            [r, c + 1],     // يمين
+            [r - 1, c],     // أعلى-يسار
+            [r - 1, c + 1], // أعلى-يمين
+            [r + 1, c],     // أسفل-يسار
             [r + 1, c + 1]  // أسفل-يمين
         ];
-    } else { // عمود زوجي (0, 2, 4, 6)
+    } else { // صف زوجي (0, 2, 4, 6)
         potentialNeighbors = [
-            [r - 1, c],     // أعلى
-            [r + 1, c],     // أسفل
+            [r, c - 1],     // يسار
+            [r, c + 1],     // يمين
             [r - 1, c - 1], // أعلى-يسار
-            [r, c - 1],     // أسفل-يسار
-            [r - 1, c + 1], // أعلى-يمين
-            [r, c + 1]      // أسفل-يمين
+            [r - 1, c],     // أعلى-يمين
+            [r + 1, c - 1], // أسفل-يسار
+            [r + 1, c]      // أسفل-يمين
         ];
     }
 
-    // (الإصلاح الحاسم)
     // فلترة الجيران بناءً على هيكل اللوحة الفعلي (47 خلية)
     return potentialNeighbors.filter(([nr, nc]) => {
-        // 1. هل الصف (nr) موجود؟
-        // 2. هل الخلية (nc) موجودة في ذلك الصف؟
         return BOARD_LAYOUT[nr] && BOARD_LAYOUT[nr][nc] !== undefined;
     });
 }
 
 
-/** 13. التحقق من الفوز (تم التأكيد أنه صحيح لـ 47 خلية) */
+/** 13. التحقق من الفوز (صحيح لـ 47 خلية) */
 function checkWinCondition(teamColor) {
     const visited = new Set();
     const queue = [];
 
-    // (هذا الكود الذي أرسلته أنت، وهو صحيح لـ 47 خلية)
     if (teamColor==='red'){
         // البدء من الصف 0، الخلايا 1 إلى 4 (4 خلايا حمراء)
         for(let c=1; c<=4; c++){
@@ -336,7 +329,6 @@ function checkWinCondition(teamColor) {
     while(queue.length>0){
         const [r,c] = queue.shift();
         
-        // (تم الإصلاح) استخدام وظيفة الجيران الجديدة
         const neighbors = getNeighbors(r,c);
         
         for(const [nr,nc] of neighbors){
