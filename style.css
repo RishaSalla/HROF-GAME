@@ -218,7 +218,7 @@ body.light-mode {
 ================================ */
 #game-board-container {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column; /* نرتب الصفوف عمودياً */
     justify-content: center;
     align-items: center; 
     margin-top: -30px; 
@@ -229,7 +229,7 @@ body.light-mode {
     display: flex;
     flex-direction: row;
     justify-content: center; 
-    margin-top: var(--hex-vertical-overlap);
+    margin-top: var(--hex-vertical-overlap); /* (القيمة التي ستضبطها أنت) */
 }
 
 /* إزاحة الصفوف "الزوجية" أفقياً */
@@ -247,7 +247,7 @@ body.light-mode {
     
     /* (تم التعديل) قاعدة موحدة لحل مشكلة "الخلية الأولى" */
     /* كل خلية (ما عدا الأولى) تسحب نفسها لليسار */
-    margin-left: var(--hex-horizontal-overlap);
+    margin-left: var(--hex-horizontal-overlap); /* (القيمة التي ستضبطها أنت) */
     
     transition: transform 0.2s ease, filter 0.2s ease;
 }
