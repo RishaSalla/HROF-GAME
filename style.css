@@ -1,9 +1,12 @@
-/* ===== 1. إعدادات عامة (Global) ===== */
+/* ================================
+   1. إعدادات عامة (Global)
+================================ */
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
-/* (تم الإصلاح) دمج كل المتغيرات في كتلة واحدة */
 :root {
     --font-primary: 'Cairo', sans-serif;
+
+    /* ألوان اللعبة */
     --color-dark-bg: #1a1a2e;
     --color-light-bg: #f0f0f0;
     --color-text-dark: #ffffff;
@@ -12,13 +15,13 @@
     --color-red: #c0392b;
     --color-grey: #bdc3c7;
     --color-yellow: #f1c40f;
-    
-    /* متغيرات الخلايا السداسية (مدمجة هنا) */
+
+    /* متغيرات الخلايا السداسية */
     --hex-width: 90px;
-    --hex-height: 104px; 
+    --hex-height: 104px;
     --hex-vertical-overlap: -26px;
-    --hex-horizontal-overlap: -22px; 
-    --hex-vertical-offset: 52px; 
+    --hex-horizontal-overlap: -22px;
+    --hex-vertical-offset: 52px;
 }
 
 body {
@@ -27,14 +30,14 @@ body {
     padding: 0;
     overflow: hidden;
     color: var(--color-text-dark);
-    transition: background-color 0.3s ease;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     height: 100vh;
+    transition: background-color 0.3s ease;
 }
 
-/* ===== 1.1: نظام تبديل الأوضاع (فاتح/غامق) مع الخلفيات ===== */
+/* ===== 1.1 تبديل الوضع (فاتح/غامق) ===== */
 body.dark-mode {
     background-color: var(--color-dark-bg);
     background-image: url('assets/images/background.dark.png');
@@ -46,21 +49,24 @@ body.light-mode {
     color: var(--color-text-light);
 }
 
-/* ===== 2. نظام إدارة الشاشات (Screen Management) ===== */
+/* ================================
+   2. نظام إدارة الشاشات (Screens)
+================================ */
 .screen {
     display: none;
     width: 100vw;
     height: 100vh;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
 }
-
 .screen.active {
     display: flex;
 }
 
-/* ===== 3. (تصميم جديد) شاشة الدخول (Security Screen) ===== */
+/* ================================
+   3. شاشة الدخول (Login)
+================================ */
 .login-container {
     display: flex;
     flex-direction: column;
@@ -68,23 +74,20 @@ body.light-mode {
     padding: 40px 30px;
     background: linear-gradient(145deg, #1f1f3e, #1a1a2e);
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    border: 2px solid rgba(255,255,255,0.1);
     max-width: 400px;
     width: 90%;
 }
-
 .login-logo {
     width: 150px;
     margin-bottom: 20px;
 }
-
 .login-container label {
     font-size: 1.2rem;
     margin-bottom: 10px;
     color: var(--color-text-dark);
 }
-
 .login-container input {
     font-family: var(--font-primary);
     padding: 12px;
@@ -95,12 +98,10 @@ body.light-mode {
     margin-bottom: 20px;
     direction: ltr;
     width: 80%;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255,255,255,0.9);
     color: #333;
 }
-
 .login-container button {
-    font-family: var(--font-primary);
     font-size: 1.2rem;
     font-weight: bold;
     padding: 12px 30px;
@@ -109,16 +110,14 @@ body.light-mode {
     background-color: var(--color-yellow);
     color: var(--color-dark-bg);
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
     width: 85%;
-    box-shadow: 0 4px 15px rgba(241, 196, 15, 0.3);
+    box-shadow: 0 4px 15px rgba(241,196,15,0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
 .login-container button:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(241, 196, 15, 0.5);
+    box-shadow: 0 6px 20px rgba(241,196,15,0.5);
 }
-
 #login-error-message {
     color: var(--color-red);
     font-weight: bold;
@@ -126,26 +125,27 @@ body.light-mode {
     min-height: 1.2em;
 }
 
-/* ===== 4. أنيميشن الاهتزاز (Shake Animation) ===== */
+/* ================================
+   4. اهتزاز (Shake Animation)
+================================ */
 .shake-animation {
     animation: shake 0.5s ease;
 }
-
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
-    20%, 40%, 60%, 80% { transform: translateX(10px); }
+    0%,100% { transform: translateX(0); }
+    10%,30%,50%,70%,90% { transform: translateX(-10px); }
+    20%,40%,60%,80% { transform: translateX(10px); }
 }
 
-/* ===== 5. تصميم شاشة تدوير الجوال (Rotate Overlay) ===== */
+/* ================================
+   5. شاشة تدوير الجهاز (Rotate Overlay)
+================================ */
 #rotate-device-overlay {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
+    top:0; left:0;
+    width:100%; height:100%;
+    background-color: rgba(0,0,0,0.9);
     color: white;
     z-index: 9999;
     flex-direction: column;
@@ -154,32 +154,29 @@ body.light-mode {
     text-align: center;
     font-size: 1.5rem;
 }
-
-@media screen and (max-width: 768px) and (orientation: portrait) {
+@media screen and (max-width:768px) and (orientation:portrait) {
     #rotate-device-overlay {
         display: flex;
     }
 }
 
-/* ===== 6. تصميم القائمة الرئيسية (Main Menu) ===== */
+/* ================================
+   6. القائمة الرئيسية (Main Menu)
+================================ */
 #main-menu-screen h2 {
     font-size: 2.5rem;
     margin-bottom: 30px;
     border-bottom: 3px solid var(--color-yellow);
 }
-
 .setting-group {
     margin-bottom: 25px;
 }
-
 .setting-group h3 {
     font-size: 1.5rem;
     margin-bottom: 10px;
     text-align: center;
 }
-
 .setting-button {
-    font-family: var(--font-primary);
     font-size: 1.1rem;
     padding: 10px 20px;
     margin: 0 10px;
@@ -190,16 +187,13 @@ body.light-mode {
     cursor: pointer;
     transition: all 0.3s ease;
 }
-
 .setting-button.active {
     background-color: var(--color-yellow);
     color: var(--color-dark-bg);
     border-color: var(--color-yellow);
     transform: scale(1.1);
 }
-
 .start-button {
-    font-family: var(--font-primary);
     font-size: 1.5rem;
     font-weight: bold;
     padding: 15px 40px;
@@ -211,19 +205,18 @@ body.light-mode {
     cursor: pointer;
     transition: transform 0.2s ease;
 }
+.start-button:hover { transform: scale(1.05); }
 
-.start-button:hover {
-    transform: scale(1.05);
-}
-
-/* ===== 7. تصميم ساحة اللعب (Game Board) ===== */
+/* ================================
+   7. لوحة اللعبة (Game Board)
+================================ */
 #game-board-container {
-    display: flex; 
-    flex-direction: row; 
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
-    padding: 20px;
-    margin-top: -30px; 
+    align-items: flex-start;
+    margin-top: 20px; /* تحت اللوغو */
 }
 
 .hex-column {
@@ -234,7 +227,7 @@ body.light-mode {
 }
 
 .hex-column:nth-child(even) {
-    margin-top: var(--hex-vertical-offset); 
+    margin-top: var(--hex-vertical-offset);
 }
 
 .hex-cell {
@@ -247,23 +240,12 @@ body.light-mode {
     margin-top: var(--hex-vertical-overlap);
     transition: transform 0.2s ease, filter 0.2s ease;
 }
-    
-.hex-column .hex-cell:first-child {
-    margin-top: 0;
-}
+.hex-column .hex-cell:first-child { margin-top:0; }
 
-.hex-cell-default {
-    background-image: url('assets/images/hex.cell.default.png');
-}
-.hex-cell-red {
-    background-image: url('assets/images/hex.red.png');
-}
-.hex-cell-purple {
-    background-image: url('assets/images/hex.purple.png');
-}
-.hex-cell-selected {
-    background-image: url('assets/images/hex.cell.selected.png');
-}
+.hex-cell-default { background-image: url('assets/images/hex.cell.default.png'); }
+.hex-cell-red { background-image: url('assets/images/hex.red.png'); }
+.hex-cell-purple { background-image: url('assets/images/hex.purple.png'); }
+.hex-cell-selected { background-image: url('assets/images/hex.cell.selected.png'); }
 
 .hex-cell.playable:hover {
     transform: scale(1.05);
@@ -271,7 +253,9 @@ body.light-mode {
     cursor: pointer;
 }
 
-/* ===== 8. تصميم هيدر اللعبة (Scoreboards & Logo) ===== */
+/* ================================
+   8. هيدر اللعبة (Scoreboards & Logo)
+================================ */
 .game-header {
     display: flex;
     justify-content: space-around;
@@ -281,79 +265,63 @@ body.light-mode {
     position: relative;
     z-index: 10;
 }
-
 .scoreboard-container {
-    width: 350px; 
-    height: 160px; 
+    width: 350px;
+    height: 160px;
     background-image: url('assets/images/scoreboard.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
     padding: 10px;
 }
-
-.scoreboard-container.left {
-    text-align: left;
-}
-.scoreboard-container.right {
-    text-align: right;
-}
+.scoreboard-container.left { text-align: left; }
+.scoreboard-container.right { text-align: right; }
 
 .team-name {
-    font-size: 1.8rem; 
+    font-size: 1.8rem;
     font-weight: bold;
 }
 .score {
-    font-size: 3rem; 
+    font-size: 3rem;
     font-weight: bold;
     color: var(--color-yellow);
 }
 
-.game-logo {
-    width: 120px;
-}
+.game-logo { width: 120px; }
 
 .turn-indicator {
-    width: 50px;
-    height: 50px;
+    width: 50px; height:50px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
+    opacity: 0.3;
     transition: all 0.3s ease;
-    opacity: 0.3; 
 }
-
-#turn-indicator-left {
-    background-image: url('assets/images/turn.indicator.to.left.png');
-}
-#turn-indicator-right {
-    background-image: url('assets/images/turn.indicator.to.right.png');
-}
-
 .turn-indicator.active {
     opacity: 1;
     filter: drop-shadow(0 0 10px var(--color-yellow));
     transform: scale(1.1);
 }
+#turn-indicator-left { background-image: url('assets/images/turn.indicator.to.left.png'); }
+#turn-indicator-right { background-image: url('assets/images/turn.indicator.to.right.png'); }
 
-/* ===== 9. تصميم نافذة السؤال المنبثقة (Modal) ===== */
+/* ================================
+   9. نافذة السؤال (Modal)
+================================ */
 #question-modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.7); 
-    display: none; 
+    top:0; left:0;
+    width:100vw; height:100vh;
+    background-color: rgba(0,0,0,0.7);
+    display: none;
     align-items: center;
     justify-content: center;
     z-index: 1000;
 }
-
 .modal-content {
     background-color: var(--color-light-bg);
     color: var(--color-dark-bg);
@@ -364,178 +332,126 @@ body.light-mode {
     text-align: center;
     box-shadow: 0 5px 20px rgba(0,0,0,0.4);
 }
-
-#question-text {
-    font-size: 1.8rem;
-    margin-bottom: 25px;
-}
-
+#question-text { font-size:1.8rem; margin-bottom:25px; }
 #show-answer-button {
-    font-family: var(--font-primary);
-    font-size: 1.2rem;
+    font-size:1.2rem;
     padding: 10px 20px;
     background-image: url('assets/images/ui.button.show.answer.png');
-    background-size: 100% 100%;
-    border: none;
-    background-color: transparent;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    min-height: 50px; 
-    width: 200px; 
+    background-size:100% 100%;
+    border:none;
+    background-color:transparent;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    min-height:50px;
+    width:200px;
 }
-
 #answer-reveal-section {
-    display: none; 
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 2px solid var(--color-grey);
+    display:none;
+    margin-top:20px;
+    padding-top:20px;
+    border-top:2px solid var(--color-grey);
 }
-
-#answer-text {
-    font-size: 1.5rem;
-    color: var(--color-purple);
-    font-weight: bold;
-}
-
-#answer-reveal-section h4 {
-    font-size: 1.2rem;
-    margin-bottom: 15px;
-}
-
+#answer-text { font-size:1.5rem; color:var(--color-purple); font-weight:bold; }
+#answer-reveal-section h4 { font-size:1.2rem; margin-bottom:15px; }
 .team-choice-buttons button {
-    font-family: var(--font-primary);
-    border: none;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-color: transparent;
-    width: 150px;
-    height: 60px;
-    cursor: pointer;
-    margin: 0 10px;
+    width:150px; height:60px;
+    border:none;
+    background-size:contain;
+    background-repeat:no-repeat;
+    background-position:center;
+    background-color:transparent;
+    cursor:pointer;
+    margin:0 10px;
 }
-
-#team-purple-win-button {
-    background-image: url('assets/images/ui.purple.team.png');
-}
-#team-red-win-button {
-    background-image: url('assets/images/ui.red.team.png');
-}
+#team-purple-win-button { background-image:url('assets/images/ui.purple.team.png'); }
+#team-red-win-button { background-image:url('assets/images/ui.red.team.png'); }
 #skip-question-button {
-    background-image: none;
+    background-image:none;
     background-color: var(--color-grey);
-    border-radius: 8px;
-    color: white;
-    font-size: 1rem;
-    font-weight: bold;
+    border-radius:8px;
+    color:white;
+    font-size:1rem;
+    font-weight:bold;
 }
 
-/* ===== 10. تصميم الحروف داخل الخلايا ===== */
+/* ================================
+   10. الحروف داخل الخلايا
+================================ */
 .hex-letter {
-    font-size: 2rem; 
-    font-weight: bold;
-    color: var(--color-dark-bg); 
-    position: absolute;
-    top: 50%;
-    left: 50%;
+    font-size:2rem;
+    font-weight:bold;
+    color: var(--color-dark-bg);
+    position:absolute;
+    top:50%; left:50%;
     transform: translate(-50%, -50%);
-    user-select: none; 
-    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+    user-select:none;
+    text-shadow:1px 1px 2px rgba(255,255,255,0.5);
 }
 
-/* ===== 11. تصميم الخلايا المملوكة (Owned Cells) ===== */
+/* ================================
+   11. الخلايا المملوكة (Owned Cells)
+================================ */
 .hex-cell-purple-owned,
-.hex-cell-red-owned {
-    background-image: none !important; 
-}
-
-.hex-cell-purple-owned {
-    background-color: var(--color-purple);
-}
-
-.hex-cell-red-owned {
-    background-color: var(--color-red);
-}
-
+.hex-cell-red-owned { background-image:none !important; }
+.hex-cell-purple-owned { background-color: var(--color-purple); }
+.hex-cell-red-owned { background-color: var(--color-red); }
 .hex-cell-purple-owned .hex-letter,
-.hex-cell-red-owned .hex-letter {
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); 
-}
+.hex-cell-red-owned .hex-letter { color:white; text-shadow:1px 1px 2px rgba(0,0,0,0.5); }
 
-/* ===== 12. تصميم شاشة الفوز بالجولة ===== */
+/* ================================
+   12. شاشة الفوز بالجولة
+================================ */
 #round-win-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(26, 26, 46, 0.85); 
-    display: none; 
+    top:0; left:0;
+    width:100vw; height:100vh;
+    background-color: rgba(26,26,46,0.85);
+    display: none;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    z-index: 2000;
-    backdrop-filter: blur(5px); 
+    z-index:2000;
+    backdrop-filter: blur(5px);
 }
-
-.win-content {
-    text-align: center;
-    color: white;
-}
-
+.win-content { text-align:center; color:white; }
 #win-message {
-    font-size: 3rem;
-    font-weight: bold;
+    font-size:3rem; font-weight:bold;
     color: var(--color-yellow);
-    text-shadow: 0 0 10px var(--color-yellow);
+    text-shadow:0 0 10px var(--color-yellow);
 }
-
-.score-update {
-    font-size: 4rem;
-    font-weight: bold;
-    margin: 20px 0;
-}
-
+.score-update { font-size:4rem; font-weight:bold; margin:20px 0; }
 #next-round-button {
-    font-family: var(--font-primary);
-    font-size: 1.5rem;
-    font-weight: bold;
-    padding: 15px 40px;
-    border: none;
-    border-radius: 10px;
+    font-size:1.5rem; font-weight:bold;
+    padding:15px 40px;
+    border:none;
+    border-radius:10px;
     background-color: var(--color-yellow);
     color: var(--color-dark-bg);
-    cursor: pointer;
+    cursor:pointer;
     transition: transform 0.2s ease;
 }
+#next-round-button:hover { transform: scale(1.05); }
 
-#next-round-button:hover {
-    transform: scale(1.05);
-}
-
-/* ===== 13. (مُعدل) تصميم أزرار التحكم باللعبة ===== */
+/* ================================
+   13. أزرار التحكم باللعبة
+================================ */
 .game-controls {
-    position: fixed; 
-    bottom: 20px;
-    left: 20px;
-    z-index: 500;
+    position: fixed;
+    bottom:20px; left:20px;
+    z-index:500;
 }
-
 .game-controls button {
-    font-family: var(--font-primary);
-    font-size: 0.9rem;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 6px;
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-    cursor: pointer;
-    margin-right: 10px;
+    font-size:0.9rem;
+    padding:8px 15px;
+    border:none;
+    border-radius:6px;
+    background-color: rgba(255,255,255,0.2);
+    color:white;
+    cursor:pointer;
+    margin-right:10px;
     transition: background-color 0.2s ease;
 }
-
 .game-controls button:hover {
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255,255,255,0.4);
 }
