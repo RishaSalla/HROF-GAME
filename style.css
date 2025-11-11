@@ -1,3 +1,4 @@
+<style>
 /* ===== 1. إعدادات عامة (Global) ===== */
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
@@ -11,6 +12,13 @@
     --color-red: #c0392b;
     --color-grey: #bdc3c7;
     --color-yellow: #f1c40f;
+
+    /* (هذه هي الإضافة المُصححة) متغيرات الخلايا السداسية */
+    --hex-width: 90px;
+    --hex-height: 104px; 
+    --hex-vertical-overlap: -26px;
+    --hex-horizontal-overlap: -22px; 
+    --hex-vertical-offset: 52px; 
 }
 
 body {
@@ -58,17 +66,10 @@ body.light-mode {
     flex-direction: column;
     align-items: center;
     padding: 40px 30px;
-    
-    /* (جديد) تصميم إبداعي كخلفية */
     background: linear-gradient(145deg, #1f1f3e, #1a1a2e);
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     border: 2px solid rgba(255, 255, 255, 0.1);
-    
-    /* (جديد) استخدام 'clip-path' لإعطاء شكل سداسي بسيط */
-    /* (يمكنك إلغاء التعليق عنه إذا أردت شكلاً سداسياً) */
-    /* clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); */
-    
     max-width: 400px;
     width: 90%;
 }
@@ -217,48 +218,27 @@ body.light-mode {
 
 /* ===== 7. (مُعدل) تصميم ساحة اللعب (Game Board) ===== */
 
-/* (مُعدل) تحديد أحجام الخلايا السداسية */
-:root {
-    /* هذه القيم محسوبة بدقة لصور hex.cell.png */
-    /* يمكنك زيادة أو تقليل --hex-width لتكبير/تصغير اللوحة */
-    --hex-width: 90px;
-    --hex-height: 104px; /* (العرض * 1.1547) */
-    
-    /* هذه هي القيم السحرية للتداخل الصحيح 
-      (لا تغيرها إلا إذا غيرت حجم الخلية)
-    */
-    --hex-vertical-overlap: -26px;  /* (الارتفاع / 4) بالسالب */
-    --hex-horizontal-overlap: -22px; /* (العرض / 4) بالسالب */
-    --hex-vertical-offset: 52px; /* (الارتفاع / 2) */
-}
-
-/* (مُعدل) حاوية اللوحة - هذا هو الإصلاح الرئيسي */
+/* (هذا هو الكود الذي كان مكسوراً وتم إصلاحه) */
 #game-board-container {
-    display: flex; /* <-- هذا هو الأمر الأهم: ترتيب الأعمدة أفقياً */
-    flex-direction: row; /* (افتراضي، لكن للتأكيد) */
+    display: flex; 
+    flex-direction: row; 
     justify-content: center;
     align-items: center;
     padding: 20px;
-    /* سحب اللوحة للأعلى قليلاً لتبدو متناسقة */
     margin-top: -30px; 
 }
 
-/* (مُعدل) تصميم العمود */
 .hex-column {
     display: flex;
     flex-direction: column;
-    /* (مُعدل) استخدام هامش أفقي صحيح للتداخل */
     margin-left: var(--hex-horizontal-overlap);
     margin-right: var(--hex-horizontal-overlap);
 }
 
-/* (مُعدل) إزاحة الأعمدة "الزوجية" (الثاني، الرابع، السادس) */
 .hex-column:nth-child(even) {
-    /* هذا هو سر الترتيب السداسي */
     margin-top: var(--hex-vertical-offset); 
 }
 
-/* (مُعدل) تصميم الخلية السداسية الأساسية */
 .hex-cell {
     position: relative;
     width: var(--hex-width);
@@ -266,18 +246,14 @@ body.light-mode {
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    /* (مُعدل) استخدام هامش عمودي صحيح للتداخل */
     margin-top: var(--hex-vertical-overlap);
-    
     transition: transform 0.2s ease, filter 0.2s ease;
 }
-/* إصلاح أول خلية في كل عمود لعدم وجود هامش علوي مزدوج */
+
 .hex-column .hex-cell:first-child {
     margin-top: 0;
 }
 
-
-/* (مُعدل) إصلاح جميع مسارات الصور (تم في المرة السابقة) */
 .hex-cell-default {
     background-image: url('assets/images/hex.cell.default.png');
 }
@@ -308,10 +284,9 @@ body.light-mode {
     z-index: 10;
 }
 
-/* (مُعدل) تكبير حجم لوحة النتائج */
 .scoreboard-container {
-    width: 350px; /* <-- تم التكبير */
-    height: 160px; /* <-- تم التكبير */
+    width: 350px; 
+    height: 160px; 
     background-image: url('assets/images/scoreboard.png');
     background-size: contain;
     background-repeat: no-repeat;
@@ -331,11 +306,11 @@ body.light-mode {
 }
 
 .team-name {
-    font-size: 1.8rem; /* <-- تم التكبير */
+    font-size: 1.8rem; 
     font-weight: bold;
 }
 .score {
-    font-size: 3rem; /* <-- تم التكبير */
+    font-size: 3rem; 
     font-weight: bold;
     color: var(--color-yellow);
 }
@@ -544,7 +519,7 @@ body.light-mode {
 
 /* ===== 13. (مُعدل) تصميم أزرار التحكم باللعبة ===== */
 .game-controls {
-    position: fixed; /* <-- هذا هو الأمر الأهم */
+    position: fixed; 
     bottom: 20px;
     left: 20px;
     z-index: 500;
@@ -566,3 +541,4 @@ body.light-mode {
 .game-controls button:hover {
     background-color: rgba(255, 255, 255, 0.4);
 }
+</style>
