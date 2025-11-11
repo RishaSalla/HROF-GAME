@@ -6,7 +6,9 @@
     <title>HROF-GAME</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="dark-mode"> <div id="rotate-device-overlay">
+<body class="dark-mode"> 
+    
+    <div id="rotate-device-overlay">
         <p>لتجربة لعب أفضل، الرجاء تدوير جهازك</p>
     </div>
 
@@ -16,7 +18,8 @@
             <label for="game-code-input">أدخل كود اللعبة</label>
             <input type="password" id="game-code-input" placeholder="********">
             <button id="login-button">دخول</button>
-            <p id="login-error-message"></p> </div>
+            <p id="login-error-message"></p> 
+        </div>
     </main>
 
     <div id="main-menu-screen" class="screen">
@@ -45,6 +48,7 @@
     </div>
 
     <div id="game-screen" class="screen">
+        
         <header class="game-header">
             <div id="team-purple-scoreboard" class="scoreboard-container left">
                 <span class="score" id="purple-score">0</span>
@@ -82,7 +86,11 @@
                         <button id="team-red-win-button"></button>
                         <button id="skip-question-button">تخطي</button>
                     </div>
-                    <div id="round-win-overlay">
+                </div>
+            </div>
+        </div>
+
+        <div id="round-win-overlay">
             <div class="win-content">
                 <h2 id="win-message">الفريق الأحمر فاز بالجولة!</h2>
                 <div class="score-update" dir="ltr">
@@ -91,9 +99,7 @@
                 <button id="next-round-button">ابدأ الجولة التالية</button>
             </div>
         </div>
-                </div>
-            </div>
-        </div>
+        
     </div>
 
 
