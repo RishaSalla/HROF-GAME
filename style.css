@@ -17,19 +17,17 @@
     --color-yellow: #f1c40f;
 
     /* (تم التعديل) متغيرات الخلايا السداسية (لتوجيه مدبب الرأس) */
-    /* القيم الجديدة محسوبة بدقة لتداخل "مدبب الرأس"
-    */
-    --hex-width: 90px;  /* عرض الخلية */
-    --hex-height: 104px; /* ارتفاع الخلية */
+    --hex-width: 90px;
+    --hex-height: 104px; 
     
-    /* (تعديل) تداخل عمودي (87.5% من الارتفاع) */
-    --hex-vertical-overlap: -13px; /* (height * 0.125) بالسالب */
+    /* (إصلاح التباعد) تداخل عمودي (75% من الارتفاع) */
+    --hex-vertical-overlap: -26px; /* (height * 0.25) بالسالب */
     
-    /* (تعديل) إزاحة أفقية (50% من العرض) */
+    /* (إصلاح التباعد) إزاحة أفقية (50% من العرض) */
     --hex-horizontal-offset: 45px; /* (width * 0.5) */
     
-    /* (تعديل) تداخل أفقي (75% من العرض) */
-    --hex-horizontal-overlap: 22.5px; /* (width * 0.25) */
+    /* (إصلاح التباعد) تداخل أفقي (75% من العرض) */
+    --hex-horizontal-overlap: -22.5px; /* (width * 0.25) بالسالب */
 }
 
 body {
@@ -216,7 +214,7 @@ body.light-mode {
 .start-button:hover { transform: scale(1.05); }
 
 /* ================================
-    7. لوحة اللعبة (Game Board) - (إصلاح "مدبب الرأس")
+    7. لوحة اللعبة (Game Board) - (إصلاح "مدبب الرأس" و "التلاصق")
 ================================ */
 #game-board-container {
     display: flex;
@@ -231,11 +229,11 @@ body.light-mode {
     display: flex;
     flex-direction: row;
     justify-content: center; 
-    /* (تعديل) تداخل عمودي بين الصفوف */
+    /* (إصلاح التباعد) تداخل عمودي بين الصفوف */
     margin-top: var(--hex-vertical-overlap);
 }
 
-/* (تعديل) إزاحة الصفوف "الزوجية" أفقياً */
+/* (إصلاح التباعد) إزاحة الصفوف "الزوجية" أفقياً */
 .hex-row:nth-child(even) {
     margin-left: var(--hex-horizontal-offset); 
 }
@@ -248,23 +246,22 @@ body.light-mode {
     background-position: center;
     background-repeat: no-repeat;
     
-    /* (تعديل) تداخل أفقي بين الخلايا في نفس الصف */
+    /* (إصلاح التباعد) تداخل أفقي بين الخلايا في نفس الصف */
     margin-left: var(--hex-horizontal-overlap);
     margin-right: var(--hex-horizontal-overlap);
     
     transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-/* (تعديل) إصلاح التداخل لأول صف وأول خلية */
+/* (إصلاح التباعد) إصلاح التداخل لأول صف وأول خلية */
 .hex-row:first-child {
     margin-top: 0;
 }
 .hex-row .hex-cell:first-child { 
     margin-left: 0; 
-    margin-right: 0; /* (إضافة) */
+    margin-right: 0; 
 }
 
-/* (هذا الكود سليم) */
 .hex-cell-default { background-image: url('assets/images/hex.cell.default.png'); }
 .hex-cell-red { background-image: url('assets/images/hex.red.png'); }
 .hex-cell-purple { background-image: url('assets/images/hex.purple.png'); }
@@ -279,7 +276,6 @@ body.light-mode {
 /* ================================
     8. هيدر اللعبة (Scoreboards & Logo)
 ================================ */
-/* (هذا القسم سليم ولم يتغير) */
 .game-header {
     display: flex;
     justify-content: space-around;
@@ -336,7 +332,6 @@ body.light-mode {
 /* ================================
     9. نافذة السؤال (Modal)
 ================================ */
-/* (هذا القسم سليم ولم يتغير) */
 #question-modal-overlay {
     position: fixed;
     top:0; left:0;
@@ -403,7 +398,6 @@ body.light-mode {
 /* ================================
     10. الحروف داخل الخلايا
 ================================ */
-/* (هذا القسم سليم ولم يتغير) */
 .hex-letter {
     font-size:2rem;
     font-weight:bold;
@@ -416,20 +410,28 @@ body.light-mode {
 }
 
 /* ================================
-    11. الخلايا المملوكة (Owned Cells)
+    11. الخلايا المملوكة (Owned Cells) - (إصلاح مشكلة المربع)
 ================================ */
-/* (هذا القسم سليم ولم يتغير) */
-.hex-cell-purple-owned,
-.hex-cell-red-owned { background-image:none !important; }
-.hex-cell-purple-owned { background-color: var(--color-purple); }
-.hex-cell-red-owned { background-color: var(--color-red); }
+/* (تعديل) لن نستخدم 'background-image: none' 
+   بل سنستبدل الصورة بالصورة الملونة
+*/
+.hex-cell-purple-owned { 
+    background-image: url('assets/images/hex.purple.png') !important; 
+}
+.hex-cell-red-owned { 
+    background-image: url('assets/images/hex.red.png') !important; 
+}
+
+/* (تعديل) تغيير لون الحرف ليناسب الخلفية الملونة */
 .hex-cell-purple-owned .hex-letter,
-.hex-cell-red-owned .hex-letter { color:white; text-shadow:1px 1px 2px rgba(0,0,0,0.5); }
+.hex-cell-red-owned .hex-letter { 
+    color:white; 
+    text-shadow:1px 1px 2px rgba(0,0,0,0.5); 
+}
 
 /* ================================
     12. شاشة الفوز بالجولة
 ================================ */
-/* (هذا القسم سليم ولم يتغير) */
 #round-win-overlay {
     position: fixed;
     top:0; left:0;
@@ -464,7 +466,6 @@ body.light-mode {
 /* ================================
     13. أزرار التحكم باللعبة
 ================================ */
-/* (هذا القسم سليم ولم يتغير) */
 .game-controls {
     position: fixed;
     bottom:20px; left:20px;
