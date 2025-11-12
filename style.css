@@ -22,7 +22,7 @@
     --hex-height: 104px; 
     --hex-vertical-overlap: -35px; /* (height / 4) بالسالب */
     --hex-horizontal-offset: 80px; /* (width / 2) */
-    --hex-horizontal-overlap: -5px; /* (width / 4) بالسالب */
+    --hex-horizontal-overlap: -1px; /* (width / 4) بالسالب */
 }
 
 body {
