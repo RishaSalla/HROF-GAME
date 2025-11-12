@@ -69,13 +69,13 @@ const P = 'purple';      // خلية موصل بنفسجي
 
 const BOARD_LAYOUT = [
     [T, T, T, T, T, T, T, T, T], // صف 0 (شفاف)
-    [T, R, R, R, R, R, R, T, T], // صف 1: (1T, 6R, 2T) - حسب طلبك
+    [T, T, R, R, R, R, R, R, T], // صف 1: (1T, 6R, 2T) - حسب طلبك
     [T, P, G, G, G, G, G, P, T], // صف 2: (1T, 1P, 5G, 1P, 1T)
     [T, P, G, G, G, G, G, P, T], // صف 3
     [T, P, G, G, G, G, G, P, T], // صف 4
     [T, P, G, G, G, G, G, P, T], // صف 5
     [T, P, G, G, G, G, G, P, T], // صف 6
-    [T, R, R, R, R, R, R, T, T], // صف 7: (نفس صف 1)
+    [T, T, R, R, R, R, R, R, T], // صف 7: (نفس صف 1)
     [T, T, T, T, T, T, T, T, T]  // صف 8 (شفاف)
 ];
 
