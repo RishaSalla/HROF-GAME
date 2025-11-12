@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HROF-GAME</title>
-    
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body class="dark-mode"> 
 
     <div id="rotate-device-overlay">
+        <button id="close-rotate-overlay">X</button>
         <p>لتجربة لعب أفضل، الرجاء تدوير جهازك</p>
     </div>
 
@@ -24,28 +24,58 @@
     </main>
 
     <div id="main-menu-screen" class="screen">
-        <h2>إعدادات اللعبة</h2>
         
-        <div class="setting-group">
-            <h3>نوع اللعب:</h3>
-            <button class="setting-button active" data-setting="mode" data-value="turns">أدوار</button>
-            <button class="setting-button" data-setting="mode" data-value="competitive">تنافسي</button>
+        <div class="settings-container">
+            <h2>إعدادات اللعبة</h2>
+            
+            <div class="setting-group">
+                <h3>نوع اللعب:</h3>
+                <button class="setting-button active" data-setting="mode" data-value="turns">أدوار</button>
+                <button class="setting-button" data-setting="mode" data-value="competitive">تنافسي</button>
+            </div>
+
+            <div class="setting-group">
+                <h3>الفرق:</h3>
+                <button class="setting-button active" data-setting="teams" data-value="2p">لاعبين فقط</button>
+                <button class="setting-button" data-setting="teams" data-value="full">فرق</button>
+            </div>
+
+            <div id="team-name-inputs" class="hidden">
+                <div class="input-group">
+                    <label for="team-1-name-input">الفريق البنفسجي (لاعب 1)</label>
+                    <input type="text" id="team-1-name-input" value="الفريق البنفسجي">
+                </div>
+                <div class="input-group">
+                    <label for="team-2-name-input">الفريق الأحمر (لاعب 2)</label>
+                    <input type="text" id="team-2-name-input" value="الفريق الأحمر">
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>المؤقت:</h3>
+                <button class="setting-button active" data-setting="timer" data-value="off">إيقاف</button>
+                <button class="setting-button" data-setting="timer" data-value="30">30 ثانية</button>
+                <button class="setting-button" data-setting="timer" data-value="60">60 ثانية</button>
+            </div>
+
+            <button id="start-game-button" class="start-button">ابدأ اللعبة</button>
+            <button id="instructions-button">التعليمات</button>
         </div>
 
-        <div class="setting-group">
-            <h3>الفرق:</h3>
-            <button class="setting-button active" data-setting="teams" data-value="2p">لاعبين فقط</button>
-            <button class="setting-button" data-setting="teams" data-value="full">فرق (لاعبين أو أكثر)</button>
+        <div id="instructions-modal-overlay">
+            <div class="modal-content">
+                <h2>التعليمات</h2>
+                <h3>الهدف: صِل لتربح!</h3>
+                <p>الهدف هو بناء مسار متصل من خلايا فريقك. الفريق الأحمر يحاول التوصيل من الأعلى للأسفل، والفريق البنفسجي من اليمين لليسار.</p>
+                <h3>أنماط اللعب:</h3>
+                <ul>
+                    <li><strong>الأدوار:</strong> تحدٍ هادئ. السؤال موجه للفريق صاحب الدور.</li>
+                    <li><strong>التنافسي:</strong> سباق حماسي! الفريق الأسرع في الإجابة يمتلك الخلية.</li>
+                </ul>
+                <button id="close-instructions-button">فهمت!</button>
+            </div>
         </div>
 
-        <div class="setting-group">
-            <h3>المؤقت:</h3>
-            <button class="setting-button active" data-setting="timer" data-value="off">إيقاف</button>
-            <button class="setting-button" data-setting="timer" data-value="on">تشغيل</button>
-        </div>
-
-        <button id="start-game-button" class="start-button">ابدأ اللعبة</button>
-        <button id="instructions-button">التعليمات</button>
     </div>
 
     <div id="game-screen" class="screen">
@@ -81,12 +111,28 @@
                 
                 <div id="answer-reveal-section">
                     <p id="answer-text">نص الجواب سيظهر هنا...</p>
-                    <h4>من الذي حصل على الإجابة؟</h4>
-                    <div class="team-choice-buttons">
-                        <button id="team-purple-win-button"></button>
-                        <button id="team-red-win-button"></button>
-                        <button id="skip-question-button">تخطي</button>
+
+                    <div id="competitive-controls">
+                        <h4>من الذي حصل على الإجابة؟</h4>
+                        <div class="team-choice-buttons">
+                            <button id="team-purple-win-button">
+                                <span class="team-name-in-button">الفريق البنفسجي</span>
+                            </button>
+                            <button id="team-red-win-button">
+                                <span class="team-name-in-button">الفريق الأحمر</span>
+                            </button>
+                        </div>
+                        <button id="competitive-skip-button">تخطي السؤال</button>
                     </div>
+
+                    <div id="turns-controls" class="hidden">
+                        <h4>هل تمت الإجابة بشكل صحيح؟</h4>
+                        <div class="team-choice-buttons">
+                            <button id="turn-correct-button"> نعم، تمت الإجابة</button>
+                            <button id="turn-skip-button"> لا، تخطي الدور</button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
