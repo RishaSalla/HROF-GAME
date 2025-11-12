@@ -179,8 +179,8 @@ function handleSettingClick(event) {
 function startGame() {
     // 1. حفظ الإعدادات بناءً على اللوحة النشطة
     if (gameSettings.teams === 'individual') {
-        gameSettings.team1Name = player1NameInput.value || 'اللاعب 1';
-        gameSettings.team2Name = player2NameInput.value || 'اللاعب 2';
+        gameSettings.team1Name = player1NameInput.value || 'اللاعب 1 (أحمر)';
+        gameSettings.team2Name = player2NameInput.value || 'اللاعب 2 (بنفسجي)';
     } else {
         // (تم الإصلاح) استخدام المتغيرات الصحيحة
         gameSettings.team1Name = team1NameInput_team.value || 'الفريق الأحمر';
@@ -285,7 +285,7 @@ async function handleCellClick(event) {
     }
     
     answerRevealSection.style.display = 'none'; // إخفاء الجواب
-    showAnswerButton.classList.remove('hidden'); // (جديد) إظهار زر "أظهر الإجابة"
+    showAnswerButton.classList.remove('hidden'); // إظهار زر "أظهر الإجابة"
 
     if (question) {
         currentQuestion = question;
@@ -303,7 +303,7 @@ async function handleCellClick(event) {
     if (gameSettings.timer !== 'off') {
         startTimer(parseInt(gameSettings.timer));
     } else {
-        questionTimerDisplay.classList.add('hidden');
+        questionTimerDisplay.classList.add('hidden'); // تأكد من إخفائه إذا كان "إيقاف"
     }
 }
 
@@ -339,7 +339,7 @@ async function getQuestionForLetter(letterId) {
 /** 9. إظهار الجواب */
 function showAnswer() {
     answerRevealSection.style.display = 'block';
-    showAnswerButton.classList.add('hidden'); // (جديد) إخفاء الزر بعد الضغط عليه
+    showAnswerButton.classList.add('hidden'); 
 }
 
 /** 10. معالجة نتيجة السؤال */
@@ -442,7 +442,6 @@ function checkWinCondition(teamColor) {
         const neighbors = getNeighbors(r,c);
         
         for(const [nr,nc] of neighbors){
-            // التحقق من الوصول للطرف الآخر
             if(teamColor==='red' && nr===7) return true; 
             if(teamColor==='purple' && nc===7) return true; 
             
