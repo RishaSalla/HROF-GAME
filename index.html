@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HROF-GAME</title>
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body class="dark-mode"> 
 
@@ -30,32 +30,63 @@
             
             <div class="setting-group">
                 <h3>نوع اللعب:</h3>
-                <button class="setting-button active" data-setting="mode" data-value="turns">أدوار</button>
-                <button class="setting-button" data-setting="mode" data-value="competitive">تنافسي</button>
+                <div class="button-group">
+                    <button class="setting-button active" data-setting="mode" data-value="turns">أدوار</button>
+                    <button class="setting-button" data-setting="mode" data-value="competitive">تنافسي</button>
+                </div>
             </div>
 
             <div class="setting-group">
                 <h3>الفرق:</h3>
-                <button class="setting-button active" data-setting="teams" data-value="2p">لاعبين فقط</button>
-                <button class="setting-button" data-setting="teams" data-value="full">فرق</button>
-            </div>
-
-            <div id="team-name-inputs" class="hidden">
-                <div class="input-group">
-                    <label for="team-1-name-input">الفريق البنفسجي (لاعب 1)</label>
-                    <input type="text" id="team-1-name-input" value="الفريق البنفسجي">
-                </div>
-                <div class="input-group">
-                    <label for="team-2-name-input">الفريق الأحمر (لاعب 2)</label>
-                    <input type="text" id="team-2-name-input" value="الفريق الأحمر">
+                <div class="button-group">
+                    <button class="setting-button active" data-setting="teams" data-value="individual">فردي</button>
+                    <button class="setting-button" data-setting="teams" data-value="team">فريق</button>
                 </div>
             </div>
 
             <div class="setting-group">
                 <h3>المؤقت:</h3>
-                <button class="setting-button active" data-setting="timer" data-value="off">إيقاف</button>
-                <button class="setting-button" data-setting="timer" data-value="30">30 ثانية</button>
-                <button class="setting-button" data-setting="timer" data-value="60">60 ثانية</button>
+                <div class="button-group">
+                    <button class="setting-button active" data-setting="timer" data-value="off">إيقاف</button>
+                    <button class="setting-button" data-setting="timer" data-value="30">30 ثانية</button>
+                    <button class="setting-button" data-setting="timer" data-value="60">60 ثانية</button>
+                </div>
+            </div>
+
+            <div id="players-individual-settings" class="team-setup-panel"> <h4>إعدادات اللاعبين</h4>
+                <div class="input-group">
+                    <label for="player-1-name-input">اسم اللاعب 1 (بنفسجي)</label>
+                    <input type="text" id="player-1-name-input" placeholder="ادخل اسم اللاعب 1">
+                </div>
+                <div class="input-group">
+                    <label for="player-2-name-input">اسم اللاعب 2 (أحمر)</label>
+                    <input type="text" id="player-2-name-input" placeholder="ادخل اسم اللاعب 2">
+                </div>
+            </div>
+
+            <div id="players-team-settings" class="team-setup-panel hidden"> <h4>إعدادات الفرق</h4>
+                <div class="team-columns">
+                    <div class="team-column">
+                        <div class="input-group">
+                            <label for="team-1-name-input">اسم الفريق 1 (بنفسجي)</label>
+                            <input type="text" id="team-1-name-input" placeholder="ادخل اسم الفريق 1">
+                        </div>
+                        <div class="input-group">
+                            <label for="team-1-members-input">أسماء أعضاء الفريق 1 (كل اسم في سطر)</label>
+                            <textarea id="team-1-members-input" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="team-column">
+                        <div class="input-group">
+                            <label for="team-2-name-input">اسم الفريق 2 (أحمر)</label>
+                            <input type="text" id="team-2-name-input" placeholder="ادخل اسم الفريق 2">
+                        </div>
+                        <div class="input-group">
+                            <label for="team-2-members-input">أسماء أعضاء الفريق 2 (كل اسم في سطر)</label>
+                            <textarea id="team-2-members-input" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <button id="start-game-button" class="start-button">ابدأ اللعبة</button>
@@ -85,11 +116,8 @@
                 <span class="score" id="purple-score">0</span>
                 <span class="team-name">الفريق البنفسجي</span>
             </div>
-
             <div id="turn-indicator-left" class="turn-indicator"></div>
-            
             <img src="assets/images/logo.hrof.png" alt="HROF Logo" class="game-logo">
-            
             <div id="turn-indicator-right" class="turn-indicator"></div>
             <div id="team-red-scoreboard" class="scoreboard-container right">
                 <span class="team-name">الفريق الأحمر</span>
@@ -128,8 +156,8 @@
                     <div id="turns-controls" class="hidden">
                         <h4>هل تمت الإجابة بشكل صحيح؟</h4>
                         <div class="team-choice-buttons">
-                            <button id="turn-correct-button"> نعم، تمت الإجابة</button>
-                            <button id="turn-skip-button"> لا، تخطي الدور</button>
+                            <button id="turn-correct-button">  تمت الإجابة</button>
+                            <button id="turn-skip-button">  تخطي الدور</button>
                         </div>
                     </div>
 
