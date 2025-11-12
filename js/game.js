@@ -21,9 +21,9 @@ const teamSettingsPanel = document.getElementById('players-team-settings');
 const player1NameInput = document.getElementById('player-1-name-input');
 const player2NameInput = document.getElementById('player-2-name-input');
 
-// حقول "فريق"
-const team1NameInput = document.getElementById('team-1-name-input-team');
-const team2NameInput = document.getElementById('team-2-name-input-team');
+// (تم الإصلاح) حقول "فريق" بأسماء ID صحيحة
+const team1NameInput_team = document.getElementById('team-1-name-input-team');
+const team2NameInput_team = document.getElementById('team-2-name-input-team');
 const addTeam1MemberButton = document.getElementById('add-team-1-member-button');
 const addTeam2MemberButton = document.getElementById('add-team-2-member-button');
 const team1MembersList = document.getElementById('team-1-members-list');
@@ -52,13 +52,13 @@ const competitiveSkipButton = document.getElementById('competitive-skip-button')
 const turnCorrectButton = document.getElementById('turn-correct-button');
 const turnSkipButton = document.getElementById('turn-skip-button');
 
-// عناصر لوحة النتائج
-const purpleScoreDisplay = document.getElementById('purple-score');
+// عناصر لوحة النتائج (تم إصلاح الترتيب)
 const redScoreDisplay = document.getElementById('red-score');
-const purpleScoreboardName = document.querySelector('#team-purple-scoreboard .team-name');
+const purpleScoreDisplay = document.getElementById('purple-score');
 const redScoreboardName = document.querySelector('#team-red-scoreboard .team-name');
-const purpleButtonName = document.querySelector('#team-purple-win-button .team-name-in-button');
+const purpleScoreboardName = document.querySelector('#team-purple-scoreboard .team-name');
 const redButtonName = document.querySelector('#team-red-win-button .team-name-in-button');
+const purpleButtonName = document.querySelector('#team-purple-win-button .team-name-in-button');
 
 // عناصر شاشة الفوز
 const roundWinOverlay = document.getElementById('round-win-overlay');
@@ -67,7 +67,7 @@ const winScorePurple = document.getElementById('win-score-purple');
 const winScoreRed = document.getElementById('win-score-red');
 const nextRoundButton = document.getElementById('next-round-button');
 
-// (جديد) عناصر نافذة تأكيد الخروج
+// عناصر نافذة تأكيد الخروج
 const exitConfirmModal = document.getElementById('exit-confirm-modal');
 const exitConfirmYes = document.getElementById('exit-confirm-yes');
 const exitConfirmNo = document.getElementById('exit-confirm-no');
@@ -78,8 +78,8 @@ export const gameSettings = {
     mode: 'turns',
     teams: 'individual',
     timer: 'off',
-    team1Name: 'اللاعب 1 (أحمر)',
-    team2Name: 'اللاعب 2 (بنفسجي)',
+    team1Name: 'اللاعب 1 (أحمر)', // (تم إصلاح الترتيب)
+    team2Name: 'اللاعب 2 (بنفسجي)', // (تم إصلاح الترتيب)
     team1Members: [],
     team2Members: []
 };
@@ -91,8 +91,8 @@ let currentClickedCell = null;
 let currentQuestion = null;
 let gameActive = true; 
 let scores = { purple: 0, red: 0 };
-let timerInterval = null; // (جديد) للمؤقت
-let remainingTime = 0; // (جديد) للمؤقت
+let timerInterval = null; 
+let remainingTime = 0; 
 
 // --- قائمة الحروف الأساسية ---
 const ALL_LETTERS = [
@@ -116,13 +116,13 @@ const P = 'purple';
 
 const BOARD_LAYOUT = [
     [T, T, T, T, T, T, T, T, T], // صف 0 (شفاف)
-    [T, R, R, R, R, R, R, T, T], // صف 1: (1T, 6R, 2T)
+    [T, T, R, R, R, R, R, R, T], // صف 1: (1T, 6R, 2T)
     [T, P, G, G, G, G, G, P, T], // صف 2: (1T, 1P, 5G, 1P, 1T)
     [T, P, G, G, G, G, G, P, T], // صف 3
     [T, P, G, G, G, G, G, P, T], // صف 4
     [T, P, G, G, G, G, G, P, T], // صف 5
     [T, P, G, G, G, G, G, P, T], // صف 6
-    [T, R, R, R, R, R, R, T, T], // صف 7: (نفس صف 1)
+    [T, T, R, R, R, R, R, R, T], // صف 7: (نفس صف 1)
     [T, T, T, T, T, T, T, T, T]  // صف 8 (شفاف)
 ];
 
@@ -157,7 +157,6 @@ function handleSettingClick(event) {
     const settingValue = clickedButton.dataset.value;
 
     gameSettings[settingType] = settingValue;
-    console.log('الإعدادات المحدثة:', gameSettings);
 
     const buttonsInGroup = document.querySelectorAll(`.setting-button[data-setting="${settingType}"]`);
     buttonsInGroup.forEach(btn => btn.classList.remove('active'));
@@ -173,7 +172,7 @@ function handleSettingClick(event) {
             teamSettingsPanel.classList.remove('hidden');
         }
     }
-    validateSettings(); // (جديد) التحقق من تفعيل زر البدء
+    validateSettings(); 
 }
 
 /** 4. (تم التعديل) وظيفة بدء اللعبة */
@@ -183,9 +182,9 @@ function startGame() {
         gameSettings.team1Name = player1NameInput.value || 'اللاعب 1';
         gameSettings.team2Name = player2NameInput.value || 'اللاعب 2';
     } else {
-        gameSettings.team1Name = team1NameInput.value || 'الفريق الأحمر';
-        gameSettings.team2Name = team2NameInput.value || 'الفريق البنفسجي';
-        // (جديد) حفظ أسماء الأعضاء
+        // (تم الإصلاح) استخدام المتغيرات الصحيحة
+        gameSettings.team1Name = team1NameInput_team.value || 'الفريق الأحمر';
+        gameSettings.team2Name = team2NameInput_team.value || 'الفريق البنفسجي';
         gameSettings.team1Members = Array.from(team1MembersList.querySelectorAll('input')).map(input => input.value);
         gameSettings.team2Members = Array.from(team2MembersList.querySelectorAll('input')).map(input => input.value);
     }
@@ -210,7 +209,7 @@ function startGame() {
 /** 5. بدء جولة جديدة */
 function startNewRound() {
     gameActive = true; 
-    roundWinOverlay.classList.add('hidden'); // (تم التعديل)
+    roundWinOverlay.classList.add('hidden'); 
     initializeGameBoard(); 
     TurnManager.startGame(); 
 }
@@ -285,18 +284,19 @@ async function handleCellClick(event) {
         turnsControls.classList.add('hidden');
     }
     
-    answerRevealSection.style.display = 'none';
+    answerRevealSection.style.display = 'none'; // إخفاء الجواب
+    showAnswerButton.classList.remove('hidden'); // (جديد) إظهار زر "أظهر الإجابة"
 
     if (question) {
         currentQuestion = question;
         questionText.textContent = question.question;
         answerText.textContent = question.answer;
-        questionModalOverlay.classList.remove('hidden'); // (تم التعديل)
+        questionModalOverlay.classList.remove('hidden');
     } else {
         console.error(`لا يمكن جلب الأسئلة للملف: ${letterId}. هل الملف موجود؟`);
         questionText.textContent = 'عذراً، حدث خطأ في جلب السؤال.';
         answerText.textContent = '...';
-        questionModalOverlay.classList.remove('hidden'); // (تم التعديل)
+        questionModalOverlay.classList.remove('hidden');
     }
 
     // (جديد) بدء المؤقت
@@ -339,13 +339,14 @@ async function getQuestionForLetter(letterId) {
 /** 9. إظهار الجواب */
 function showAnswer() {
     answerRevealSection.style.display = 'block';
+    showAnswerButton.classList.add('hidden'); // (جديد) إخفاء الزر بعد الضغط عليه
 }
 
 /** 10. معالجة نتيجة السؤال */
 function handleQuestionResult(result) {
     stopTimer(); // (جديد) إيقاف المؤقت
     
-    questionModalOverlay.classList.add('hidden'); // (تم التعديل)
+    questionModalOverlay.classList.add('hidden'); 
 
     if (currentQuestion) {
         usedQuestions[currentQuestion.id] = true;
@@ -391,11 +392,11 @@ function getNeighbors(r, c) {
     let potentialNeighbors = [];
     const isOddRow = r % 2 !== 0; 
 
-    if (isOddRow) {
+    if (isOddRow) { 
         potentialNeighbors = [
             [r, c - 1], [r, c + 1], [r - 1, c], [r - 1, c + 1], [r + 1, c], [r + 1, c + 1]
         ];
-    } else {
+    } else { 
         potentialNeighbors = [
             [r, c - 1], [r, c + 1], [r - 1, c - 1], [r - 1, c], [r + 1, c - 1], [r + 1, c]
         ];
@@ -424,7 +425,7 @@ function checkWinCondition(teamColor) {
                 visited.add(`1,${c}`); 
             }
         }
-    } else {
+    } else { // 'purple'
         // البدء من العمود 1، الصفوف 2 إلى 6 (5 خلايا بنفسجية)
         for(let r=2; r<=6; r++){ 
             const cell = getCell(r,1); 
@@ -441,6 +442,7 @@ function checkWinCondition(teamColor) {
         const neighbors = getNeighbors(r,c);
         
         for(const [nr,nc] of neighbors){
+            // التحقق من الوصول للطرف الآخر
             if(teamColor==='red' && nr===7) return true; 
             if(teamColor==='purple' && nc===7) return true; 
             
@@ -454,26 +456,24 @@ function checkWinCondition(teamColor) {
         }
     }
 
-    return false;
+    return false; // لم يتم العثور على مسار
 }
 
 /** 14. معالجة الفوز بالجولة */
 function handleGameWin(teamColor){
     gameActive=false;
-    stopTimer(); // (جديد) إيقاف المؤقت عند الفوز
+    stopTimer(); 
     
-    // (تم إصلاح الترتيب)
     scores[teamColor]++;
     updateScoreboard();
     winMessage.textContent = (teamColor==='red')? `${gameSettings.team1Name} فاز بالجولة!` : `${gameSettings.team2Name} فاز بالجولة!`;
     winScorePurple.textContent = scores.purple;
     winScoreRed.textContent = scores.red;
-    roundWinOverlay.classList.remove('hidden'); // (تم التعديل)
+    roundWinOverlay.classList.remove('hidden'); 
 }
 
 /** 15. تحديث لوحة النتائج */
 function updateScoreboard(){
-    // (تم إصلاح الترتيب)
     redScoreDisplay.textContent = scores.red;
     purpleScoreDisplay.textContent = scores.purple;
 }
@@ -481,7 +481,7 @@ function updateScoreboard(){
 // --- وظائف الميزات الإضافية ---
 
 /** 16. (تم التعديل) الخروج للقائمة الرئيسية */
-function exitToMenu() {
+function showExitConfirm() {
     exitConfirmModal.classList.remove('hidden');
 }
 function confirmExit() {
@@ -508,12 +508,12 @@ function toggleTheme() {
 
 /** 18. إظهار التعليمات */
 function showInstructions() {
-    instructionsModalOverlay.classList.remove('hidden'); // (تم التعديل)
+    instructionsModalOverlay.classList.remove('hidden'); 
 }
 
 /** 19. إخفاء التعليمات */
 function hideInstructions() {
-    instructionsModalOverlay.classList.add('hidden'); // (تم التعديل)
+    instructionsModalOverlay.classList.add('hidden'); 
 }
 
 /** 20. إخفاء رسالة تدوير الجهاز */
@@ -534,7 +534,7 @@ function checkDevice() {
 function startTimer(duration) {
     remainingTime = duration;
     questionTimerDisplay.textContent = duration < 10 ? `0${duration}` : duration;
-    questionTimerDisplay.classList.remove('hidden');
+    questionTimerDisplay.style.display = 'flex'; // (تم التعديل)
     
     timerInterval = setInterval(() => {
         remainingTime--;
@@ -550,7 +550,7 @@ function startTimer(duration) {
 function stopTimer() {
     clearInterval(timerInterval);
     timerInterval = null;
-    questionTimerDisplay.classList.add('hidden');
+    questionTimerDisplay.style.display = 'none'; // (تم التعديل)
 }
 
 /** 23. (جديد) وظائف إضافة الأعضاء */
@@ -579,11 +579,9 @@ function addMemberInput(team) {
 function validateSettings() {
     let isValid = false;
     if (gameSettings.teams === 'individual') {
-        // تفعيل إذا كتب في كلا الحقلين
         isValid = player1NameInput.value.trim() !== '' && player2NameInput.value.trim() !== '';
     } else {
-        // تفعيل إذا كتب اسمي الفريقين
-        isValid = team1NameInput.value.trim() !== '' && team2NameInput.value.trim() !== '';
+        isValid = team1NameInput_team.value.trim() !== '' && team2NameInput_team.value.trim() !== '';
     }
     startGameButton.disabled = !isValid;
 }
@@ -597,7 +595,7 @@ nextRoundButton.addEventListener('click', startNewRound);
 instructionsButton.addEventListener('click', showInstructions); 
 closeInstructionsButton.addEventListener('click', hideInstructions); 
 
-exitGameButton.addEventListener('click', exitToMenu); 
+exitGameButton.addEventListener('click', showExitConfirm); // (تم التعديل)
 toggleThemeButton.addEventListener('click', toggleTheme); 
 closeRotateOverlay.addEventListener('click', hideRotateMessage); 
 
@@ -612,8 +610,8 @@ addTeam2MemberButton.addEventListener('click', () => addMemberInput(2));
 // (جديد) ربط حقول الإدخال للتحقق
 player1NameInput.addEventListener('input', validateSettings);
 player2NameInput.addEventListener('input', validateSettings);
-team1NameInput.addEventListener('input', validateSettings);
-team2NameInput.addEventListener('input', validateSettings);
+team1NameInput_team.addEventListener('input', validateSettings);
+team2NameInput_team.addEventListener('input', validateSettings);
 
 // (جديد) تشغيل التحقق أول مرة لتعطيل الزر
 validateSettings();
