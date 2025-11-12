@@ -227,12 +227,11 @@ body.light-mode {
     margin-bottom: 0; /* (إلغاء) */
     width: 100%;
     display: flex;
-    /* (تعديل) جعل العناوين والأزرار عمودية */
     flex-direction: column; 
     align-items: flex-start;
 }
 .setting-group h3 {
-    font-size: 1.3rem; /* (تصغير) */
+    font-size: 1.1rem; /* (تصغير) */
     margin: 0;
     margin-bottom: 10px;
 }
@@ -242,8 +241,8 @@ body.light-mode {
     gap: 8px; /* (تصغير) */
 }
 .setting-button {
-    font-size: 1rem; /* (تصغير) */
-    padding: 8px 15px; /* (تصغير) */
+    font-size: 0.9rem; /* (تصغير) */
+    padding: 6px 12px; /* (تصغير) */
     margin: 0;
     border: 2px solid var(--color-grey);
     background-color: transparent;
@@ -263,19 +262,18 @@ body.light-mode {
 .team-setup-panel {
     width: 100%;
     border-top: 1px solid var(--color-grey);
-    padding-top: 20px;
-    margin-top: 10px;
+    padding-top: 15px; /* (تصغير) */
+    margin-top: 0; /* (تصغير) */
 }
 .team-setup-panel h4 {
-    font-size: 1.3rem;
+    font-size: 1.2rem; /* (تصغير) */
     color: var(--color-yellow);
     margin: 0 0 15px 0;
     text-align: center;
 }
-/* (جديد) تصميم "فريق" بعمود واحد الآن */
 .team-columns {
     display: flex;
-    flex-direction: column; /* (تعديل) */
+    flex-direction: column;
     gap: 20px;
     width: 100%;
 }
@@ -292,13 +290,12 @@ body.light-mode {
 }
 .input-group label {
     margin-bottom: 5px;
-    font-size: 1rem;
+    font-size: 0.9rem; /* (تصغير) */
     color: var(--color-text-dark);
 }
-.input-group input,
-.input-group textarea {
+.input-group input {
     font-family: var(--font-primary);
-    padding: 10px;
+    padding: 8px; /* (تصغير) */
     border: 2px solid var(--color-grey);
     border-radius: 8px;
     background: rgba(255,255,255,0.9);
@@ -306,7 +303,7 @@ body.light-mode {
     width: 95%; 
 }
 .input-group textarea {
-    display: none; /* (إخفاء الـ textarea القديم) */
+    display: none; 
 }
 
 /* (جديد) تصميم "+ إضافة عضو" */
@@ -314,24 +311,42 @@ body.light-mode {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    margin-bottom: 5px; /* (إضافة هامش) */
 }
-.members-list input {
-    width: 90% !important;
+.member-input-container { /* (جديد) */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.member-input-container input {
+    width: 80% !important; /* (تصغير) */
+    flex: 1;
+}
+.remove-member-button { /* (جديد) */
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--color-red);
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
 }
 .add-member-button {
     font-family: var(--font-primary);
-    font-size: 0.9rem;
+    font-size: 0.8rem; /* (تصغير) */
     padding: 5px 10px;
     border: none;
     border-radius: 5px;
     background-color: var(--color-grey);
     color: var(--color-dark-bg);
     cursor: pointer;
-    width: 100px;
+    width: 90px; /* (تصغير) */
     margin-top: 5px;
 }
 
-/* (جديد) حاوية الأزرار السفلية */
 .footer-buttons {
     display: flex;
     flex-direction: column;
@@ -342,25 +357,33 @@ body.light-mode {
     padding-top: 20px;
 }
 .start-button {
-    font-size: 1.5rem;
+    font-size: 1.3rem; /* (تصغير) */
     font-weight: bold;
-    padding: 15px 40px;
-    margin-top: 0; /* (إلغاء) */
+    padding: 12px 35px; /* (تصغير) */
+    margin-top: 0; 
     border: none;
     border-radius: 10px;
     background-color: var(--color-purple);
     color: white;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: all 0.2s ease;
     align-self: center;
 }
-.start-button:hover { transform: scale(1.05); }
+/* (جديد) تصميم الزر المعطل */
+.start-button:disabled {
+    background-color: var(--color-grey);
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.start-button:hover:not(:disabled) { 
+    transform: scale(1.05); 
+}
 #instructions-button {
     background: transparent;
     border: none;
     color: var(--color-yellow);
     text-decoration: underline;
-    font-size: 1rem;
+    font-size: 0.9rem; /* (تصغير) */
     margin-top: 15px;
     cursor: pointer;
     align-self: center;
@@ -440,20 +463,20 @@ body.light-mode {
 .scoreboard-container.right { text-align: right; }
 
 .team-name {
-    font-size: 0.9rem; /* (تصغير للنصف) */
+    font-size: 0.9rem; /* (تصغير) */
     font-weight: bold;
-    margin-bottom: 5px; /* (إضافة هامش) */
+    margin-bottom: 5px; 
 }
 .score {
-    font-size: 1.5rem; /* (تصغير للنصف) */
+    font-size: 1.5rem; /* (تصغير) */
     font-weight: bold;
     color: var(--color-yellow);
 }
 
-.game-logo { width: 150px; } /* (تكبير) */
+.game-logo { width: 170px; } /* (تكبير) */
 
 .turn-indicator {
-    width: 35px; height:35px; /* (تصغير) */
+    width: 30px; height:30px; /* (تصغير) */
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -490,26 +513,25 @@ body.light-mode {
     max-width: 600px;
     text-align: center;
     box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-    position: relative; /* (جديد) لـ المؤقت */
+    position: relative; 
 }
 
-/* (جديد) تنسيق المؤقت */
+/* (تم التعديل) تنسيق المؤقت */
 #question-timer {
     position: absolute;
-    top: -20px;
+    top: -15px; /* (تعديل) */
     left: 50%;
     transform: translateX(-50%);
     background-color: var(--color-yellow);
     color: var(--color-dark-bg);
-    font-size: 1.5rem;
+    font-size: 1.2rem; /* (تصغير) */
     font-weight: bold;
-    padding: 10px 20px;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 40px; /* (تصغير) */
+    height: 40px; /* (تصغير) */
     display: none; /* (مخفي افتراضياً) */
     align-items: center;
     justify-content: center;
+    border-radius: 50%;
     border: 4px solid var(--color-light-bg);
 }
 
@@ -540,6 +562,7 @@ body.light-mode {
     display: flex;
     justify-content: center;
     gap: 10px;
+    flex-wrap: wrap; /* (جديد) */
 }
 .team-choice-buttons button {
     width:150px; height:60px;
@@ -755,10 +778,11 @@ body.light-mode {
     top:0; left:0;
     width:100vw; height:100vh;
     background-color: rgba(0,0,0,0.7);
+    /* (تم التعديل) ستستخدم 'hidden' للإخفاء */
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 3000; /* أعلى من نافذة السؤال */
+    z-index: 3000; 
     backdrop-filter: blur(5px);
 }
 .modal-content-small {
