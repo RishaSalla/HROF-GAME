@@ -360,31 +360,41 @@ function checkWinCondition(teamColor){
     const visited = new Set();
     const queue = [];
 
+    // 1. تحديد نقاط البدء: نبدأ من أول صف/عمود لعب (الصف 2 والعمود 2)
     if(teamColor==='red'){
-        for(let c=1;c<=6;c++){
-            const cell = getCell(1,c);
+        // الأحمر: نبدأ من الصف 2 (أول صف لعب)
+        for(let c=2;c<=6;c++){ 
+            const cell = getCell(2,c); 
             if(cell && cell.classList.contains('hex-cell-red-owned')){
-                queue.push([1,c]);
-                visited.add(`1,${c}`);
+                queue.push([2,c]);
+                visited.add(`2,${c}`);
             }
         }
     } else {
-        for(let r=2;r<=6;r++){
-            const cell = getCell(r,1);
+        // البنفسجي: نبدأ من العمود 2 (أول عمود لعب)
+        for(let r=2;r<=6;r++){ 
+            const cell = getCell(r,2); 
             if(cell && cell.classList.contains('hex-cell-purple-owned')){
-                queue.push([r,1]);
-                visited.add(`${r},1`);
+                queue.push([r,2]);
+                visited.add(`${r},2`);
             }
         }
     }
 
+    // 2. البحث (BFS)
     while(queue.length>0){
         const [r,c] = queue.shift();
         const neighbors = getNeighbors(r,c);
-        for(const [nr,nc] of neighbors){
-            if(teamColor==='red' && nr===7) return true;
-            if(teamColor==='purple' && nc===7) return true;
 
+        for(const [nr,nc] of neighbors){
+            // 3. شرط الفوز: الوصول إلى الصف/العمود 6 (نهاية اللعب) أو 7 (الحد الخارجي)
+            
+            // الأحمر يفوز إذا وصل إلى الصف 6 أو 7 (الحد السفلي)
+            if(teamColor==='red' && (nr===6 || nr===7)) return true; 
+            
+            // البنفسجي يفوز إذا وصل إلى العمود 6 أو 7 (الحد الأيمن)
+            if(teamColor==='purple' && (nc===6 || nc===7)) return true;
+            
             const neighborCell=getCell(nr,nc);
             if(neighborCell && !visited.has(`${nr},${nc}`) &&
                neighborCell.classList.contains(`hex-cell-${teamColor}-owned`)){
