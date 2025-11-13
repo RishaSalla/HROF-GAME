@@ -258,17 +258,21 @@ async function handleCellClick(event){
     answerRevealSection.style.display = 'none';
     showAnswerButton.classList.remove('hidden');
 
-    if(question){
-        currentQuestion = question;
-        questionText.textContent = question.question;
-        answerText.textContent = question.answer;
-        questionModalOverlay.classList.remove('hidden');
-    } else {
-        console.error(`لا يمكن جلب الأسئلة للملف: ${letterId}`);
-        questionText.textContent = 'عذراً، حدث خطأ في جلب السؤال.';
-        answerText.textContent = '...';
-        questionModalOverlay.classList.remove('hidden');
-    }
+if(question){
+        currentQuestion = question;
+        questionText.textContent = question.question;
+        answerText.textContent = question.answer;
+        // نقطة تفتيش 1: قبل فتح المودال مباشرة
+        console.log('Checkpoint 1: Question loaded. Opening modal.');
+        questionModalOverlay.classList.remove('hidden');
+    } else {
+        console.error(`لا يمكن جلب الأسئلة للملف: ${letterId}`);
+        // نقطة تفتيش 2: قبل فتح مودال الخطأ مباشرة
+        console.log('Checkpoint 2: No question. Opening error modal.');
+        questionText.textContent = 'عذراً، حدث خطأ في جلب السؤال.';
+        answerText.textContent = '...';
+        questionModalOverlay.classList.remove('hidden');
+    }
 
     if(gameSettings.timer!=='off'){
         startTimer(parseInt(gameSettings.timer));
@@ -280,7 +284,7 @@ async function handleCellClick(event){
 async function getQuestionForLetter(letterId){
     if(!questionCache[letterId]){
         try{
-            const response = await fetch(`/HROF-GAME/data/questions/${letterId}.json`);
+            const response = await fetch(`HROF-GAME/data/questions/${letterId}.json`);
             if(!response.ok) throw new Error('ملف السؤال غير موجود');
             questionCache[letterId] = await response.json();
         } catch(err){ console.error(err); return null; }
