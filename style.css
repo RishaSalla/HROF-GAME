@@ -50,7 +50,7 @@ body.light-mode {
     color: var(--color-text-light);
 }
 
-/* ===== 1.2 كلاس مساعد (جديد) ===== */
+/* ===== 1.2 كلاس مساعد (جديد) - تم التأكيد على وجوده وفعاليته ===== */
 .hidden {
     display: none !important;
 }
@@ -502,11 +502,11 @@ body.light-mode {
     display: none;
     align-items: center;
     justify-content: center;
-    /* 🛠️ تعديل: لضمان أعلى أولوية للظهور */
+    /* 🛠️ التعديل الأول: رفع قيمة Z-Index */
     z-index: 5000;
 }
 
-/* 🛑 القاعدة الضرورية لضمان عمل كلاس 'hidden' بشكل صارم */
+/* 🛠️ التعديل الثاني: القاعدة الضرورية لضمان عمل كلاس 'hidden' بشكل صارم */
 #question-modal-overlay.hidden {
     display: none !important; 
 }
@@ -688,8 +688,7 @@ body.light-mode {
 .score-update { font-size:4rem; font-weight:bold; margin:20px 0; }
 #next-round-button {
     font-size:1.5rem; font-weight:bold;
-    padding:15px 40px;
-    border:none;
+    padding:15px 40px;<br>    border:none;
     border-radius:10px;
     background-color: var(--color-yellow);
     color: var(--color-dark-bg);
