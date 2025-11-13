@@ -502,8 +502,15 @@ body.light-mode {
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    /* 🛠️ تعديل: لضمان أعلى أولوية للظهور */
+    z-index: 5000;
 }
+
+/* 🛑 القاعدة الضرورية لضمان عمل كلاس 'hidden' بشكل صارم */
+#question-modal-overlay.hidden {
+    display: none !important; 
+}
+
 .modal-content {
     background-color: var(--color-light-bg);
     color: var(--color-dark-bg);
@@ -626,7 +633,6 @@ body.light-mode {
     background-size: 100% 100%;
     background-color: transparent;
 }
-
 
 /* ================================
     10. الحروف داخل الخلايا
