@@ -1,7 +1,7 @@
 // --- استيراد مدير الأدوار ---
 import { TurnManager } from './turn_manager.js';
 
-// --- (تم التعديل بالكامل) العناصر (Elements) ---
+// --- العناصر (Elements) ---
 const mainMenuScreen = document.getElementById('main-menu-screen');
 const gameScreen = document.getElementById('game-screen');
 const gameBoardContainer = document.getElementById('game-board-container');
@@ -21,7 +21,7 @@ const teamSettingsPanel = document.getElementById('players-team-settings');
 const player1NameInput = document.getElementById('player-1-name-input');
 const player2NameInput = document.getElementById('player-2-name-input');
 
-// (تم الإصلاح) حقول "فريق" بأسماء ID صحيحة
+// حقول "فريق"
 const team1NameInput_team = document.getElementById('team-1-name-input-team');
 const team2NameInput_team = document.getElementById('team-2-name-input-team');
 const addTeam1MemberButton = document.getElementById('add-team-1-member-button');
@@ -52,7 +52,7 @@ const competitiveSkipButton = document.getElementById('competitive-skip-button')
 const turnCorrectButton = document.getElementById('turn-correct-button');
 const turnSkipButton = document.getElementById('turn-skip-button');
 
-// عناصر لوحة النتائج (تم إصلاح الترتيب)
+// عناصر لوحة النتائج
 const redScoreDisplay = document.getElementById('red-score');
 const purpleScoreDisplay = document.getElementById('purple-score');
 const redScoreboardName = document.querySelector('#team-red-scoreboard .team-name');
@@ -72,19 +72,18 @@ const exitConfirmModal = document.getElementById('exit-confirm-modal');
 const exitConfirmYes = document.getElementById('exit-confirm-yes');
 const exitConfirmNo = document.getElementById('exit-confirm-no');
 
-
-// --- تصدير إعدادات اللعبة ---
+// --- إعدادات اللعبة ---
 export const gameSettings = {
     mode: 'turns',
     teams: 'individual',
     timer: 'off',
-    team1Name: 'اللاعب 1 (أحمر)', // (تم إصلاح الترتيب)
-    team2Name: 'اللاعب 2 (بنفسجي)', // (تم إصلاح الترتيب)
+    team1Name: 'اللاعب 1 (أحمر)',
+    team2Name: 'اللاعب 2 (بنفسجي)',
     team1Members: [],
     team2Members: []
 };
 
-// --- متغيرات حالة اللعبة ---
+// --- متغيرات اللعبة ---
 const questionCache = {};
 let usedQuestions = {};
 let currentClickedCell = null;
@@ -94,7 +93,7 @@ let scores = { purple: 0, red: 0 };
 let timerInterval = null; 
 let remainingTime = 0; 
 
-// --- قائمة الحروف الأساسية ---
+// --- قائمة الحروف ---
 const ALL_LETTERS = [
     { id: '01alif', char: 'أ' }, { id: '02ba', char: 'ب' }, { id: '03ta', char: 'ت' },
     { id: '04tha', char: 'ث' }, { id: '05jeem', char: 'ج' }, { id: '06haa', char: 'ح' },
@@ -108,154 +107,130 @@ const ALL_LETTERS = [
     { id: '28ya', char: 'ي' }
 ];
 
-// --- هيكل اللوحة (81 خلية) ---
+// --- هيكل اللوحة ---
 const T = 'transparent'; 
 const G = 'default';     
 const R = 'red';         
 const P = 'purple';      
 
 const BOARD_LAYOUT = [
-    [T, T, T, T, T, T, T, T, T], // صف 0 (شفاف)
-    [T, T, R, R, R, R, R, R, T], // صف 1: (1T, 6R, 2T)
-    [T, P, G, G, G, G, G, P, T], // صف 2: (1T, 1P, 5G, 1P, 1T)
-    [T, P, G, G, G, G, G, P, T], // صف 3
-    [T, P, G, G, G, G, G, P, T], // صف 4
-    [T, P, G, G, G, G, G, P, T], // صف 5
-    [T, P, G, G, G, G, G, P, T], // صف 6
-    [T, T, R, R, R, R, R, R, T], // صف 7: (نفس صف 1)
-    [T, T, T, T, T, T, T, T, T]  // صف 8 (شفاف)
+    [T, T, T, T, T, T, T, T, T],
+    [T, T, R, R, R, R, R, R, T],
+    [T, P, G, G, G, G, G, P, T],
+    [T, P, G, G, G, G, G, P, T],
+    [T, P, G, G, G, G, G, P, T],
+    [T, P, G, G, G, G, G, P, T],
+    [T, P, G, G, G, G, G, P, T],
+    [T, T, R, R, R, R, R, R, T],
+    [T, T, T, T, T, T, T, T, T]
 ];
 
+// ===================== الوظائف =====================
 
-// --- الوظائف (Functions) ---
-
-/** 0. خلط المصفوفة */
 function shuffleArray(array) {
     let newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+    for (let i = newArray.length-1; i>0; i--){
+        const j = Math.floor(Math.random() * (i+1));
         [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
     return newArray;
 }
 
-/** 1. جلب سجل الأسئلة */
 function loadUsedQuestions() {
     const stored = localStorage.getItem('hrof_used_questions');
     usedQuestions = stored ? JSON.parse(stored) : {};
 }
 
-/** 2. حفظ سجل الأسئلة */
 function saveUsedQuestions() {
     localStorage.setItem('hrof_used_questions', JSON.stringify(usedQuestions));
 }
 
-/** 3. (تم التعديل) معالجة أزرار الإعدادات */
 function handleSettingClick(event) {
     const clickedButton = event.target;
     const settingType = clickedButton.dataset.setting;
     const settingValue = clickedButton.dataset.value;
-
     gameSettings[settingType] = settingValue;
-
     const buttonsInGroup = document.querySelectorAll(`.setting-button[data-setting="${settingType}"]`);
-    buttonsInGroup.forEach(btn => btn.classList.remove('active'));
+    buttonsInGroup.forEach(btn=>btn.classList.remove('active'));
     clickedButton.classList.add('active');
 
-    // إظهار/إخفاء لوحات إدخال الأسماء
-    if (settingType === 'teams') {
-        if (settingValue === 'individual') {
+    if(settingType==='teams'){
+        if(settingValue==='individual'){
             individualSettingsPanel.classList.remove('hidden');
             teamSettingsPanel.classList.add('hidden');
-        } else if (settingValue === 'team') {
+        } else {
             individualSettingsPanel.classList.add('hidden');
             teamSettingsPanel.classList.remove('hidden');
         }
     }
-    validateSettings(); 
+    validateSettings();
 }
 
-/** 4. (تم التعديل) وظيفة بدء اللعبة */
 function startGame() {
-    // 1. حفظ الإعدادات بناءً على اللوحة النشطة
-    if (gameSettings.teams === 'individual') {
+    if(gameSettings.teams==='individual'){
         gameSettings.team1Name = player1NameInput.value || 'اللاعب 1 (أحمر)';
         gameSettings.team2Name = player2NameInput.value || 'اللاعب 2 (بنفسجي)';
     } else {
-        // (تم الإصلاح) استخدام المتغيرات الصحيحة
         gameSettings.team1Name = team1NameInput_team.value || 'الفريق الأحمر';
         gameSettings.team2Name = team2NameInput_team.value || 'الفريق البنفسجي';
-        gameSettings.team1Members = Array.from(team1MembersList.querySelectorAll('input')).map(input => input.value);
-        gameSettings.team2Members = Array.from(team2MembersList.querySelectorAll('input')).map(input => input.value);
+        gameSettings.team1Members = Array.from(team1MembersList.querySelectorAll('input')).map(i=>i.value);
+        gameSettings.team2Members = Array.from(team2MembersList.querySelectorAll('input')).map(i=>i.value);
     }
 
-    // 2. تحديث الواجهة
     mainMenuScreen.classList.remove('active');
     gameScreen.classList.add('active');
-    
-    // 3. تحديث الأسماء (تم إصلاح الترتيب)
+
     redScoreboardName.textContent = gameSettings.team1Name;
     purpleScoreboardName.textContent = gameSettings.team2Name;
     redButtonName.textContent = gameSettings.team1Name;
     purpleButtonName.textContent = gameSettings.team2Name;
-    
-    // 4. بدء اللعبة
-    scores = { purple: 0, red: 0 };
+
+    scores = { purple:0, red:0 };
     updateScoreboard();
     loadUsedQuestions();
     startNewRound();
 }
 
-/** 5. بدء جولة جديدة */
 function startNewRound() {
-    gameActive = true; 
-    roundWinOverlay.classList.add('hidden'); 
-    initializeGameBoard(); 
-    TurnManager.startGame(); 
+    gameActive = true;
+    roundWinOverlay.classList.add('hidden');
+    initializeGameBoard();
+    TurnManager.startGame({mode: gameSettings.mode});
 }
 
-/** 6. بناء لوحة اللعب بالخلايا الشفافة (81 خلية) */
 function initializeGameBoard() {
     gameBoardContainer.innerHTML = '';
     const shuffledLetters = shuffleArray(ALL_LETTERS);
-    const gameLetters = shuffledLetters.slice(0, 25);
+    const gameLetters = shuffledLetters.slice(0,25);
     let letterIndex = 0;
 
-    BOARD_LAYOUT.forEach((rowData, r) => {
+    BOARD_LAYOUT.forEach((rowData, r)=>{
         const row = document.createElement('div');
         row.classList.add('hex-row');
-        
-        rowData.forEach((cellType, c) => {
+
+        rowData.forEach((cellType,c)=>{
             const cell = document.createElement('div');
-            cell.classList.add('hex-cell'); 
+            cell.classList.add('hex-cell');
             cell.dataset.row = r;
             cell.dataset.col = c;
 
-            switch(cellType) {
-                case R:
-                    cell.classList.add('hex-cell-red');
-                    break;
-                case P:
-                    cell.classList.add('hex-cell-purple');
-                    break;
+            switch(cellType){
+                case R: cell.classList.add('hex-cell-red'); break;
+                case P: cell.classList.add('hex-cell-purple'); break;
                 case G:
                     cell.classList.add('hex-cell-default','playable');
-                    
-                    if (letterIndex < gameLetters.length) {
+                    if(letterIndex<gameLetters.length){
                         const letter = gameLetters[letterIndex];
                         cell.dataset.letterId = letter.id;
-                        const letterSpan = document.createElement('span');
-                        letterSpan.classList.add('hex-letter');
-                        letterSpan.textContent = letter.char;
-                        cell.appendChild(letterSpan);
+                        const span = document.createElement('span');
+                        span.classList.add('hex-letter');
+                        span.textContent = letter.char;
+                        cell.appendChild(span);
                         letterIndex++;
                     }
-                    
                     cell.addEventListener('click', handleCellClick);
                     break;
-                case T:
-                    cell.classList.add('hex-cell-transparent');
-                    break;
+                case T: cell.classList.add('hex-cell-transparent'); break;
             }
             row.appendChild(cell);
         });
@@ -263,361 +238,260 @@ function initializeGameBoard() {
     });
 }
 
-
-/** 7. (تم التعديل) معالجة النقر على الخلية */
-async function handleCellClick(event) {
-    if (!gameActive) return;
-
+async function handleCellClick(event){
+    if(!gameActive) return;
     const clickedCell = event.currentTarget;
-    const letterId = clickedCell.dataset.letterId;
-    if (!clickedCell.classList.contains('playable')) return;
+    if(!clickedCell.classList.contains('playable')) return;
 
     currentClickedCell = clickedCell;
+    const letterId = clickedCell.dataset.letterId;
     const question = await getQuestionForLetter(letterId);
 
-    // إظهار الأزرار الصحيحة بناءً على وضع اللعبة
-    if (gameSettings.mode === 'turns') {
+    if(gameSettings.mode==='turns'){
         competitiveControls.classList.add('hidden');
         turnsControls.classList.remove('hidden');
     } else {
         competitiveControls.classList.remove('hidden');
         turnsControls.classList.add('hidden');
     }
-    
-    answerRevealSection.style.display = 'none'; // إخفاء الجواب
-    showAnswerButton.classList.remove('hidden'); // إظهار زر "أظهر الإجابة"
 
-    if (question) {
+    answerRevealSection.style.display = 'none';
+    showAnswerButton.classList.remove('hidden');
+
+    if(question){
         currentQuestion = question;
         questionText.textContent = question.question;
         answerText.textContent = question.answer;
         questionModalOverlay.classList.remove('hidden');
     } else {
-        console.error(`لا يمكن جلب الأسئلة للملف: ${letterId}. هل الملف موجود؟`);
+        console.error(`لا يمكن جلب الأسئلة للملف: ${letterId}`);
         questionText.textContent = 'عذراً، حدث خطأ في جلب السؤال.';
         answerText.textContent = '...';
         questionModalOverlay.classList.remove('hidden');
     }
 
-    // (جديد) بدء المؤقت
-    if (gameSettings.timer !== 'off') {
+    if(gameSettings.timer!=='off'){
         startTimer(parseInt(gameSettings.timer));
     } else {
-        questionTimerDisplay.classList.add('hidden'); // تأكد من إخفائه إذا كان "إيقاف"
+        questionTimerDisplay.classList.add('hidden');
     }
 }
 
-/** 8. جلب سؤال لحرف معين */
-async function getQuestionForLetter(letterId) {
-    if (!questionCache[letterId]) {
-        try {
+async function getQuestionForLetter(letterId){
+    if(!questionCache[letterId]){
+        try{
             const response = await fetch(`data/questions/${letterId}.json`);
-            if (!response.ok) throw new Error('ملف السؤال غير موجود');
+            if(!response.ok) throw new Error('ملف السؤال غير موجود');
             questionCache[letterId] = await response.json();
-        } catch (error) { console.error(error); return null; }
+        } catch(err){ console.error(err); return null; }
     }
     const allQuestions = questionCache[letterId];
-    if (!allQuestions || allQuestions.length === 0) return null; 
-    let unusedQuestions = [];
-    for (let i = 0; i < allQuestions.length; i++) {
-        const questionId = `${letterId}_q${i}`;
-        if (!usedQuestions[questionId]) {
-            unusedQuestions.push({ ...allQuestions[i], id: questionId });
-        }
-    }
-    if (unusedQuestions.length === 0) {
-        for (let i = 0; i < allQuestions.length; i++) {
-            delete usedQuestions[`${letterId}_q${i}`];
-        }
+    if(!allQuestions || allQuestions.length===0) return null;
+    let unused = [];
+    allQuestions.forEach((q,i)=>{
+        const qId = `${letterId}_q${i}`;
+        if(!usedQuestions[qId]) unused.push({...q, id:qId});
+    });
+    if(unused.length===0){
+        allQuestions.forEach((q,i)=> delete usedQuestions[`${letterId}_q${i}`]);
         saveUsedQuestions();
-        unusedQuestions = allQuestions.map((q, i) => ({ ...q, id: `${letterId}_q${i}` }));
+        unused = allQuestions.map((q,i)=>({...q,id:`${letterId}_q${i}`}));
     }
-    const randomIndex = Math.floor(Math.random() * unusedQuestions.length);
-    return unusedQuestions[randomIndex];
+    const rand = Math.floor(Math.random()*unused.length);
+    return unused[rand];
 }
 
-/** 9. إظهار الجواب */
-function showAnswer() {
+function showAnswer(){
     answerRevealSection.style.display = 'block';
-    showAnswerButton.classList.add('hidden'); 
+    showAnswerButton.classList.add('hidden');
 }
 
-/** 10. معالجة نتيجة السؤال */
-function handleQuestionResult(result) {
-    stopTimer(); // (جديد) إيقاف المؤقت
-    
-    questionModalOverlay.classList.add('hidden'); 
+function handleQuestionResult(result){
+    stopTimer();
+    questionModalOverlay.classList.add('hidden');
 
-    if (currentQuestion) {
-        usedQuestions[currentQuestion.id] = true;
+    if(currentQuestion){
+        usedQuestions[currentQuestion.id]=true;
         saveUsedQuestions();
     }
 
     let teamColor = null;
+    if(result==='purple') teamColor='purple';
+    else if(result==='red') teamColor='red';
+    else if(result==='turn_correct') teamColor=TurnManager.getCurrentPlayer();
 
-    if (result === 'purple') {
-        teamColor = 'purple';
-    } else if (result === 'red') {
-        teamColor = 'red';
-    } else if (result === 'turn_correct') {
-        teamColor = TurnManager.getCurrentPlayer(); 
-    }
-
-    if (teamColor) {
+    if(teamColor){
         currentClickedCell.classList.remove('playable','hex-cell-default');
         currentClickedCell.classList.add(`hex-cell-${teamColor}-owned`);
-        
-        // (تأكيد منطق الفوز)
-        if (checkWinCondition(teamColor)) {
+        if(checkWinCondition(teamColor)){
             handleGameWin(teamColor);
-            return; 
+            return;
         }
     }
 
     TurnManager.nextTurn(result);
-    currentClickedCell = null;
-    currentQuestion = null;
+    currentClickedCell=null;
+    currentQuestion=null;
 }
 
-/** 11. جلب خلية بواسطة الإحداثيات */
-function getCell(r,c) {
+function getCell(r,c){
     return document.querySelector(`.hex-cell[data-row="${r}"][data-col="${c}"]`);
 }
 
-/** 12. جلب الجيران (لتوجيه مدبب الرأس 9x9) */
-function getNeighbors(r, c) {
-    r = parseInt(r);
-    c = parseInt(c);
-    
-    let potentialNeighbors = [];
-    const isOddRow = r % 2 !== 0; 
-
-    if (isOddRow) { 
-        potentialNeighbors = [
-            [r, c - 1], [r, c + 1], [r - 1, c], [r - 1, c + 1], [r + 1, c], [r + 1, c + 1]
-        ];
-    } else { 
-        potentialNeighbors = [
-            [r, c - 1], [r, c + 1], [r - 1, c - 1], [r - 1, c], [r + 1, c - 1], [r + 1, c]
-        ];
+function getNeighbors(r,c){
+    r=parseInt(r); c=parseInt(c);
+    const isOdd = r%2!==0;
+    let potential=[];
+    if(isOdd){
+        potential=[[r,c-1],[r,c+1],[r-1,c],[r-1,c+1],[r+1,c],[r+1,c+1]];
+    } else{
+        potential=[[r,c-1],[r,c+1],[r-1,c-1],[r-1,c],[r+1,c-1],[r+1,c]];
     }
-
-    return potentialNeighbors.filter(([nr, nc]) => {
-        return BOARD_LAYOUT[nr] && 
-               BOARD_LAYOUT[nr][nc] !== undefined &&
-               BOARD_LAYOUT[nr][nc] !== T; 
+    return potential.filter(([nr,nc])=>{
+        return BOARD_LAYOUT[nr] && BOARD_LAYOUT[nr][nc]!==T && BOARD_LAYOUT[nr][nc]!==undefined;
     });
 }
 
-
-/** 13. التحقق من الفوز (بناءً على إحداثيات 81 خلية) */
-function checkWinCondition(teamColor) {
+function checkWinCondition(teamColor){
     const visited = new Set();
     const queue = [];
 
-    // (تم إصلاح الترتيب: الأحمر هو فريق 1، البنفسجي هو 2)
-    if (teamColor==='red'){
-        // البدء من الصف 1، الخلايا 1 إلى 6 (6 خلايا حمراء)
-        for(let c=1; c<=6; c++){ 
-            const cell = getCell(1,c); 
+    if(teamColor==='red'){
+        for(let c=1;c<=6;c++){
+            const cell = getCell(1,c);
             if(cell && cell.classList.contains('hex-cell-red-owned')){
-                queue.push([1,c]); 
-                visited.add(`1,${c}`); 
+                queue.push([1,c]);
+                visited.add(`1,${c}`);
             }
         }
-    } else { // 'purple'
-        // البدء من العمود 1، الصفوف 2 إلى 6 (5 خلايا بنفسجية)
-        for(let r=2; r<=6; r++){ 
-            const cell = getCell(r,1); 
+    } else {
+        for(let r=2;r<=6;r++){
+            const cell = getCell(r,1);
             if(cell && cell.classList.contains('hex-cell-purple-owned')){
-                queue.push([r,1]); 
-                visited.add(`${r},1`); 
+                queue.push([r,1]);
+                visited.add(`${r},1`);
             }
         }
     }
 
     while(queue.length>0){
         const [r,c] = queue.shift();
-        
         const neighbors = getNeighbors(r,c);
-        
         for(const [nr,nc] of neighbors){
-            if(teamColor==='red' && nr===7) return true; 
-            if(teamColor==='purple' && nc===7) return true; 
-            
-            const neighborCell = getCell(nr,nc);
-            if(neighborCell && !visited.has(`${nr},${nc}`) && 
-               neighborCell.classList.contains(`hex-cell-${teamColor}-owned`))
-            {
+            if(teamColor==='red' && nr===7) return true;
+            if(teamColor==='purple' && nc===7) return true;
+
+            const neighborCell=getCell(nr,nc);
+            if(neighborCell && !visited.has(`${nr},${nc}`) &&
+               neighborCell.classList.contains(`hex-cell-${teamColor}-owned`)){
                 visited.add(`${nr},${nc}`);
                 queue.push([nr,nc]);
             }
         }
     }
 
-    return false; // لم يتم العثور على مسار
+    return false;
 }
 
-/** 14. معالجة الفوز بالجولة */
 function handleGameWin(teamColor){
     gameActive=false;
-    stopTimer(); 
-    
+    stopTimer();
     scores[teamColor]++;
     updateScoreboard();
-    winMessage.textContent = (teamColor==='red')? `${gameSettings.team1Name} فاز بالجولة!` : `${gameSettings.team2Name} فاز بالجولة!`;
+    winMessage.textContent=(teamColor==='red')?`${gameSettings.team1Name} فاز بالجولة!`:`${gameSettings.team2Name} فاز بالجولة!`;
     winScorePurple.textContent = scores.purple;
     winScoreRed.textContent = scores.red;
-    roundWinOverlay.classList.remove('hidden'); 
+    roundWinOverlay.classList.remove('hidden');
 }
 
-/** 15. تحديث لوحة النتائج */
 function updateScoreboard(){
-    redScoreDisplay.textContent = scores.red;
-    purpleScoreDisplay.textContent = scores.purple;
+    redScoreDisplay.textContent=scores.red;
+    purpleScoreDisplay.textContent=scores.purple;
 }
 
-// --- وظائف الميزات الإضافية ---
+function showExitConfirm(){ exitConfirmModal.classList.remove('hidden'); }
+function confirmExit(){ exitConfirmModal.classList.add('hidden'); gameScreen.classList.remove('active'); mainMenuScreen.classList.add('active'); stopTimer(); }
+function cancelExit(){ exitConfirmModal.classList.add('hidden'); }
 
-/** 16. (تم التعديل) الخروج للقائمة الرئيسية */
-function showExitConfirm() {
-    exitConfirmModal.classList.remove('hidden');
-}
-function confirmExit() {
-    exitConfirmModal.classList.add('hidden');
-    gameScreen.classList.remove('active');
-    mainMenuScreen.classList.add('active');
-    stopTimer();
-}
-function cancelExit() {
-    exitConfirmModal.classList.add('hidden');
-}
-
-/** 17. تبديل الوضع (فاتح/غامق) */
-function toggleTheme() {
+function toggleTheme(){
     document.body.classList.toggle('dark-mode');
     document.body.classList.toggle('light-mode');
-    const button = document.getElementById('toggle-theme-button');
-    if (document.body.classList.contains('dark-mode')) {
-        button.textContent = 'تبديل الوضع (فاتح)';
-    } else {
-        button.textContent = 'تبديل الوضع (غامق)';
-    }
+    const button=document.getElementById('toggle-theme-button');
+    button.textContent=document.body.classList.contains('dark-mode')?'تبديل الوضع (فاتح)':'تبديل الوضع (غامق)';
 }
 
-/** 18. إظهار التعليمات */
-function showInstructions() {
-    instructionsModalOverlay.classList.remove('hidden'); 
-}
+function showInstructions(){ instructionsModalOverlay.classList.remove('hidden'); }
+function hideInstructions(){ instructionsModalOverlay.classList.add('hidden'); }
+function hideRotateMessage(){ rotateOverlay.style.display='none'; }
+function checkDevice(){ if(!('ontouchstart' in window || navigator.maxTouchPoints>0)) rotateOverlay.style.display='none'; }
 
-/** 19. إخفاء التعليمات */
-function hideInstructions() {
-    instructionsModalOverlay.classList.add('hidden'); 
-}
-
-/** 20. إخفاء رسالة تدوير الجهاز */
-function hideRotateMessage() {
-    rotateOverlay.style.display = 'none';
-}
-
-/** 21. التحقق من جهاز اللمس */
-function checkDevice() {
-    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-    
-    if (!isTouch) {
-        rotateOverlay.style.display = 'none';
-    }
-}
-
-/** 22. (جديد) وظائف المؤقت */
-function startTimer(duration) {
-    remainingTime = duration;
-    questionTimerDisplay.textContent = duration < 10 ? `0${duration}` : duration;
-    questionTimerDisplay.style.display = 'flex'; // (تم التعديل)
-    
-    timerInterval = setInterval(() => {
+function startTimer(duration){
+    remainingTime=duration;
+    questionTimerDisplay.textContent=duration<10?`0${duration}`:duration;
+    questionTimerDisplay.style.display='flex';
+    timerInterval=setInterval(()=>{
         remainingTime--;
-        questionTimerDisplay.textContent = remainingTime < 10 ? `0${remainingTime}` : remainingTime;
-        
-        if (remainingTime <= 0) {
-            // (جديد) تخطي تلقائي عند انتهاء الوقت
-            handleQuestionResult('skip'); 
-        }
-    }, 1000);
+        questionTimerDisplay.textContent=remainingTime<10?`0${remainingTime}`:remainingTime;
+        if(remainingTime<=0) handleQuestionResult('skip');
+    },1000);
 }
 
-function stopTimer() {
+function stopTimer(){
     clearInterval(timerInterval);
-    timerInterval = null;
-    questionTimerDisplay.style.display = 'none'; // (تم التعديل)
+    timerInterval=null;
+    questionTimerDisplay.style.display='none';
 }
 
-/** 23. (جديد) وظائف إضافة الأعضاء */
-function addMemberInput(team) {
-    const list = (team === 1) ? team1MembersList : team2MembersList;
-    
-    const container = document.createElement('div');
-    container.className = 'member-input-container';
-    
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.placeholder = `اسم العضو ${list.children.length + 1}`;
-    
-    const removeBtn = document.createElement('button');
-    removeBtn.type = 'button';
-    removeBtn.className = 'remove-member-button';
-    removeBtn.textContent = 'X';
-    removeBtn.onclick = () => container.remove();
-    
-    container.appendChild(input);
-    container.appendChild(removeBtn);
+function addMemberInput(team){
+    const list=(team===1)?team1MembersList:team2MembersList;
+    const container=document.createElement('div'); container.className='member-input-container';
+    const input=document.createElement('input'); input.type='text';
+    input.placeholder=`اسم العضو ${list.children.length+1}`;
+    const removeBtn=document.createElement('button'); removeBtn.type='button'; removeBtn.className='remove-member-button'; removeBtn.textContent='X';
+    removeBtn.onclick=()=>container.remove();
+    container.appendChild(input); container.appendChild(removeBtn);
     list.appendChild(container);
 }
 
-/** 24. (جديد) التحقق من تفعيل زر البدء */
-function validateSettings() {
-    let isValid = false;
-    if (gameSettings.teams === 'individual') {
-        isValid = player1NameInput.value.trim() !== '' && player2NameInput.value.trim() !== '';
-    } else {
-        isValid = team1NameInput_team.value.trim() !== '' && team2NameInput_team.value.trim() !== '';
+function validateSettings(){
+    let isValid=false;
+    if(gameSettings.teams==='individual'){
+        isValid=player1NameInput.value.trim()!=='' && player2NameInput.value.trim()!=='';
+    } else{
+        isValid=team1NameInput_team.value.trim()!=='' && team2NameInput_team.value.trim()!=='';
     }
-    startGameButton.disabled = !isValid;
+    startGameButton.disabled=!isValid;
 }
 
-// --- (تم التعديل) ربط الأحداث ---
-document.addEventListener('DOMContentLoaded', checkDevice); 
+// ===================== ربط الأحداث =====================
+document.addEventListener('DOMContentLoaded', checkDevice);
 
-settingButtons.forEach(button=>{ button.addEventListener('click', handleSettingClick); });
-startGameButton.addEventListener('click', startGame);
-nextRoundButton.addEventListener('click', startNewRound);
-instructionsButton.addEventListener('click', showInstructions); 
-closeInstructionsButton.addEventListener('click', hideInstructions); 
+settingButtons.forEach(btn=>btn.addEventListener('click',handleSettingClick));
+startGameButton.addEventListener('click',startGame);
+nextRoundButton.addEventListener('click',startNewRound);
+instructionsButton.addEventListener('click',showInstructions);
+closeInstructionsButton.addEventListener('click',hideInstructions);
 
-exitGameButton.addEventListener('click', showExitConfirm); // (تم التعديل)
-toggleThemeButton.addEventListener('click', toggleTheme); 
-closeRotateOverlay.addEventListener('click', hideRotateMessage); 
+exitGameButton.addEventListener('click',showExitConfirm);
+toggleThemeButton.addEventListener('click',toggleTheme);
+closeRotateOverlay.addEventListener('click',hideRotateMessage);
 
-// (جديد) ربط أزرار تأكيد الخروج
-exitConfirmYes.addEventListener('click', confirmExit);
-exitConfirmNo.addEventListener('click', cancelExit);
+exitConfirmYes.addEventListener('click',confirmExit);
+exitConfirmNo.addEventListener('click',cancelExit);
 
-// (جديد) ربط أزرار إضافة الأعضاء
-addTeam1MemberButton.addEventListener('click', () => addMemberInput(1));
-addTeam2MemberButton.addEventListener('click', () => addMemberInput(2));
+addTeam1MemberButton.addEventListener('click',()=>addMemberInput(1));
+addTeam2MemberButton.addEventListener('click',()=>addMemberInput(2));
 
-// (جديد) ربط حقول الإدخال للتحقق
-player1NameInput.addEventListener('input', validateSettings);
-player2NameInput.addEventListener('input', validateSettings);
-team1NameInput_team.addEventListener('input', validateSettings);
-team2NameInput_team.addEventListener('input', validateSettings);
+player1NameInput.addEventListener('input',validateSettings);
+player2NameInput.addEventListener('input',validateSettings);
+team1NameInput_team.addEventListener('input',validateSettings);
+team2NameInput_team.addEventListener('input',validateSettings);
 
-// (جديد) تشغيل التحقق أول مرة لتعطيل الزر
 validateSettings();
 
-showAnswerButton.addEventListener('click', showAnswer);
-teamPurpleWinButton.addEventListener('click', ()=>handleQuestionResult('purple'));
-teamRedWinButton.addEventListener('click', ()=>handleQuestionResult('red'));
-competitiveSkipButton.addEventListener('click', ()=>handleQuestionResult('skip')); 
-turnCorrectButton.addEventListener('click', ()=>handleQuestionResult('turn_correct')); 
-turnSkipButton.addEventListener('click', ()=>handleQuestionResult('turn_skip'));
+showAnswerButton.addEventListener('click',showAnswer);
+teamPurpleWinButton.addEventListener('click',()=>handleQuestionResult('purple'));
+teamRedWinButton.addEventListener('click',()=>handleQuestionResult('red'));
+competitiveSkipButton.addEventListener('click',()=>handleQuestionResult('skip'));
+turnCorrectButton.addEventListener('click',()=>handleQuestionResult('turn_correct'));
+turnSkipButton.addEventListener('click',()=>handleQuestionResult('turn_skip'));
