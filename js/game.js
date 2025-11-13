@@ -280,7 +280,7 @@ async function handleCellClick(event){
 async function getQuestionForLetter(letterId){
     if(!questionCache[letterId]){
         try{
-            const response = await fetch(`data/questions/${letterId}.json`);
+            const response = await fetch(`../data/questions/${letterId}.json`);
             if(!response.ok) throw new Error('ملف السؤال غير موجود');
             questionCache[letterId] = await response.json();
         } catch(err){ console.error(err); return null; }
