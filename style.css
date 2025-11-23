@@ -626,7 +626,12 @@ body.light-mode {
     height: 50px; 
 }
 #turn-correct-button {
-    background-color: #27ae60; /* أخضر */
+    /* (تم التعديل) استخدام الصورة بدلاً من اللون الأخضر */
+    background-image: url('assets/images/ui.button.correct.answer.png');
+    background-size: 100% 100%;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 #turn-skip-button {
     background-image: url('assets/images/ui.button.skip.png'); 
@@ -688,7 +693,8 @@ body.light-mode {
 .score-update { font-size:4rem; font-weight:bold; margin:20px 0; }
 #next-round-button {
     font-size:1.5rem; font-weight:bold;
-    padding:15px 40px;<br>    border:none;
+    padding:15px 40px;
+    border:none;
     border-radius:10px;
     background-color: var(--color-yellow);
     color: var(--color-dark-bg);
