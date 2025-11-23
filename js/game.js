@@ -5,6 +5,8 @@ import { TurnManager } from './turn_manager.js';
 const mainMenuScreen = document.getElementById('main-menu-screen');
 const gameScreen = document.getElementById('game-screen');
 const gameBoardContainer = document.getElementById('game-board-container');
+// حاوية اللوحة الأساسية للتحجيم
+const gameBoardWrapper = document.getElementById('game-board-wrapper'); 
 
 const settingButtons = document.querySelectorAll('.setting-button');
 const startGameButton = document.getElementById('start-game-button');
@@ -31,14 +33,14 @@ const toggleThemeButton = document.getElementById('toggle-theme-button');
 const questionModalOverlay = document.getElementById('question-modal-overlay');
 const questionTimerDisplay = document.getElementById('question-timer');
 const questionText = document.getElementById('question-text');
-const questionCharDisplay = document.getElementById('question-char-display'); // (جديد)
+const questionCharDisplay = document.getElementById('question-char-display');
 const showAnswerButton = document.getElementById('show-answer-button');
 const answerRevealSection = document.getElementById('answer-reveal-section');
 const answerText = document.getElementById('answer-text');
 
 const competitiveControls = document.getElementById('competitive-controls');
 const turnsControls = document.getElementById('turns-controls');
-const turnsStatusText = document.getElementById('turns-status-text'); // (جديد)
+const turnsStatusText = document.getElementById('turns-status-text');
 const teamPurpleWinButton = document.getElementById('team-purple-win-button');
 const teamRedWinButton = document.getElementById('team-red-win-button');
 const competitiveSkipButton = document.getElementById('competitive-skip-button');
@@ -80,7 +82,6 @@ export const gameSettings = {
     team2Members: []
 };
 
-// متغيرات اللعبة
 const questionCache = {};
 let usedQuestions = {};
 let currentClickedCell = null;
@@ -90,21 +91,38 @@ let scores = { purple: 0, red: 0 };
 const WINNING_SCORE = 1; 
 let timerInterval = null;
 let remainingTime = 0;
-// (جديد) لتتبع حالة السرقة
 let isStealPhase = false; 
 
-// قائمة الحروف
+// (تم التعديل) قائمة الحروف بأسمائها الكاملة
 const ALL_LETTERS = [
-    { id: '01alif', char: 'أ' }, { id: '02ba', char: 'ب' }, { id: '03ta', char: 'ت' },
-    { id: '04tha', char: 'ث' }, { id: '05jeem', char: 'ج' }, { id: '06haa', char: 'ح' },
-    { id: '07khaa', char: 'خ' }, { id: '08dal', char: 'د' }, { id: '09dhal', char: 'ذ' },
-    { id: '10ra', char: 'ر' }, { id: '11zay', char: 'ز' }, { id: '12seen', char: 'س' },
-    { id: '13sheen', char: 'ش' }, { id: '14sad', char: 'ص' }, { id: '15dad', char: 'ض' },
-    { id: '16ta_a', char: 'ط' }, { id: '17zha', char: 'ظ' }, { id: '18ain', char: 'ع' },
-    { id: '19ghain', char: 'غ' }, { id: '20fa', char: 'ف' }, { id: '21qaf', char: 'ق' },
-    { id: '22kaf', char: 'ك' }, { id: '23lam', char: 'ل' }, { id: '24meem', char: 'م' },
-    { id: '25noon', char: 'ن' }, { id: '26ha_a', char: 'هـ' }, { id: '27waw', char: 'و' },
-    { id: '28ya', char: 'ي' }
+    { id: '01alif', char: 'أ', name: 'حرف الألف' },
+    { id: '02ba', char: 'ب', name: 'حرف الباء' },
+    { id: '03ta', char: 'ت', name: 'حرف التاء' },
+    { id: '04tha', char: 'ث', name: 'حرف الثاء' },
+    { id: '05jeem', char: 'ج', name: 'حرف الجيم' },
+    { id: '06haa', char: 'ح', name: 'حرف الحاء' },
+    { id: '07khaa', char: 'خ', name: 'حرف الخاء' },
+    { id: '08dal', char: 'د', name: 'حرف الدال' },
+    { id: '09dhal', char: 'ذ', name: 'حرف الذال' },
+    { id: '10ra', char: 'ر', name: 'حرف الراء' },
+    { id: '11zay', char: 'ز', name: 'حرف الزاي' },
+    { id: '12seen', char: 'س', name: 'حرف السين' },
+    { id: '13sheen', char: 'ش', name: 'حرف الشين' },
+    { id: '14sad', char: 'ص', name: 'حرف الصاد' },
+    { id: '15dad', char: 'ض', name: 'حرف الضاد' },
+    { id: '16ta_a', char: 'ط', name: 'حرف الطاء' },
+    { id: '17zha', char: 'ظ', name: 'حرف الظاء' },
+    { id: '18ain', char: 'ع', name: 'حرف العين' },
+    { id: '19ghain', char: 'غ', name: 'حرف الغين' },
+    { id: '20fa', char: 'ف', name: 'حرف الفاء' },
+    { id: '21qaf', char: 'ق', name: 'حرف القاف' },
+    { id: '22kaf', char: 'ك', name: 'حرف الكاف' },
+    { id: '23lam', char: 'ل', name: 'حرف اللام' },
+    { id: '24meem', char: 'م', name: 'حرف الميم' },
+    { id: '25noon', char: 'ن', name: 'حرف النون' },
+    { id: '26ha_a', char: 'هـ', name: 'حرف الهاء' },
+    { id: '27waw', char: 'و', name: 'حرف الواو' },
+    { id: '28ya', char: 'ي', name: 'حرف الياء' }
 ];
 
 const T = 'transparent'; const G = 'default'; const R = 'red'; const P = 'purple';
@@ -116,14 +134,30 @@ const BOARD_LAYOUT = [
 
 // ===================== الوظائف =====================
 
+// (تم التعديل جذرياً) تحجيم دقيق للجوالات
 function resizeBoard() {
     if (!gameScreen.classList.contains('active')) return;
-    const baseWidth = 800; const baseHeight = 650; 
-    const availableWidth = window.innerWidth * 0.95; 
-    const availableHeight = window.innerHeight * 0.70;
-    const scaleX = availableWidth / baseWidth; const scaleY = availableHeight / baseHeight;
+
+    const boardWidth = 800; // العرض الأصلي التقريبي للوحة
+    const boardHeight = 650; // الارتفاع الأصلي التقريبي للوحة
+    
+    // احسب المساحة المتاحة بدقة (نطرح الهيدر والفوتر)
+    const headerHeight = document.querySelector('.game-header').offsetHeight || 100;
+    const footerHeight = document.querySelector('.game-controls').offsetHeight || 80;
+    const verticalPadding = 40; // هامش أمان
+
+    const availableWidth = window.innerWidth * 0.95; // 95% من عرض الشاشة
+    const availableHeight = window.innerHeight - headerHeight - footerHeight - verticalPadding;
+
+    // حساب نسبة التكبير/التصغير
+    const scaleX = availableWidth / boardWidth;
+    const scaleY = availableHeight / boardHeight;
     let scale = Math.min(scaleX, scaleY);
-    if (scale > 1.2) scale = 1.2; if (scale < 0.4) scale = 0.4;
+
+    // قيود لعدم التشويه
+    if (scale > 1.3) scale = 1.3; 
+    if (scale < 0.3) scale = 0.3; // للجوالات الصغيرة جداً
+
     gameBoardContainer.style.transform = `scale(${scale})`;
 }
 
@@ -185,7 +219,9 @@ function startGame() {
     redButtonName.textContent = gameSettings.team1Name; purpleButtonName.textContent = gameSettings.team2Name;
     scores = { purple:0, red:0 };
     updateScoreboard(); loadUsedQuestions(); startNewRound();
-    resizeBoard(); window.addEventListener('resize', resizeBoard);
+    // تأجيل التحجيم قليلاً لضمان ظهور العناصر
+    setTimeout(() => { resizeBoard(); }, 100);
+    window.addEventListener('resize', resizeBoard);
 }
 
 function startNewRound() {
@@ -213,10 +249,15 @@ function initializeGameBoard() {
                 case G:
                     cell.classList.add('hex-cell-default','playable');
                     if(letterIndex<gameLetters.length){
-                        const letter = gameLetters[letterIndex];
-                        cell.dataset.letterId = letter.id;
+                        const letterData = gameLetters[letterIndex];
+                        cell.dataset.letterId = letterData.id;
+                        // نخزن الاسم الكامل في البيانات لاستخدامه لاحقاً
+                        cell.dataset.letterName = letterData.name;
+                        
                         const span = document.createElement('span'); span.classList.add('hex-letter');
-                        span.textContent = letter.char; cell.appendChild(span); letterIndex++;
+                        // في اللوحة نعرض الحرف فقط (أ)
+                        span.textContent = letterData.char; 
+                        cell.appendChild(span); letterIndex++;
                     }
                     cell.addEventListener('click', handleCellClick);
                     break;
@@ -236,20 +277,17 @@ async function handleCellClick(event){
     playSound(soundFlip);
     currentClickedCell = clickedCell;
     
-    // إظهار الحرف في النافذة
-    const char = clickedCell.querySelector('.hex-letter').textContent;
-    questionCharDisplay.textContent = char;
+    // (تم التعديل) إظهار اسم الحرف الكامل (حرف الألف)
+    questionCharDisplay.textContent = clickedCell.dataset.letterName;
 
     const letterId = clickedCell.dataset.letterId;
     const question = await getQuestionForLetter(letterId);
 
-    // إعادة ضبط حالة السرقة
     isStealPhase = false; 
 
     if(gameSettings.mode==='turns'){
         competitiveControls.classList.add('hidden');
         turnsControls.classList.remove('hidden');
-        // إعادة نصوص الأزرار للحالة الطبيعية
         turnsStatusText.textContent = "هل تمت الإجابة بشكل صحيح؟";
         turnsStatusText.style.color = "var(--color-dark-bg)";
         turnCorrectButton.textContent = "نعم، إجابة صحيحة";
@@ -297,7 +335,7 @@ async function getQuestionForLetter(letterId){
     }
     const rand = Math.floor(Math.random()*unused.length);
     const q = unused[rand];
-    return {...q, id: `${letterId}_q${allQuestions.indexOf(q)}`}; // إصلاح الـ ID
+    return {...q, id: `${letterId}_q${allQuestions.indexOf(q)}`}; 
 }
 
 function showAnswer(){
@@ -306,37 +344,29 @@ function showAnswer(){
     showAnswerButton.classList.add('hidden');
 }
 
-// (منطق السرقة الجديد)
 function handleQuestionResult(result){
     stopTimer();
 
-    // 1. الوضع التنافسي (بسيط، لا سرقة معقدة)
     if (gameSettings.mode === 'competitive') {
         processResult(result);
         return;
     }
 
-    // 2. وضع الأدوار
     if (result === 'turn_correct') {
         if (!isStealPhase) {
-            // إجابة صحيحة من صاحب الدور
             processResult('turn_correct'); 
         } else {
-            // سرقة ناجحة
             processResult('steal_success');
         }
     } else if (result === 'turn_wrong') {
         if (!isStealPhase) {
-            // خطأ من صاحب الدور -> تفعيل السرقة
             isStealPhase = true;
             playSound(soundWrong);
-            // تحديث الواجهة لوضع السرقة
             turnsStatusText.textContent = "🔥 فرصة سرقة للفريق الآخر! 🔥";
             turnsStatusText.style.color = "var(--color-red)";
             turnCorrectButton.textContent = "سرقة ناجحة ✅";
             turnWrongButton.textContent = "فشل السرقة ❌";
         } else {
-            // فشل السرقة أيضاً -> إنهاء الدور
             processResult('steal_fail');
         }
     }
@@ -349,7 +379,6 @@ function processResult(finalResult) {
     let teamColor = null;
     let isCorrect = false;
 
-    // تحديد الفائز بالخلية بناءً على النتيجة
     if (finalResult === 'purple') { teamColor = 'purple'; isCorrect = true; }
     else if (finalResult === 'red') { teamColor = 'red'; isCorrect = true; }
     else if (finalResult === 'turn_correct') { 
@@ -357,11 +386,10 @@ function processResult(finalResult) {
         isCorrect = true; 
     }
     else if (finalResult === 'steal_success') {
-        // الفريق "الآخر" هو من يسرق
+        // الفريق السارق يحصل على الخلية
         teamColor = (TurnManager.getCurrentPlayer() === 'red') ? 'purple' : 'red';
         isCorrect = true;
     }
-    // 'steal_fail' أو 'skip' لا أحد يأخذ الخلية
 
     if (isCorrect) playSound(soundCorrect); else playSound(soundWrong);
 
@@ -373,7 +401,7 @@ function processResult(finalResult) {
     }
 
     checkDrawCondition();
-    // دائماً نقل الدور للفريق التالي (سواء تمت الإجابة أو السرقة أو الفشل)
+    // (هام) الانتقال للدور التالي دائماً، مهما كانت نتيجة السرقة
     TurnManager.nextTurn('next');
     currentClickedCell=null; currentQuestion=null;
 }
@@ -464,7 +492,6 @@ function startTimer(duration){
         if(remainingTime <= 5) { questionTimerDisplay.style.backgroundColor = 'var(--color-red)'; questionTimerDisplay.style.color = 'white'; }
         if(remainingTime <= 0) {
             stopTimer(); 
-            // إذا انتهى الوقت -> نعتبره خطأ لتفعيل السرقة
             if(gameSettings.mode === 'turns') handleQuestionResult('turn_wrong');
             else handleQuestionResult('skip');
         }
