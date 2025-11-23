@@ -72,15 +72,23 @@ const exitConfirmModal = document.getElementById('exit-confirm-modal');
 const exitConfirmYes = document.getElementById('exit-confirm-yes');
 const exitConfirmNo = document.getElementById('exit-confirm-no');
 
+// --- (جديد) عناصر الصوت ---
+const soundStart = document.getElementById('sound-start');
+const soundFlip = document.getElementById('sound-flip');
+const soundWin = document.getElementById('sound-win');
+const soundCorrect = document.getElementById('sound-correct');
+const soundClick = document.getElementById('sound-click');
+const soundWrong = document.getElementById('sound-wrong');
+
 // --- إعدادات اللعبة ---
 export const gameSettings = {
-    mode: 'turns',
-    teams: 'individual',
-    timer: 'off',
-    team1Name: 'اللاعب 1 (أحمر)',
-    team2Name: 'اللاعب 2 (بنفسجي)',
-    team1Members: [],
-    team2Members: []
+    mode: 'turns',
+    teams: 'individual',
+    timer: 'off',
+    team1Name: 'اللاعب 1 (أحمر)',
+    team2Name: 'اللاعب 2 (بنفسجي)',
+    team1Members: [],
+    team2Members: []
 };
 
 // --- متغيرات اللعبة ---
@@ -88,254 +96,277 @@ const questionCache = {};
 let usedQuestions = {};
 let currentClickedCell = null;
 let currentQuestion = null;
-let gameActive = true; 
+let gameActive = true; 
 let scores = { purple: 0, red: 0 };
-let timerInterval = null; 
-let remainingTime = 0; 
+let timerInterval = null; 
+let remainingTime = 0; 
 
 // --- قائمة الحروف ---
 const ALL_LETTERS = [
-    { id: '01alif', char: 'أ' }, { id: '02ba', char: 'ب' }, { id: '03ta', char: 'ت' },
-    { id: '04tha', char: 'ث' }, { id: '05jeem', char: 'ج' }, { id: '06haa', char: 'ح' },
-    { id: '07khaa', char: 'خ' }, { id: '08dal', char: 'د' }, { id: '09dhal', char: 'ذ' },
-    { id: '10ra', char: 'ر' }, { id: '11zay', char: 'ز' }, { id: '12seen', char: 'س' },
-    { id: '13sheen', char: 'ش' }, { id: '14sad', char: 'ص' }, { id: '15dad', char: 'ض' },
-    { id: '16ta_a', char: 'ط' }, { id: '17zha', char: 'ظ' }, { id: '18ain', char: 'ع' },
-    { id: '19ghain', char: 'غ' }, { id: '20fa', char: 'ف' }, { id: '21qaf', char: 'ق' },
-    { id: '22kaf', char: 'ك' }, { id: '23lam', char: 'ل' }, { id: '24meem', char: 'م' },
-    { id: '25noon', char: 'ن' }, { id: '26ha_a', char: 'هـ' }, { id: '27waw', char: 'و' },
-    { id: '28ya', char: 'ي' }
+    { id: '01alif', char: 'أ' }, { id: '02ba', char: 'ب' }, { id: '03ta', char: 'ت' },
+    { id: '04tha', char: 'ث' }, { id: '05jeem', char: 'ج' }, { id: '06haa', char: 'ح' },
+    { id: '07khaa', char: 'خ' }, { id: '08dal', char: 'د' }, { id: '09dhal', char: 'ذ' },
+    { id: '10ra', char: 'ر' }, { id: '11zay', char: 'ز' }, { id: '12seen', char: 'س' },
+    { id: '13sheen', char: 'ش' }, { id: '14sad', char: 'ص' }, { id: '15dad', char: 'ض' },
+    { id: '16ta_a', char: 'ط' }, { id: '17zha', char: 'ظ' }, { id: '18ain', char: 'ع' },
+    { id: '19ghain', char: 'غ' }, { id: '20fa', char: 'ف' }, { id: '21qaf', char: 'ق' },
+    { id: '22kaf', char: 'ك' }, { id: '23lam', char: 'ل' }, { id: '24meem', char: 'م' },
+    { id: '25noon', char: 'ن' }, { id: '26ha_a', char: 'هـ' }, { id: '27waw', char: 'و' },
+    { id: '28ya', char: 'ي' }
 ];
 
 // --- هيكل اللوحة ---
-const T = 'transparent'; 
-const G = 'default';     
-const R = 'red';         
-const P = 'purple';      
+const T = 'transparent'; 
+const G = 'default';      
+const R = 'red';          
+const P = 'purple';       
 
 const BOARD_LAYOUT = [
-    [T, T, T, T, T, T, T, T, T],
-    [T, T, R, R, R, R, R, R, T],
-    [T, P, G, G, G, G, G, P, T],
-    [T, P, G, G, G, G, G, P, T],
-    [T, P, G, G, G, G, G, P, T],
-    [T, P, G, G, G, G, G, P, T],
-    [T, P, G, G, G, G, G, P, T],
-    [T, T, R, R, R, R, R, R, T],
-    [T, T, T, T, T, T, T, T, T]
+    [T, T, T, T, T, T, T, T, T],
+    [T, T, R, R, R, R, R, R, T],
+    [T, P, G, G, G, G, G, P, T],
+    [T, P, G, G, G, G, G, P, T],
+    [T, P, G, G, G, G, G, P, T],
+    [T, P, G, G, G, G, G, P, T],
+    [T, P, G, G, G, G, G, P, T],
+    [T, T, R, R, R, R, R, R, T],
+    [T, T, T, T, T, T, T, T, T]
 ];
 
 // ===================== الوظائف =====================
 
+// (جديد) دالة تشغيل الصوت
+function playSound(audioElement) {
+    if (audioElement) {
+        audioElement.currentTime = 0; // إعادة الصوت للبداية للسماح بالتكرار السريع
+        audioElement.play().catch(e => console.log('Audio playback failed:', e));
+    }
+}
+
 function shuffleArray(array) {
-    let newArray = [...array];
-    for (let i = newArray.length-1; i>0; i--){
-        const j = Math.floor(Math.random() * (i+1));
-        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
+    let newArray = [...array];
+    for (let i = newArray.length-1; i>0; i--){
+        const j = Math.floor(Math.random() * (i+1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
 }
 
 function loadUsedQuestions() {
-    const stored = localStorage.getItem('hrof_used_questions');
-    usedQuestions = stored ? JSON.parse(stored) : {};
+    const stored = localStorage.getItem('hrof_used_questions');
+    usedQuestions = stored ? JSON.parse(stored) : {};
 }
 
 function saveUsedQuestions() {
-    localStorage.setItem('hrof_used_questions', JSON.stringify(usedQuestions));
+    localStorage.setItem('hrof_used_questions', JSON.stringify(usedQuestions));
 }
 
 function handleSettingClick(event) {
-    const clickedButton = event.target;
-    const settingType = clickedButton.dataset.setting;
-    const settingValue = clickedButton.dataset.value;
-    gameSettings[settingType] = settingValue;
-    const buttonsInGroup = document.querySelectorAll(`.setting-button[data-setting="${settingType}"]`);
-    buttonsInGroup.forEach(btn=>btn.classList.remove('active'));
-    clickedButton.classList.add('active');
+    playSound(soundClick); // (جديد) صوت نقر
+    const clickedButton = event.target;
+    const settingType = clickedButton.dataset.setting;
+    const settingValue = clickedButton.dataset.value;
+    gameSettings[settingType] = settingValue;
+    const buttonsInGroup = document.querySelectorAll(`.setting-button[data-setting="${settingType}"]`);
+    buttonsInGroup.forEach(btn=>btn.classList.remove('active'));
+    clickedButton.classList.add('active');
 
-    if(settingType==='teams'){
-        if(settingValue==='individual'){
-            individualSettingsPanel.classList.remove('hidden');
-            teamSettingsPanel.classList.add('hidden');
-        } else {
-            individualSettingsPanel.classList.add('hidden');
-            teamSettingsPanel.classList.remove('hidden');
-        }
-    }
-    validateSettings();
+    if(settingType==='teams'){
+        if(settingValue==='individual'){
+            individualSettingsPanel.classList.remove('hidden');
+            teamSettingsPanel.classList.add('hidden');
+        } else {
+            individualSettingsPanel.classList.add('hidden');
+            teamSettingsPanel.classList.remove('hidden');
+        }
+    }
+    validateSettings();
 }
 
 function startGame() {
-    if(gameSettings.teams==='individual'){
-        gameSettings.team1Name = player1NameInput.value || 'اللاعب 1 (أحمر)';
-        gameSettings.team2Name = player2NameInput.value || 'اللاعب 2 (بنفسجي)';
-    } else {
-        gameSettings.team1Name = team1NameInput_team.value || 'الفريق الأحمر';
-        gameSettings.team2Name = team2NameInput_team.value || 'الفريق البنفسجي';
-        gameSettings.team1Members = Array.from(team1MembersList.querySelectorAll('input')).map(i=>i.value);
-        gameSettings.team2Members = Array.from(team2MembersList.querySelectorAll('input')).map(i=>i.value);
-    }
+    playSound(soundStart); // (جديد) صوت بدء اللعبة
 
-    mainMenuScreen.classList.remove('active');
-    gameScreen.classList.add('active');
+    if(gameSettings.teams==='individual'){
+        gameSettings.team1Name = player1NameInput.value || 'اللاعب 1 (أحمر)';
+        gameSettings.team2Name = player2NameInput.value || 'اللاعب 2 (بنفسجي)';
+    } else {
+        gameSettings.team1Name = team1NameInput_team.value || 'الفريق الأحمر';
+        gameSettings.team2Name = team2NameInput_team.value || 'الفريق البنفسجي';
+        gameSettings.team1Members = Array.from(team1MembersList.querySelectorAll('input')).map(i=>i.value);
+        gameSettings.team2Members = Array.from(team2MembersList.querySelectorAll('input')).map(i=>i.value);
+    }
 
-    redScoreboardName.textContent = gameSettings.team1Name;
-    purpleScoreboardName.textContent = gameSettings.team2Name;
-    redButtonName.textContent = gameSettings.team1Name;
-    purpleButtonName.textContent = gameSettings.team2Name;
+    mainMenuScreen.classList.remove('active');
+    gameScreen.classList.add('active');
 
-    scores = { purple:0, red:0 };
-    updateScoreboard();
-    loadUsedQuestions();
-    startNewRound();
+    redScoreboardName.textContent = gameSettings.team1Name;
+    purpleScoreboardName.textContent = gameSettings.team2Name;
+    redButtonName.textContent = gameSettings.team1Name;
+    purpleButtonName.textContent = gameSettings.team2Name;
+
+    scores = { purple:0, red:0 };
+    updateScoreboard();
+    loadUsedQuestions();
+    startNewRound();
 }
 
 function startNewRound() {
-    gameActive = true;
-    roundWinOverlay.classList.add('hidden');
-    initializeGameBoard();
-    TurnManager.startGame({mode: gameSettings.mode});
+    gameActive = true;
+    roundWinOverlay.classList.add('hidden');
+    initializeGameBoard();
+    TurnManager.startGame({mode: gameSettings.mode});
 }
 
 function initializeGameBoard() {
-    gameBoardContainer.innerHTML = '';
-    const shuffledLetters = shuffleArray(ALL_LETTERS);
-    const gameLetters = shuffledLetters.slice(0,25);
-    let letterIndex = 0;
+    gameBoardContainer.innerHTML = '';
+    const shuffledLetters = shuffleArray(ALL_LETTERS);
+    const gameLetters = shuffledLetters.slice(0,25);
+    let letterIndex = 0;
 
-    BOARD_LAYOUT.forEach((rowData, r)=>{
-        const row = document.createElement('div');
-        row.classList.add('hex-row');
+    BOARD_LAYOUT.forEach((rowData, r)=>{
+        const row = document.createElement('div');
+        row.classList.add('hex-row');
 
-        rowData.forEach((cellType,c)=>{
-            const cell = document.createElement('div');
-            cell.classList.add('hex-cell');
-            cell.dataset.row = r;
-            cell.dataset.col = c;
+        rowData.forEach((cellType,c)=>{
+            const cell = document.createElement('div');
+            cell.classList.add('hex-cell');
+            cell.dataset.row = r;
+            cell.dataset.col = c;
 
-            switch(cellType){
-                case R: cell.classList.add('hex-cell-red'); break;
-                case P: cell.classList.add('hex-cell-purple'); break;
-                case G:
-                    cell.classList.add('hex-cell-default','playable');
-                    if(letterIndex<gameLetters.length){
-                        const letter = gameLetters[letterIndex];
-                        cell.dataset.letterId = letter.id;
-                        const span = document.createElement('span');
-                        span.classList.add('hex-letter');
-                        span.textContent = letter.char;
-                        cell.appendChild(span);
-                        letterIndex++;
-                    }
-                    cell.addEventListener('click', handleCellClick);
-                    break;
-                case T: cell.classList.add('hex-cell-transparent'); break;
-            }
-            row.appendChild(cell);
-        });
-        gameBoardContainer.appendChild(row);
-    });
+            switch(cellType){
+                case R: cell.classList.add('hex-cell-red'); break;
+                case P: cell.classList.add('hex-cell-purple'); break;
+                case G:
+                    cell.classList.add('hex-cell-default','playable');
+                    if(letterIndex<gameLetters.length){
+                        const letter = gameLetters[letterIndex];
+                        cell.dataset.letterId = letter.id;
+                        const span = document.createElement('span');
+                        span.classList.add('hex-letter');
+                        span.textContent = letter.char;
+                        cell.appendChild(span);
+                        letterIndex++;
+                    }
+                    cell.addEventListener('click', handleCellClick);
+                    break;
+                case T: cell.classList.add('hex-cell-transparent'); break;
+            }
+            row.appendChild(cell);
+        });
+        gameBoardContainer.appendChild(row);
+    });
 }
 
 async function handleCellClick(event){
-    if(!gameActive) return;
-    const clickedCell = event.currentTarget;
-    if(!clickedCell.classList.contains('playable')) return;
+    if(!gameActive) return;
+    const clickedCell = event.currentTarget;
+    if(!clickedCell.classList.contains('playable')) return;
 
-    currentClickedCell = clickedCell;
-    const letterId = clickedCell.dataset.letterId;
-    const question = await getQuestionForLetter(letterId);
+    playSound(soundFlip); // (جديد) صوت قلب البطاقة
 
-    if(gameSettings.mode==='turns'){
-        competitiveControls.classList.add('hidden');
-        turnsControls.classList.remove('hidden');
-    } else {
-        competitiveControls.classList.remove('hidden');
-        turnsControls.classList.add('hidden');
-    }
+    currentClickedCell = clickedCell;
+    const letterId = clickedCell.dataset.letterId;
+    const question = await getQuestionForLetter(letterId);
 
-    answerRevealSection.style.display = 'none';
-    showAnswerButton.classList.remove('hidden');
+    if(gameSettings.mode==='turns'){
+        competitiveControls.classList.add('hidden');
+        turnsControls.classList.remove('hidden');
+    } else {
+        competitiveControls.classList.remove('hidden');
+        turnsControls.classList.add('hidden');
+    }
+
+    answerRevealSection.style.display = 'none';
+    showAnswerButton.classList.remove('hidden');
 
 if(question){
-        currentQuestion = question;
-        questionText.textContent = question.question;
-        answerText.textContent = question.answer;
-        questionModalOverlay.classList.remove('hidden');
-    } else {
-        console.error(`لا يمكن جلب الأسئلة للملف: ${letterId}`);
-        questionText.textContent = 'عذراً، حدث خطأ في جلب السؤال.';
-        answerText.textContent = '...';
-        questionModalOverlay.classList.remove('hidden');
-    }
+        currentQuestion = question;
+        questionText.textContent = question.question;
+        answerText.textContent = question.answer;
+        questionModalOverlay.classList.remove('hidden');
+    } else {
+        console.error(`لا يمكن جلب الأسئلة للملف: ${letterId}`);
+        questionText.textContent = 'عذراً، حدث خطأ في جلب السؤال.';
+        answerText.textContent = '...';
+        questionModalOverlay.classList.remove('hidden');
+    }
 
-    if(gameSettings.timer!=='off'){
-        startTimer(parseInt(gameSettings.timer));
-    } else {
-        questionTimerDisplay.classList.add('hidden');
-    }
+    if(gameSettings.timer!=='off'){
+        startTimer(parseInt(gameSettings.timer));
+    } else {
+        questionTimerDisplay.classList.add('hidden');
+    }
 }
 
 async function getQuestionForLetter(letterId){
-    if(!questionCache[letterId]){
-        try{
-            const response = await fetch(`data/questions/${letterId}.json`);
-            if(!response.ok) throw new Error('ملف السؤال غير موجود');
-            questionCache[letterId] = await response.json();
-        } catch(err){ console.error(err); return null; }
-    }
-    const allQuestions = questionCache[letterId];
-    if(!allQuestions || allQuestions.length===0) return null;
-    let unused = [];
-    allQuestions.forEach((q,i)=>{
-        const qId = `${letterId}_q${i}`;
-        if(!usedQuestions[qId]) unused.push({...q, id:qId});
-    });
-    if(unused.length===0){
-        allQuestions.forEach((q,i)=> delete usedQuestions[`${letterId}_q${i}`]);
-        saveUsedQuestions();
-        unused = allQuestions.map((q,i)=>({...q,id:`${letterId}_q${i}`}));
-    }
-    const rand = Math.floor(Math.random()*unused.length);
-    return unused[rand];
+    if(!questionCache[letterId]){
+        try{
+            const response = await fetch(`data/questions/${letterId}.json`);
+            if(!response.ok) throw new Error('ملف السؤال غير موجود');
+            questionCache[letterId] = await response.json();
+        } catch(err){ console.error(err); return null; }
+    }
+    const allQuestions = questionCache[letterId];
+    if(!allQuestions || allQuestions.length===0) return null;
+    let unused = [];
+    allQuestions.forEach((q,i)=>{
+        const qId = `${letterId}_q${i}`;
+        if(!usedQuestions[qId]) unused.push({...q, id:qId});
+    });
+    if(unused.length===0){
+        allQuestions.forEach((q,i)=> delete usedQuestions[`${letterId}_q${i}`]);
+        saveUsedQuestions();
+        unused = allQuestions.map((q,i)=>({...q,id:`${letterId}_q${i}`}));
+    }
+    const rand = Math.floor(Math.random()*unused.length);
+    return unused[rand];
 }
 
 function showAnswer(){
-    answerRevealSection.style.display = 'block';
-    showAnswerButton.classList.add('hidden');
+    playSound(soundClick); // (جديد) صوت نقر
+    answerRevealSection.style.display = 'block';
+    showAnswerButton.classList.add('hidden');
 }
 
 function handleQuestionResult(result){
-    stopTimer();
-    questionModalOverlay.classList.add('hidden');
+    stopTimer();
+    questionModalOverlay.classList.add('hidden');
 
-    if(currentQuestion){
-        usedQuestions[currentQuestion.id]=true;
-        saveUsedQuestions();
-    }
+    if(currentQuestion){
+        usedQuestions[currentQuestion.id]=true;
+        saveUsedQuestions();
+    }
 
-    let teamColor = null;
-    if(result==='purple') teamColor='purple';
-    else if(result==='red') teamColor='red';
-    else if(result==='turn_correct') teamColor=TurnManager.getCurrentPlayer();
+    let teamColor = null;
+    let isCorrect = false; // (جديد) لتحديد الصوت
 
-    if(teamColor){
-        currentClickedCell.classList.remove('playable','hex-cell-default');
-        currentClickedCell.classList.add(`hex-cell-${teamColor}-owned`);
-        if(checkWinCondition(teamColor)){
-            handleGameWin(teamColor);
-            return;
-        }
-    }
+    if(result==='purple') { teamColor='purple'; isCorrect=true; }
+    else if(result==='red') { teamColor='red'; isCorrect=true; }
+    else if(result==='turn_correct') { teamColor=TurnManager.getCurrentPlayer(); isCorrect=true; }
+    
+    // (جديد) تشغيل الأصوات بناءً على النتيجة
+    if(isCorrect) {
+        playSound(soundCorrect);
+    } else {
+        playSound(soundWrong);
+    }
 
-    TurnManager.nextTurn(result);
-    currentClickedCell=null;
-    currentQuestion=null;
+    if(teamColor){
+        currentClickedCell.classList.remove('playable','hex-cell-default');
+        currentClickedCell.classList.add(`hex-cell-${teamColor}-owned`);
+        if(checkWinCondition(teamColor)){
+            handleGameWin(teamColor);
+            return;
+        }
+    }
+
+    TurnManager.nextTurn(result);
+    currentClickedCell=null;
+    currentQuestion=null;
 }
 
 function getCell(r,c){
-    return document.querySelector(`.hex-cell[data-row="${r}"][data-col="${c}"]`);
+    return document.querySelector(`.hex-cell[data-row="${r}"][data-col="${c}"]`);
 }
 
 function getNeighbors(r,c){
@@ -434,73 +465,84 @@ function checkWinCondition(teamColor){
 }
 
 function handleGameWin(teamColor){
-    gameActive=false;
-    stopTimer();
-    scores[teamColor]++;
-    updateScoreboard();
-    winMessage.textContent=(teamColor==='red')?`${gameSettings.team1Name} فاز بالجولة!`:`${gameSettings.team2Name} فاز بالجولة!`;
-    winScorePurple.textContent = scores.purple;
-    winScoreRed.textContent = scores.red;
-    roundWinOverlay.classList.remove('hidden');
+    playSound(soundWin); // (جديد) صوت الفوز
+    gameActive=false;
+    stopTimer();
+    scores[teamColor]++;
+    updateScoreboard();
+    winMessage.textContent=(teamColor==='red')?`${gameSettings.team1Name} فاز بالجولة!`:`${gameSettings.team2Name} فاز بالجولة!`;
+    winScorePurple.textContent = scores.purple;
+    winScoreRed.textContent = scores.red;
+    roundWinOverlay.classList.remove('hidden');
 }
 
 function updateScoreboard(){
-    redScoreDisplay.textContent=scores.red;
-    purpleScoreDisplay.textContent=scores.purple;
+    redScoreDisplay.textContent=scores.red;
+    purpleScoreDisplay.textContent=scores.purple;
 }
 
-function showExitConfirm(){ exitConfirmModal.classList.remove('hidden'); }
-function confirmExit(){ exitConfirmModal.classList.add('hidden'); gameScreen.classList.remove('active'); mainMenuScreen.classList.add('active'); stopTimer(); }
-function cancelExit(){ exitConfirmModal.classList.add('hidden'); }
+function showExitConfirm(){ playSound(soundClick); showExitConfirmModal(); } // (تم التعديل لإضافة الصوت)
+function showExitConfirmModal(){ exitConfirmModal.classList.remove('hidden'); } // دالة مساعدة لترتيب الصوت
+
+function confirmExit(){ 
+    playSound(soundClick); 
+    exitConfirmModal.classList.add('hidden'); 
+    gameScreen.classList.remove('active'); 
+    mainMenuScreen.classList.add('active'); 
+    stopTimer(); 
+}
+function cancelExit(){ playSound(soundClick); exitConfirmModal.classList.add('hidden'); }
 
 function toggleTheme(){
-    document.body.classList.toggle('dark-mode');
-    document.body.classList.toggle('light-mode');
-    const button=document.getElementById('toggle-theme-button');
-    button.textContent=document.body.classList.contains('dark-mode')?'تبديل الوضع (فاتح)':'تبديل الوضع (غامق)';
+    playSound(soundClick);
+    document.body.classList.toggle('dark-mode');
+    document.body.classList.toggle('light-mode');
+    const button=document.getElementById('toggle-theme-button');
+    button.textContent=document.body.classList.contains('dark-mode')?'تبديل الوضع (فاتح)':'تبديل الوضع (غامق)';
 }
 
-function showInstructions(){ instructionsModalOverlay.classList.remove('hidden'); }
-function hideInstructions(){ instructionsModalOverlay.classList.add('hidden'); }
+function showInstructions(){ playSound(soundClick); instructionsModalOverlay.classList.remove('hidden'); }
+function hideInstructions(){ playSound(soundClick); instructionsModalOverlay.classList.add('hidden'); }
 function hideRotateMessage(){ rotateOverlay.style.display='none'; }
 function checkDevice(){ if(!('ontouchstart' in window || navigator.maxTouchPoints>0)) rotateOverlay.style.display='none'; }
 
 function startTimer(duration){
-    remainingTime=duration;
-    questionTimerDisplay.textContent=duration<10?`0${duration}`:duration;
-    questionTimerDisplay.style.display='flex';
-    timerInterval=setInterval(()=>{
-        remainingTime--;
-        questionTimerDisplay.textContent=remainingTime<10?`0${remainingTime}`:remainingTime;
-        if(remainingTime<=0) handleQuestionResult('skip');
-    },1000);
+    remainingTime=duration;
+    questionTimerDisplay.textContent=duration<10?`0${duration}`:duration;
+    questionTimerDisplay.style.display='flex';
+    timerInterval=setInterval(()=>{
+        remainingTime--;
+        questionTimerDisplay.textContent=remainingTime<10?`0${remainingTime}`:remainingTime;
+        if(remainingTime<=0) handleQuestionResult('skip');
+    },1000);
 }
 
 function stopTimer(){
-    clearInterval(timerInterval);
-    timerInterval=null;
-    questionTimerDisplay.style.display='none';
+    clearInterval(timerInterval);
+    timerInterval=null;
+    questionTimerDisplay.style.display='none';
 }
 
 function addMemberInput(team){
-    const list=(team===1)?team1MembersList:team2MembersList;
-    const container=document.createElement('div'); container.className='member-input-container';
-    const input=document.createElement('input'); input.type='text';
-    input.placeholder=`اسم العضو ${list.children.length+1}`;
-    const removeBtn=document.createElement('button'); removeBtn.type='button'; removeBtn.className='remove-member-button'; removeBtn.textContent='X';
-    removeBtn.onclick=()=>container.remove();
-    container.appendChild(input); container.appendChild(removeBtn);
-    list.appendChild(container);
+    playSound(soundClick);
+    const list=(team===1)?team1MembersList:team2MembersList;
+    const container=document.createElement('div'); container.className='member-input-container';
+    const input=document.createElement('input'); input.type='text';
+    input.placeholder=`اسم العضو ${list.children.length+1}`;
+    const removeBtn=document.createElement('button'); removeBtn.type='button'; removeBtn.className='remove-member-button'; removeBtn.textContent='X';
+    removeBtn.onclick=()=>{ playSound(soundClick); container.remove(); };
+    container.appendChild(input); container.appendChild(removeBtn);
+    list.appendChild(container);
 }
 
 function validateSettings(){
-    let isValid=false;
-    if(gameSettings.teams==='individual'){
-        isValid=player1NameInput.value.trim()!=='' && player2NameInput.value.trim()!=='';
-    } else{
-        isValid=team1NameInput_team.value.trim()!=='' && team2NameInput_team.value.trim()!=='';
-    }
-    startGameButton.disabled=!isValid;
+    let isValid=false;
+    if(gameSettings.teams==='individual'){
+        isValid=player1NameInput.value.trim()!=='' && player2NameInput.value.trim()!=='';
+    } else{
+        isValid=team1NameInput_team.value.trim()!=='' && team2NameInput_team.value.trim()!=='';
+    }
+    startGameButton.disabled=!isValid;
 }
 
 // ===================== ربط الأحداث =====================
@@ -508,7 +550,7 @@ document.addEventListener('DOMContentLoaded', checkDevice);
 
 settingButtons.forEach(btn=>btn.addEventListener('click',handleSettingClick));
 startGameButton.addEventListener('click',startGame);
-nextRoundButton.addEventListener('click',startNewRound);
+nextRoundButton.addEventListener('click',()=>{ playSound(soundClick); startNewRound(); });
 instructionsButton.addEventListener('click',showInstructions);
 closeInstructionsButton.addEventListener('click',hideInstructions);
 
@@ -530,6 +572,7 @@ team2NameInput_team.addEventListener('input',validateSettings);
 validateSettings();
 
 showAnswerButton.addEventListener('click',showAnswer);
+// (جديد) إضافة الأصوات للأزرار في نافذة السؤال
 teamPurpleWinButton.addEventListener('click',()=>handleQuestionResult('purple'));
 teamRedWinButton.addEventListener('click',()=>handleQuestionResult('red'));
 competitiveSkipButton.addEventListener('click',()=>handleQuestionResult('skip'));
