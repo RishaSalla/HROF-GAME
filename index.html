@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HROF-GAME</title>
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body class="dark-mode"> 
 
@@ -24,10 +24,8 @@
     </main>
 
     <div id="main-menu-screen" class="screen">
-        
         <div class="settings-container">
             <h2>إعدادات اللعبة</h2>
-            
             <div class="settings-grid">
                 <div class="settings-column">
                     <div class="setting-group">
@@ -37,7 +35,6 @@
                             <button class="setting-button" data-setting="mode" data-value="competitive">تنافسي</button>
                         </div>
                     </div>
-
                     <div class="setting-group">
                         <h3>الفرق:</h3>
                         <div class="button-group">
@@ -45,7 +42,6 @@
                             <button class="setting-button" data-setting="teams" data-value="team">فريق</button>
                         </div>
                     </div>
-
                     <div class="setting-group">
                         <h3>المؤقت:</h3>
                         <div class="button-group">
@@ -79,8 +75,7 @@
                                 </div>
                                 <div class="input-group">
                                     <label>أعضاء الفريق 1</label>
-                                    <div id="team-1-members-list" class="members-list">
-                                    </div>
+                                    <div id="team-1-members-list" class="members-list"></div>
                                     <button type="button" class="add-member-button" id="add-team-1-member-button">+ إضافة عضو</button>
                                 </div>
                             </div>
@@ -91,8 +86,7 @@
                                 </div>
                                 <div class="input-group">
                                     <label>أعضاء الفريق 2</label>
-                                    <div id="team-2-members-list" class="members-list">
-                                    </div>
+                                    <div id="team-2-members-list" class="members-list"></div>
                                     <button type="button" class="add-member-button" id="add-team-2-member-button">+ إضافة عضو</button>
                                 </div>
                             </div>
@@ -111,20 +105,13 @@
             <div class="modal-content">
                 <h2>التعليمات</h2>
                 <h3>الهدف: صِل لتربح!</h3>
-                <p>الهدف هو بناء مسار متصل من خلايا فريقك. الفريق الأحمر يحاول التوصيل من الأعلى للأسفل، والفريق البنفسجي من اليمين لليسار.</p>
-                <h3>أنماط اللعب:</h3>
-                <ul>
-                    <li><strong>الأدوار:</strong> تحدٍ هادئ. السؤال موجه للفريق صاحب الدور.</li>
-                    <li><strong>التنافسي:</strong> سباق حماسي! الفريق الأسرع في الإجابة يمتلك الخلية.</li>
-                </ul>
+                <p>الهدف هو بناء مسار متصل من خلايا فريقك.</p>
                 <button id="close-instructions-button">فهمت!</button>
             </div>
         </div>
-
     </div>
 
     <div id="game-screen" class="screen">
-        
         <header class="game-header">
             <div id="team-red-scoreboard" class="scoreboard-container left">
                 <span class="team-name">الفريق الأحمر</span>
@@ -150,6 +137,8 @@
             <div class="modal-content">
                 <div id="question-timer" class="hidden">00:30</div> 
                 
+                <div id="question-char-display">أ</div>
+
                 <h3 id="question-text">نص السؤال سيظهر هنا...</h3>
                 <button id="show-answer-button">أظهر الإجابة</button>
                 
@@ -159,21 +148,17 @@
                     <div id="competitive-controls">
                         <h4>من الذي حصل على الإجابة؟</h4>
                         <div class="team-choice-buttons">
-                            <button id="team-red-win-button">
-                                <span class="team-name-in-button">الفريق الأحمر</span>
-                            </button>
-                            <button id="team-purple-win-button">
-                                <span class="team-name-in-button">الفريق البنفسجي</span>
-                            </button>
+                            <button id="team-red-win-button"><span class="team-name-in-button">الفريق الأحمر</span></button>
+                            <button id="team-purple-win-button"><span class="team-name-in-button">الفريق البنفسجي</span></button>
                         </div>
                         <button id="competitive-skip-button">تخطي السؤال</button>
                     </div>
 
                     <div id="turns-controls" class="hidden">
-                        <h4>هل تمت الإجابة بشكل صحيح؟</h4>
+                        <h4 id="turns-status-text">هل تمت الإجابة بشكل صحيح؟</h4>
                         <div class="team-choice-buttons">
-                            <button id="turn-correct-button"> نعم، تمت الإجابة</button>
-                            <button id="turn-skip-button"> لا، تخطي الدور</button>
+                            <button id="turn-correct-button">نعم، إجابة صحيحة</button>
+                            <button id="turn-wrong-button">لا، إجابة خاطئة</button>
                         </div>
                     </div>
                 </div>
@@ -200,7 +185,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <div id="audio-assets" style="display: none;">
