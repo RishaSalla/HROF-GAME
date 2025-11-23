@@ -1,7 +1,7 @@
 // --- استيراد مدير الأدوار ---
 import { TurnManager } from './turn_manager.js';
 
-// --- العناصر (Elements) ---
+// ===================== العناصر (Elements) =====================
 const mainMenuScreen = document.getElementById('main-menu-screen');
 const gameScreen = document.getElementById('game-screen');
 const gameBoardContainer = document.getElementById('game-board-container');
@@ -16,12 +16,8 @@ const closeInstructionsButton = document.getElementById('close-instructions-butt
 // لوحات إعدادات الفرق
 const individualSettingsPanel = document.getElementById('players-individual-settings');
 const teamSettingsPanel = document.getElementById('players-team-settings');
-
-// حقول "فردي"
 const player1NameInput = document.getElementById('player-1-name-input');
 const player2NameInput = document.getElementById('player-2-name-input');
-
-// حقول "فريق"
 const team1NameInput_team = document.getElementById('team-1-name-input-team');
 const team2NameInput_team = document.getElementById('team-2-name-input-team');
 const addTeam1MemberButton = document.getElementById('add-team-1-member-button');
@@ -72,7 +68,7 @@ const exitConfirmModal = document.getElementById('exit-confirm-modal');
 const exitConfirmYes = document.getElementById('exit-confirm-yes');
 const exitConfirmNo = document.getElementById('exit-confirm-no');
 
-// --- (جديد) عناصر الصوت ---
+// عناصر الصوت
 const soundStart = document.getElementById('sound-start');
 const soundFlip = document.getElementById('sound-flip');
 const soundWin = document.getElementById('sound-win');
@@ -80,7 +76,7 @@ const soundCorrect = document.getElementById('sound-correct');
 const soundClick = document.getElementById('sound-click');
 const soundWrong = document.getElementById('sound-wrong');
 
-// --- إعدادات اللعبة ---
+// ===================== الإعدادات والمتغيرات =====================
 export const gameSettings = {
     mode: 'turns',
     teams: 'individual',
@@ -91,17 +87,19 @@ export const gameSettings = {
     team2Members: []
 };
 
-// --- متغيرات اللعبة ---
+// متغيرات اللعبة
 const questionCache = {};
 let usedQuestions = {};
 let currentClickedCell = null;
 let currentQuestion = null;
-let gameActive = true; 
-let scores = { purple: 0, red: 0 };
-let timerInterval = null; 
-let remainingTime = 0; 
+let gameActive = true;
+let scores = { purple: 0, red: 0 }; 
+// (تم التعديل) عدد النقاط للفوز أصبح 1 فقط
+const WINNING_SCORE = 1; 
+let timerInterval = null;
+let remainingTime = 0;
 
-// --- قائمة الحروف ---
+// قائمة الحروف
 const ALL_LETTERS = [
     { id: '01alif', char: 'أ' }, { id: '02ba', char: 'ب' }, { id: '03ta', char: 'ت' },
     { id: '04tha', char: 'ث' }, { id: '05jeem', char: 'ج' }, { id: '06haa', char: 'ح' },
@@ -115,11 +113,11 @@ const ALL_LETTERS = [
     { id: '28ya', char: 'ي' }
 ];
 
-// --- هيكل اللوحة ---
-const T = 'transparent'; 
-const G = 'default';      
-const R = 'red';          
-const P = 'purple';       
+// هيكل اللوحة
+const T = 'transparent';
+const G = 'default';
+const R = 'red';
+const P = 'purple';
 
 const BOARD_LAYOUT = [
     [T, T, T, T, T, T, T, T, T],
@@ -133,12 +131,33 @@ const BOARD_LAYOUT = [
     [T, T, T, T, T, T, T, T, T]
 ];
 
-// ===================== الوظائف =====================
+// ===================== الوظائف (Functions) =====================
 
-// (جديد) دالة تشغيل الصوت
+// دالة التحجيم التلقائي
+function resizeBoard() {
+    if (!gameScreen.classList.contains('active')) return;
+
+    const baseWidth = 800; 
+    const baseHeight = 650; 
+
+    const availableWidth = window.innerWidth * 0.95; 
+    const availableHeight = window.innerHeight * 0.70;
+
+    const scaleX = availableWidth / baseWidth;
+    const scaleY = availableHeight / baseHeight;
+    
+    let scale = Math.min(scaleX, scaleY);
+
+    if (scale > 1.2) scale = 1.2;
+    if (scale < 0.4) scale = 0.4;
+
+    gameBoardContainer.style.transform = `scale(${scale})`;
+}
+
+// دالة تشغيل الصوت
 function playSound(audioElement) {
     if (audioElement) {
-        audioElement.currentTime = 0; // إعادة الصوت للبداية للسماح بالتكرار السريع
+        audioElement.currentTime = 0;
         audioElement.play().catch(e => console.log('Audio playback failed:', e));
     }
 }
@@ -162,7 +181,7 @@ function saveUsedQuestions() {
 }
 
 function handleSettingClick(event) {
-    playSound(soundClick); // (جديد) صوت نقر
+    playSound(soundClick);
     const clickedButton = event.target;
     const settingType = clickedButton.dataset.setting;
     const settingValue = clickedButton.dataset.value;
@@ -184,7 +203,7 @@ function handleSettingClick(event) {
 }
 
 function startGame() {
-    playSound(soundStart); // (جديد) صوت بدء اللعبة
+    playSound(soundStart);
 
     if(gameSettings.teams==='individual'){
         gameSettings.team1Name = player1NameInput.value || 'اللاعب 1 (أحمر)';
@@ -208,13 +227,23 @@ function startGame() {
     updateScoreboard();
     loadUsedQuestions();
     startNewRound();
+    
+    resizeBoard();
+    window.addEventListener('resize', resizeBoard);
 }
 
 function startNewRound() {
     gameActive = true;
     roundWinOverlay.classList.add('hidden');
+    
+    if (scores.red >= WINNING_SCORE || scores.purple >= WINNING_SCORE) {
+        scores = { purple:0, red:0 };
+        updateScoreboard();
+    }
+    
     initializeGameBoard();
     TurnManager.startGame({mode: gameSettings.mode});
+    resizeBoard();
 }
 
 function initializeGameBoard() {
@@ -262,7 +291,7 @@ async function handleCellClick(event){
     const clickedCell = event.currentTarget;
     if(!clickedCell.classList.contains('playable')) return;
 
-    playSound(soundFlip); // (جديد) صوت قلب البطاقة
+    playSound(soundFlip);
 
     currentClickedCell = clickedCell;
     const letterId = clickedCell.dataset.letterId;
@@ -279,7 +308,7 @@ async function handleCellClick(event){
     answerRevealSection.style.display = 'none';
     showAnswerButton.classList.remove('hidden');
 
-if(question){
+    if(question){
         currentQuestion = question;
         questionText.textContent = question.question;
         answerText.textContent = question.answer;
@@ -323,7 +352,7 @@ async function getQuestionForLetter(letterId){
 }
 
 function showAnswer(){
-    playSound(soundClick); // (جديد) صوت نقر
+    playSound(soundClick);
     answerRevealSection.style.display = 'block';
     showAnswerButton.classList.add('hidden');
 }
@@ -338,31 +367,43 @@ function handleQuestionResult(result){
     }
 
     let teamColor = null;
-    let isCorrect = false; // (جديد) لتحديد الصوت
+    let isCorrect = false;
 
     if(result==='purple') { teamColor='purple'; isCorrect=true; }
     else if(result==='red') { teamColor='red'; isCorrect=true; }
     else if(result==='turn_correct') { teamColor=TurnManager.getCurrentPlayer(); isCorrect=true; }
     
-    // (جديد) تشغيل الأصوات بناءً على النتيجة
-    if(isCorrect) {
-        playSound(soundCorrect);
-    } else {
-        playSound(soundWrong);
-    }
+    if(isCorrect) playSound(soundCorrect);
+    else playSound(soundWrong);
 
     if(teamColor){
         currentClickedCell.classList.remove('playable','hex-cell-default');
         currentClickedCell.classList.add(`hex-cell-${teamColor}-owned`);
-        if(checkWinCondition(teamColor)){
-            handleGameWin(teamColor);
+        
+        const winningPath = checkWinCondition(teamColor);
+        if(winningPath){
+            handleGameWin(teamColor, winningPath);
             return;
         }
     }
 
+    checkDrawCondition();
+
     TurnManager.nextTurn(result);
     currentClickedCell=null;
     currentQuestion=null;
+}
+
+function checkDrawCondition() {
+    const playableCells = document.querySelectorAll('.hex-cell.playable');
+    if (playableCells.length === 0 && gameActive) {
+        gameActive = false;
+        winMessage.textContent = "تعادل! انتهت الجولة بلا فائز";
+        winScorePurple.textContent = scores.purple;
+        winScoreRed.textContent = scores.red;
+        roundWinOverlay.classList.remove('hidden');
+        playSound(soundWrong);
+    }
 }
 
 function getCell(r,c){
@@ -374,103 +415,106 @@ function getNeighbors(r,c){
     const isOdd = r%2!==0; 
     let potential=[];
     
-    // 🛠️ 1. عكس منطق الإزاحة ليتناسب مع البناء الفعلي (حل الاتصال المائل)
     if(isOdd){ 
         potential=[[r,c-1],[r,c+1],[r-1,c-1],[r-1,c],[r+1,c-1],[r+1,c]];
     } else{ 
         potential=[[r,c-1],[r,c+1],[r-1,c],[r-1,c+1],[r+1,c],[r+1,c+1]];
     }
     
-    // 🛠️ 2. الفلترة: السماح بالاتصال بالحدود الثابتة (R و P)
     return potential.filter(([nr,nc])=>{
         const numRows = BOARD_LAYOUT.length;
         const numCols = BOARD_LAYOUT[0].length;
         const cellType = BOARD_LAYOUT[nr] ? BOARD_LAYOUT[nr][nc] : undefined;
-
-        return (
-            nr >= 0 && nr < numRows && 
-            nc >= 0 && nc < numCols && 
-            cellType !== T
-        );
+        return (nr >= 0 && nr < numRows && nc >= 0 && nc < numCols && cellType !== T);
     });
 }
 
 function checkWinCondition(teamColor){
     const visited = new Set();
     const queue = [];
+    const parentMap = new Map();
 
-    // 1. تحديد نقاط البدء (منطقة اللعب الفعلية)
     if(teamColor==='red'){
-        // 🟥 الأحمر (أعلى -> أسفل): يبدأ من الصف 2
         for(let c=2;c<=6;c++){ 
             const cell = getCell(2,c); 
             if(cell && cell.classList.contains('hex-cell-red-owned')){
+                const key = `2,${c}`;
                 queue.push([2,c]);
-                visited.add(`2,${c}`);
+                visited.add(key);
+                parentMap.set(key, null);
             }
         }
     } else {
-        // 🟪 البنفسجي (يمين -> يسار): يبدأ من العمود 6
         for(let r=2;r<=6;r++){ 
             const cell = getCell(r,6); 
             if(cell && cell.classList.contains('hex-cell-purple-owned')){
+                const key = `${r},6`;
                 queue.push([r,6]);
-                visited.add(`${r},6`);
+                visited.add(key);
+                parentMap.set(key, null);
             }
         }
     }
 
-    // 2. البحث (BFS)
     while(queue.length>0){
         const [r,c] = queue.shift();
+        const currentKey = `${r},${c}`;
         const neighbors = getNeighbors(r,c);
 
         for(const [nr,nc] of neighbors){
+            const neighborKey = `${nr},${nc}`;
             const neighborCell = getCell(nr, nc);
             
-            // 🛑 فحص شرط الفوز أولاً: هل الجار هو الخلية الحدودية النهائية المطلوبة؟
-            
-            // 🟥 الأحمر يفوز: إذا وصل إلى الصف 7 (الحد الثابت)
-            if(teamColor==='red'){
-                // نفحص إذا كان الجار هو الحد السفلي الثابت (الصف 7)
-                if(nr === 7 && BOARD_LAYOUT[nr][nc] === R) return true;
-                // ونفحص إذا وصل إلى آخر صف لعب (6)
-                if(nr === 6) { 
-                    // إذا كان في الصف 6، يجب أن نتأكد أن الصف 7 هو الجار
-                    // لا نحتاج لشيء إضافي غير التحقق في nr >= 6 
+            let won = false;
+            if(teamColor==='red' && nr === 7 && BOARD_LAYOUT[nr][nc] === R) won = true;
+            if(teamColor==='purple' && nc === 1 && BOARD_LAYOUT[nr][nc] === P) won = true;
+
+            if (won) {
+                const path = [];
+                let curr = currentKey;
+                while (curr !== null) {
+                    path.push(curr);
+                    curr = parentMap.get(curr);
                 }
-            } 
-            
-            // 🟪 البنفسجي يفوز: إذا وصل إلى العمود 1 (الحد الثابت)
-            if(teamColor==='purple'){
-                // نفحص إذا كان الجار هو الحد الأيسر الثابت (العمود 1)
-                if(nc === 1 && BOARD_LAYOUT[nr][nc] === P) return true;
-                // ونفحص إذا وصل إلى أول عمود لعب (2)
-                if(nc === 2) { 
-                    // لا نحتاج لشيء إضافي غير التحقق في nc <= 2
-                }
+                return path;
             }
 
-
-            // 3. متابعة الاتصال (الانتقال إلى خلايا مملوكة جديدة)
-            if(neighborCell && !visited.has(`${nr},${nc}`) &&
+            if(neighborCell && !visited.has(neighborKey) &&
                neighborCell.classList.contains(`hex-cell-${teamColor}-owned`)){
-                visited.add(`${nr},${nc}`);
+                visited.add(neighborKey);
+                parentMap.set(neighborKey, currentKey);
                 queue.push([nr,nc]);
             }
         }
     }
 
-    return false;
+    return null;
 }
 
-function handleGameWin(teamColor){
-    playSound(soundWin); // (جديد) صوت الفوز
+function handleGameWin(teamColor, winningPath){
+    playSound(soundWin);
     gameActive=false;
     stopTimer();
+    
+    if (winningPath) {
+        winningPath.forEach(coord => {
+            const [r, c] = coord.split(',');
+            const cell = getCell(r, c);
+            if (cell) cell.classList.add('winning-path-cell');
+        });
+    }
+
     scores[teamColor]++;
     updateScoreboard();
-    winMessage.textContent=(teamColor==='red')?`${gameSettings.team1Name} فاز بالجولة!`:`${gameSettings.team2Name} فاز بالجولة!`;
+
+    if (scores[teamColor] >= WINNING_SCORE) {
+        winMessage.textContent = `🏆 مبروك! ${teamColor==='red'?gameSettings.team1Name:gameSettings.team2Name} فاز بالمباراة! 🏆`;
+        nextRoundButton.textContent = "ابدأ مباراة جديدة";
+    } else {
+        winMessage.textContent = `${teamColor==='red'?gameSettings.team1Name:gameSettings.team2Name} فاز بالجولة!`;
+        nextRoundButton.textContent = "ابدأ الجولة التالية";
+    }
+
     winScorePurple.textContent = scores.purple;
     winScoreRed.textContent = scores.red;
     roundWinOverlay.classList.remove('hidden');
@@ -481,8 +525,8 @@ function updateScoreboard(){
     purpleScoreDisplay.textContent=scores.purple;
 }
 
-function showExitConfirm(){ playSound(soundClick); showExitConfirmModal(); } // (تم التعديل لإضافة الصوت)
-function showExitConfirmModal(){ exitConfirmModal.classList.remove('hidden'); } // دالة مساعدة لترتيب الصوت
+function showExitConfirm(){ playSound(soundClick); showExitConfirmModal(); }
+function showExitConfirmModal(){ exitConfirmModal.classList.remove('hidden'); }
 
 function confirmExit(){ 
     playSound(soundClick); 
@@ -572,9 +616,10 @@ team2NameInput_team.addEventListener('input',validateSettings);
 validateSettings();
 
 showAnswerButton.addEventListener('click',showAnswer);
-// (جديد) إضافة الأصوات للأزرار في نافذة السؤال
 teamPurpleWinButton.addEventListener('click',()=>handleQuestionResult('purple'));
 teamRedWinButton.addEventListener('click',()=>handleQuestionResult('red'));
 competitiveSkipButton.addEventListener('click',()=>handleQuestionResult('skip'));
 turnCorrectButton.addEventListener('click',()=>handleQuestionResult('turn_correct'));
 turnSkipButton.addEventListener('click',()=>handleQuestionResult('turn_skip'));
+
+window.addEventListener('resize', resizeBoard);
