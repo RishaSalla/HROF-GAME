@@ -1,6 +1,3 @@
-/* ================================
-    1. إعدادات عامة (Global)
-================================ */
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
 :root {
@@ -22,358 +19,130 @@
 }
 
 body {
-    font-family: var(--font-primary);
-    margin: 0; padding: 0; overflow: hidden;
-    color: var(--color-text-dark);
-    background-size: cover; background-position: center; background-repeat: no-repeat;
-    height: 100vh; width: 100vw;
-    transition: background-color 0.3s ease;
-    user-select: none; -webkit-user-select: none;
+    font-family: var(--font-primary); margin: 0; padding: 0; overflow: hidden;
+    color: var(--color-text-dark); background-size: cover; background-position: center;
+    background-repeat: no-repeat; height: 100vh; width: 100vw;
+    transition: background-color 0.3s ease; user-select: none; -webkit-user-select: none;
 }
-
 body.dark-mode { background-color: var(--color-dark-bg); background-image: url('assets/images/background.dark.png'); color: var(--color-text-dark); }
 body.light-mode { background-color: var(--color-light-bg); background-image: url('assets/images/background.light.png'); color: var(--color-text-light); }
 .hidden { display: none !important; }
 
-/* ================================
-    2. الشاشات
-================================ */
-.screen {
-    display: none; width: 100vw; height: 100vh;
-    flex-direction: column; align-items: center; justify-content: center;
-    position: absolute; top: 0; left: 0;
-    overflow-y: auto; overflow-x: hidden;
-}
+.screen { display: none; width: 100vw; height: 100vh; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; overflow-y: auto; overflow-x: hidden; }
 .screen.active { display: flex; }
 #game-screen { overflow: hidden; }
 
-/* ================================
-    3. تسجيل الدخول
-================================ */
-.login-container {
-    display: flex; flex-direction: column; align-items: center; padding: 30px;
-    background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-    border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    border: 1px solid var(--color-yellow); max-width: 350px; width: 90%; z-index: 10;
-}
+.login-container { display: flex; flex-direction: column; align-items: center; padding: 30px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); border: 1px solid var(--color-yellow); max-width: 350px; width: 90%; z-index: 10; }
 .login-logo { width: 130px; margin-bottom: 20px; }
 .login-container label { font-size: 1.1rem; margin-bottom: 10px; color: var(--color-text-dark); }
-.login-container input {
-    font-family: var(--font-primary); padding: 10px;
-    border: 2px solid var(--color-grey); border-radius: 8px;
-    text-align: center; font-size: 1rem; margin-bottom: 20px;
-    direction: ltr; width: 80%; background: rgba(255,255,255,0.9); color: #333;
-}
-.login-container button {
-    font-size: 1.1rem; font-weight: bold; padding: 10px 30px;
-    border: none; border-radius: 8px; background-color: var(--color-yellow);
-    color: var(--color-dark-bg); cursor: pointer; width: 85%;
-    box-shadow: 0 4px 15px rgba(241,196,15,0.3); transition: transform 0.2s ease;
-}
+.login-container input { font-family: var(--font-primary); padding: 10px; border: 2px solid var(--color-grey); border-radius: 8px; text-align: center; font-size: 1rem; margin-bottom: 20px; direction: ltr; width: 80%; background: rgba(255,255,255,0.9); color: #333; }
+.login-container button { font-size: 1.1rem; font-weight: bold; padding: 10px 30px; border: none; border-radius: 8px; background-color: var(--color-yellow); color: var(--color-dark-bg); cursor: pointer; width: 85%; box-shadow: 0 4px 15px rgba(241,196,15,0.3); transition: transform 0.2s ease; }
 .login-container button:hover { transform: scale(1.05); }
 #login-error-message { color: var(--color-red); font-weight: bold; margin-top: 15px; min-height: 1.2em; }
 
-/* ================================
-    4. تدوير الجهاز
-================================ */
-#rotate-device-overlay {
-    display: none; position: fixed; top:0; left:0; width:100%; height:100%;
-    background-color: rgba(0,0,0,0.95); color: white; z-index: 9999;
-    flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; font-size: 1.5rem;
-}
-#close-rotate-overlay {
-    position: absolute; top: 20px; right: 20px; background: transparent;
-    border: 2px solid white; color: white; font-size: 1.5rem; width: 40px; height: 40px;
-    border-radius: 50%; cursor: pointer;
-}
-@media screen and (max-width:768px) and (orientation:portrait) {
-    #rotate-device-overlay { display: flex; }
-}
+.shake-animation { animation: shake 0.5s ease; }
+@keyframes shake { 0%,100% { transform: translateX(0); } 10%,30%,50%,70%,90% { transform: translateX(-10px); } 20%,40%,60%,80% { transform: translateX(10px); } }
 
-/* ================================
-    5. القائمة الرئيسية
-================================ */
-.settings-container {
-    display: flex; flex-direction: column; align-items: stretch; padding: 20px 30px;
-    background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-    border-radius: 20px; border: 1px solid var(--color-yellow);
-    max-width: 700px; width: 90%; margin: 20px 0;
-}
-.settings-container h2 {
-    font-size: 2rem; margin-top: 0; margin-bottom: 25px;
-    border-bottom: 3px solid var(--color-yellow); text-align: center;
-}
+#rotate-device-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background-color: rgba(0,0,0,0.95); color: white; z-index: 9999; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-size: 1.5rem; }
+#close-rotate-overlay { position: absolute; top: 20px; right: 20px; background: transparent; border: 2px solid white; color: white; font-size: 1.5rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+@media screen and (max-width:768px) and (orientation:portrait) { #rotate-device-overlay { display: flex; } }
+
+.settings-container { display: flex; flex-direction: column; align-items: stretch; padding: 20px 30px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid var(--color-yellow); max-width: 700px; width: 90%; margin: 20px 0; }
+.settings-container h2 { font-size: 2rem; margin-top: 0; margin-bottom: 25px; border-bottom: 3px solid var(--color-yellow); text-align: center; }
 .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; }
 .settings-column { display: flex; flex-direction: column; gap: 20px; }
 .setting-group { width: 100%; display: flex; flex-direction: column; align-items: flex-start; }
 .setting-group h3 { font-size: 1.1rem; margin: 0 0 10px 0; }
 .button-group { display: flex; flex-wrap: wrap; gap: 8px; }
-.setting-button {
-    font-size: 0.9rem; padding: 6px 12px; border: 2px solid var(--color-grey);
-    background-color: transparent; color: var(--color-grey); border-radius: 8px;
-    cursor: pointer; transition: all 0.3s ease;
-}
-.setting-button.active {
-    background-color: var(--color-yellow); color: var(--color-dark-bg);
-    border-color: var(--color-yellow); transform: scale(1.05);
-}
+.setting-button { font-size: 0.9rem; padding: 6px 12px; border: 2px solid var(--color-grey); background-color: transparent; color: var(--color-grey); border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+.setting-button.active { background-color: var(--color-yellow); color: var(--color-dark-bg); border-color: var(--color-yellow); transform: scale(1.05); }
 .team-setup-panel { width: 100%; border-top: 1px solid var(--color-grey); padding-top: 15px; }
 .team-setup-panel h4 { font-size: 1.2rem; color: var(--color-yellow); margin: 0 0 15px 0; text-align: center; }
 .team-columns { display: flex; flex-direction: column; gap: 20px; width: 100%; }
 .team-column { flex: 1; display: flex; flex-direction: column; gap: 15px; }
 .input-group { flex: 1; display: flex; flex-direction: column; }
 .input-group label { margin-bottom: 5px; font-size: 0.9rem; color: var(--color-text-dark); }
-.input-group input {
-    font-family: var(--font-primary); padding: 8px; border: 2px solid var(--color-grey);
-    border-radius: 8px; background: rgba(255,255,255,0.9); color: #333; width: 95%;
-}
+.input-group input { font-family: var(--font-primary); padding: 8px; border: 2px solid var(--color-grey); border-radius: 8px; background: rgba(255,255,255,0.9); color: #333; width: 95%; }
 .members-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 5px; }
 .member-input-container { display: flex; align-items: center; gap: 5px; }
 .member-input-container input { width: 80% !important; flex: 1; }
-.remove-member-button {
-    font-family: var(--font-primary); font-size: 1rem; font-weight: bold; border: none;
-    background: transparent; color: var(--color-red); cursor: pointer;
-}
-.add-member-button {
-    font-family: var(--font-primary); font-size: 0.8rem; padding: 5px 10px;
-    border: none; border-radius: 5px; background-color: var(--color-grey);
-    color: var(--color-dark-bg); cursor: pointer; width: 90px; margin-top: 5px;
-}
-.footer-buttons {
-    display: flex; flex-direction: column; align-items: center;
-    width: 100%; border-top: 1px solid var(--color-grey);
-    margin-top: 20px; padding-top: 20px;
-}
-.start-button {
-    font-size: 1.3rem; font-weight: bold; padding: 12px 35px;
-    border: none; border-radius: 10px; background-color: var(--color-purple);
-    color: white; cursor: pointer; transition: all 0.2s ease;
-}
+.remove-member-button { font-family: var(--font-primary); font-size: 1rem; font-weight: bold; border: none; background: transparent; color: var(--color-red); cursor: pointer; }
+.add-member-button { font-family: var(--font-primary); font-size: 0.8rem; padding: 5px 10px; border: none; border-radius: 5px; background-color: var(--color-grey); color: var(--color-dark-bg); cursor: pointer; width: 90px; margin-top: 5px; }
+.footer-buttons { display: flex; flex-direction: column; align-items: center; width: 100%; border-top: 1px solid var(--color-grey); margin-top: 20px; padding-top: 20px; }
+.start-button { font-size: 1.3rem; font-weight: bold; padding: 12px 35px; border: none; border-radius: 10px; background-color: var(--color-purple); color: white; cursor: pointer; transition: all 0.2s ease; }
 .start-button:disabled { background-color: var(--color-grey); opacity: 0.5; cursor: not-allowed; }
 .start-button:hover:not(:disabled) { transform: scale(1.05); }
-#instructions-button {
-    background: transparent; border: none; color: var(--color-yellow);
-    text-decoration: underline; font-size: 0.9rem; margin-top: 15px; cursor: pointer;
-}
+#instructions-button { background: transparent; border: none; color: var(--color-yellow); text-decoration: underline; font-size: 0.9rem; margin-top: 15px; cursor: pointer; }
 
-/* ================================
-    6. لوحة اللعب (تم التعديل للتحجيم)
-================================ */
-#game-board-container {
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    /* التحجيم يتم من المركز */
-    transform-origin: center center; 
-    transition: transform 0.3s ease;
-    z-index: 1; 
-    margin: 0 auto;
-    /* ضمان عدم خروجه عن الشاشة */
-    max-width: 100vw;
-    max-height: 80vh; 
-}
+#game-board-container { display: flex; flex-direction: column; justify-content: center; align-items: center; transform-origin: center center; transition: transform 0.3s ease; z-index: 1; margin: 0 auto; max-width: 100vw; max-height: 80vh; }
 .hex-row { display: flex; flex-direction: row; margin-top: var(--hex-vertical-overlap); }
 .hex-row:nth-child(even) { margin-left: var(--hex-horizontal-offset); }
-.hex-cell {
-    position: relative;
-    width: var(--hex-width); height: var(--hex-height);
-    background-size: contain; background-position: center; background-repeat: no-repeat;
-    margin-left: var(--hex-horizontal-overlap); margin-right: var(--hex-horizontal-overlap);
-    transition: transform 0.2s ease, filter 0.2s ease;
-}
+.hex-cell { position: relative; width: var(--hex-width); height: var(--hex-height); background-size: contain; background-position: center; background-repeat: no-repeat; margin-left: var(--hex-horizontal-overlap); margin-right: var(--hex-horizontal-overlap); transition: transform 0.2s ease, filter 0.2s ease; }
 .hex-row:first-child { margin-top: 0; }
 .hex-row .hex-cell:first-child { margin-left: 0; margin-right: 0; }
-
 .hex-cell-default { background-image: url('assets/images/hex.cell.default.png'); }
 .hex-cell-red { background-image: url('assets/images/hex.red.png'); }
 .hex-cell-purple { background-image: url('assets/images/hex.purple.png'); }
 .hex-cell.playable:hover { transform: scale(1.05); filter: brightness(1.2); cursor: pointer; }
 
-/* ================================
-    7. الهيدر
-================================ */
-.game-header {
-    display: flex; justify-content: space-around; align-items: center;
-    width: 90%; margin-top: 10px; position: relative;
-    z-index: 50; pointer-events: none;
-}
+.game-header { display: flex; justify-content: space-around; align-items: center; width: 90%; margin-top: 10px; position: relative; z-index: 50; pointer-events: none; }
 .game-header > * { pointer-events: auto; }
-.scoreboard-container {
-    width: 400px; height: 183px;
-    background-image: url('assets/images/scoreboard.png');
-    background-size: contain; background-repeat: no-repeat; background-position: center;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px;
-    transform: scale(0.8);
-}
+.scoreboard-container { width: 400px; height: 183px; background-image: url('assets/images/scoreboard.png'); background-size: contain; background-repeat: no-repeat; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; transform: scale(0.8); }
 .team-name { font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; }
 .score { font-size: 1.5rem; font-weight: bold; color: var(--color-yellow); }
 .game-logo { width: 150px; }
-.turn-indicator {
-    width: 30px; height:30px;
-    background-size: contain; background-repeat: no-repeat; background-position: center;
-    opacity: 0.3; transition: all 0.3s ease;
-}
+.turn-indicator { width: 30px; height:30px; background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.3; transition: all 0.3s ease; }
 .turn-indicator.active { opacity: 1; filter: drop-shadow(0 0 10px var(--color-yellow)); transform: scale(1.1); }
 #turn-indicator-left { background-image: url('assets/images/turn.indicator.to.left.png'); }
 #turn-indicator-right { background-image: url('assets/images/turn.indicator.to.right.png'); }
 
-/* ================================
-    8. نافذة السؤال (Modals)
-================================ */
-#question-modal-overlay {
-    position: fixed; top:0; left:0; width:100vw; height:100vh;
-    background-color: rgba(0,0,0,0.8);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 5000;
-}
+#question-modal-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background-color: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 5000; }
 #question-modal-overlay.hidden { display: none !important; }
-
-.modal-content {
-    background-color: var(--color-light-bg); color: var(--color-dark-bg);
-    padding: 30px; border-radius: 15px; width: 80%; max-width: 600px;
-    text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.4); position: relative;
-    display: flex; flex-direction: column; align-items: center;
-}
-
-/* (جديد) تنسيق عرض الحرف */
-#question-char-display {
-    font-size: 4rem; /* تصغير قليلاً ليناسب الجوال */
-    font-weight: bold;
-    color: var(--color-purple);
-    text-shadow: 2px 2px 0px white;
-    margin-bottom: 5px;
-    line-height: 1;
-}
-
-#question-timer {
-    position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
-    background-color: var(--color-yellow); color: var(--color-dark-bg);
-    font-size: 1.2rem; font-weight: bold; width: 50px; height: 50px;
-    display: none; align-items: center; justify-content: center;
-    border-radius: 50%; border: 4px solid var(--color-light-bg); z-index: 2;
-}
-
+.modal-content { background-color: var(--color-light-bg); color: var(--color-dark-bg); padding: 30px; border-radius: 15px; width: 80%; max-width: 600px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.4); position: relative; display: flex; flex-direction: column; align-items: center; }
+#question-char-display { font-size: 4rem; font-weight: bold; color: var(--color-purple); text-shadow: 2px 2px 0px white; margin-bottom: 5px; line-height: 1; }
+#question-timer { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); background-color: var(--color-yellow); color: var(--color-dark-bg); font-size: 1.2rem; font-weight: bold; width: 50px; height: 50px; display: none; align-items: center; justify-content: center; border-radius: 50%; border: 4px solid var(--color-light-bg); z-index: 2; }
 #question-text { font-size:1.6rem; margin-bottom:25px; line-height: 1.4; width: 100%; }
-#show-answer-button {
-    font-size:1.2rem; padding: 10px 20px;
-    background-image: url('assets/images/ui.button.show.answer.png');
-    background-size:contain; background-repeat: no-repeat; background-position: center;
-    border:none; background-color:transparent; color:white; font-weight:bold;
-    cursor:pointer; height:60px; width:220px;
-}
+#show-answer-button { font-size:1.2rem; padding: 10px 20px; background-image: url('assets/images/ui.button.show.answer.png'); background-size:contain; background-repeat: no-repeat; background-position: center; border:none; background-color:transparent; color:white; font-weight:bold; cursor:pointer; height:60px; width:220px; }
 #answer-reveal-section { display:none; margin-top:20px; padding-top:20px; border-top:2px solid var(--color-grey); width: 100%;}
 #answer-text { font-size:1.5rem; color:var(--color-purple); font-weight:bold; margin-bottom: 20px;}
-
 .team-choice-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; width: 100%; }
-.team-choice-buttons button {
-    width:160px; height:65px; border:none;
-    background-size:contain; background-repeat:no-repeat; background-position:center;
-    background-color:transparent; cursor:pointer;
-    display: flex; align-items: center; justify-content: center;
-}
-.team-name-in-button {
-    font-family: var(--font-primary); font-size: 1rem; font-weight: bold;
-    color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px;
-}
+.team-choice-buttons button { width:160px; height:65px; border:none; background-size:contain; background-repeat:no-repeat; background-position:center; background-color:transparent; cursor:pointer; display: flex; align-items: center; justify-content: center; }
+.team-name-in-button { font-family: var(--font-primary); font-size: 1rem; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px; }
 #team-purple-win-button { background-image:url('assets/images/ui.purple.team.png'); }
 #team-red-win-button { background-image:url('assets/images/ui.red.team.png'); }
-
-#turn-correct-button, #turn-wrong-button, #competitive-skip-button {
-    font-family: var(--font-primary); font-size: 1.1rem; font-weight: bold;
-    color: white; border: none; cursor: pointer;
-    background-color: transparent; background-repeat: no-repeat;
-    background-position: center; background-size: 100% 100%;
-    width: 200px; height: 60px; margin-top: 15px;
-    display: flex; align-items: center; justify-content: center;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-}
+#turn-correct-button, #turn-wrong-button, #competitive-skip-button { font-family: var(--font-primary); font-size: 1.1rem; font-weight: bold; color: white; border: none; cursor: pointer; background-color: transparent; background-repeat: no-repeat; background-position: center; background-size: 100% 100%; width: 200px; height: 60px; margin-top: 15px; display: flex; align-items: center; justify-content: center; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
 #competitive-skip-button { margin: 15px auto 0 auto; display: flex; }
-
 #turn-correct-button { background-image: url('assets/images/ui.button.correct.answer.png'); }
 #turn-wrong-button, #competitive-skip-button { background-image: url('assets/images/ui.button.skip.png'); }
 
-/* ================================
-    9. الحروف والخلايا
-================================ */
-.hex-letter {
-    font-size: 2.2rem; font-weight:bold; color: var(--color-dark-bg);
-    position:absolute; top:50%; left:50%; transform: translate(-50%, -50%);
-    user-select:none; text-shadow:1px 1px 2px rgba(255,255,255,0.5);
-}
+.hex-letter { font-size: 2.2rem; font-weight:bold; color: var(--color-dark-bg); position:absolute; top:50%; left:50%; transform: translate(-50%, -50%); user-select:none; text-shadow:1px 1px 2px rgba(255,255,255,0.5); }
 .hex-cell-purple-owned { background-image: url('assets/images/hex.purple.png') !important; }
 .hex-cell-red-owned { background-image: url('assets/images/hex.red.png') !important; }
-.hex-cell-purple-owned .hex-letter, .hex-cell-red-owned .hex-letter {
-    color:white; text-shadow:1px 1px 2px rgba(0,0,0,0.5);
-}
-.winning-path-cell {
-    filter: brightness(1.3) drop-shadow(0 0 10px gold) !important;
-    z-index: 10; transition: filter 0.5s ease;
-}
+.hex-cell-purple-owned .hex-letter, .hex-cell-red-owned .hex-letter { color:white; text-shadow:1px 1px 2px rgba(0,0,0,0.5); }
+.winning-path-cell { filter: brightness(1.3) drop-shadow(0 0 10px gold) !important; z-index: 10; transition: filter 0.5s ease; }
 
-/* ================================
-    10. شاشة الفوز
-================================ */
-#round-win-overlay {
-    position: fixed; top:0; left:0; width:100vw; height:100vh;
-    background-color: rgba(26,26,46,0.9);
-    display: none; align-items: center; justify-content: center;
-    flex-direction: column; z-index:6000;
-    backdrop-filter: blur(5px);
-}
+#round-win-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background-color: rgba(26,26,46,0.9); display: none; align-items: center; justify-content: center; flex-direction: column; z-index:6000; backdrop-filter: blur(5px); }
 .win-content { text-align:center; color:white; }
 #win-message { font-size:3rem; font-weight:bold; color: var(--color-yellow); text-shadow:0 0 10px var(--color-yellow); margin-bottom: 0;}
 .score-update { font-size:4rem; font-weight:bold; margin:20px 0; }
-#next-round-button {
-    font-size:1.5rem; font-weight:bold; padding:15px 40px;
-    border:none; border-radius:10px; background-color: var(--color-yellow);
-    color: var(--color-dark-bg); cursor:pointer; transition: transform 0.2s ease;
-}
+#next-round-button { font-size:1.5rem; font-weight:bold; padding:15px 40px; border:none; border-radius:10px; background-color: var(--color-yellow); color: var(--color-dark-bg); cursor:pointer; transition: transform 0.2s ease; }
 #next-round-button:hover { transform: scale(1.05); }
 
-/* ================================
-    11. أزرار التحكم والتعليمات
-================================ */
 .game-controls { position: fixed; bottom:15px; left:15px; z-index:100; }
-.game-controls button {
-    font-family: var(--font-primary); font-size:0.9rem; padding:8px 16px;
-    border: 1px solid rgba(255, 255, 255, 0.3); border-radius:8px;
-    background-color: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
-    color:white; cursor:pointer; margin-right:5px; transition: background-color 0.2s ease;
-}
+.game-controls button { font-family: var(--font-primary); font-size:0.9rem; padding:8px 16px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius:8px; background-color: rgba(255,255,255,0.2); backdrop-filter: blur(5px); color:white; cursor:pointer; margin-right:5px; transition: background-color 0.2s ease; }
 .game-controls button:hover { background-color: rgba(255,255,255,0.4); }
-
 .hex-cell-transparent { background-image: none !important; opacity: 0; pointer-events: none; }
 
-#instructions-modal-overlay {
-    position: fixed; top:0; left:0; width:100vw; height:100vh;
-    background-color: rgba(0,0,0,0.7); display: none;
-    align-items: center; justify-content: center; z-index: 2000;
-}
+#instructions-modal-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background-color: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 2000; }
 #instructions-modal-overlay .modal-content { text-align: right; }
 #instructions-modal-overlay .modal-content h3 { color: var(--color-purple); }
 #instructions-modal-overlay .modal-content ul { list-style-type: '✔️ '; padding-right: 20px; }
-#close-instructions-button {
-    font-family: var(--font-primary); font-size: 1.2rem; font-weight: bold;
-    padding: 10px 30px; border: none; border-radius: 8px;
-    background-color: var(--color-yellow); color: var(--color-dark-bg);
-    cursor: pointer; margin-top: 20px;
-}
+#close-instructions-button { font-family: var(--font-primary); font-size: 1.2rem; font-weight: bold; padding: 10px 30px; border: none; border-radius: 8px; background-color: var(--color-yellow); color: var(--color-dark-bg); cursor: pointer; margin-top: 20px; }
 
-.modal-overlay-small {
-    position: fixed; top:0; left:0; width:100vw; height:100vh;
-    background-color: rgba(0,0,0,0.7); display: flex;
-    align-items: center; justify-content: center; z-index: 4000;
-    backdrop-filter: blur(5px);
-}
-.modal-content-small {
-    background-color: var(--color-light-bg); color: var(--color-dark-bg);
-    padding: 25px; border-radius: 15px; max-width: 400px; width: 90%; text-align: center;
-}
+.modal-overlay-small { position: fixed; top:0; left:0; width:100vw; height:100vh; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 4000; backdrop-filter: blur(5px); }
+.modal-content-small { background-color: var(--color-light-bg); color: var(--color-dark-bg); padding: 25px; border-radius: 15px; max-width: 400px; width: 90%; text-align: center; }
 .modal-content-small h4 { margin: 0 0 10px 0; font-size: 1.4rem; color: var(--color-red); }
 .modal-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-.modal-buttons button {
-    font-family: var(--font-primary); font-size: 1rem; font-weight: bold;
-    padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;
-}
+.modal-buttons button { font-family: var(--font-primary); font-size: 1rem; font-weight: bold; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; }
 #exit-confirm-yes { background-color: var(--color-red); color: white; }
 #exit-confirm-no { background-color: var(--color-grey); color: var(--color-dark-bg); }
