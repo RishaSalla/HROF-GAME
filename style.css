@@ -16,7 +16,7 @@
     --color-grey: #bdc3c7;
     --color-yellow: #f1c40f;
 
-    /* مقاسات الخلايا (سنعتمد عليها في التحجيم) */
+    /* مقاسات الخلايا */
     --hex-width: 90px;
     --hex-height: 104px; 
     --hex-vertical-overlap: -35px;
@@ -28,7 +28,7 @@ body {
     font-family: var(--font-primary);
     margin: 0;
     padding: 0;
-    overflow: hidden; /* مهم جداً لمنع التمرير */
+    overflow: hidden;
     color: var(--color-text-dark);
     background-size: cover;
     background-position: center;
@@ -36,12 +36,10 @@ body {
     height: 100vh;
     width: 100vw;
     transition: background-color 0.3s ease;
-    /* منع تحديد النصوص بالخطأ أثناء اللعب */
     user-select: none; 
     -webkit-user-select: none;
 }
 
-/* ===== 1.1 تبديل الوضع (فاتح/غامق) ===== */
 body.dark-mode {
     background-color: var(--color-dark-bg);
     background-image: url('assets/images/background.dark.png');
@@ -56,77 +54,49 @@ body.light-mode {
 .hidden { display: none !important; }
 
 /* ================================
-    2. نظام إدارة الشاشات (Screens)
+    2. الشاشات (Screens)
 ================================ */
 .screen {
     display: none;
-    width: 100vw;
-    height: 100vh;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 0; left: 0;
-    overflow-y: auto; /* السماح بالتمرير في القوائم فقط */
-    overflow-x: hidden;
+    width: 100vw; height: 100vh;
+    flex-direction: column; align-items: center; justify-content: center;
+    position: absolute; top: 0; left: 0;
+    overflow-y: auto; overflow-x: hidden;
 }
 .screen.active { display: flex; }
-
-/* شاشة اللعب لا يجب أن يكون فيها تمرير */
-#game-screen {
-    overflow: hidden;
-}
+#game-screen { overflow: hidden; }
 
 /* ================================
-    3. شاشة الدخول (Login)
+    3. تسجيل الدخول
 ================================ */
 .login-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: flex; flex-direction: column; align-items: center;
     padding: 30px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+    border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     border: 1px solid var(--color-yellow);
-    max-width: 350px;
-    width: 90%;
-    z-index: 10;
+    max-width: 350px; width: 90%; z-index: 10;
 }
 .login-logo { width: 130px; margin-bottom: 20px; }
 .login-container label { font-size: 1.1rem; margin-bottom: 10px; color: var(--color-text-dark); }
 .login-container input {
-    font-family: var(--font-primary);
-    padding: 10px;
-    border: 2px solid var(--color-grey);
-    border-radius: 8px;
-    text-align: center;
-    font-size: 1rem;
-    margin-bottom: 20px;
-    direction: ltr;
-    width: 80%;
-    background: rgba(255,255,255,0.9);
-    color: #333;
+    font-family: var(--font-primary); padding: 10px;
+    border: 2px solid var(--color-grey); border-radius: 8px;
+    text-align: center; font-size: 1rem; margin-bottom: 20px;
+    direction: ltr; width: 80%; background: rgba(255,255,255,0.9); color: #333;
 }
 .login-container button {
-    font-size: 1.1rem;
-    font-weight: bold;
-    padding: 10px 30px;
-    border: none;
-    border-radius: 8px;
-    background-color: var(--color-yellow);
-    color: var(--color-dark-bg);
-    cursor: pointer;
-    width: 85%;
-    box-shadow: 0 4px 15px rgba(241,196,15,0.3);
-    transition: transform 0.2s ease;
+    font-size: 1.1rem; font-weight: bold; padding: 10px 30px;
+    border: none; border-radius: 8px;
+    background-color: var(--color-yellow); color: var(--color-dark-bg);
+    cursor: pointer; width: 85%;
+    box-shadow: 0 4px 15px rgba(241,196,15,0.3); transition: transform 0.2s ease;
 }
 .login-container button:hover { transform: scale(1.05); }
 #login-error-message { color: var(--color-red); font-weight: bold; margin-top: 15px; min-height: 1.2em; }
 
 /* ================================
-    4. اهتزاز (Shake Animation)
+    4. الانيميشن
 ================================ */
 .shake-animation { animation: shake 0.5s ease; }
 @keyframes shake {
@@ -136,59 +106,37 @@ body.light-mode {
 }
 
 /* ================================
-    5. شاشة تدوير الجهاز (Z-Index: 9999)
+    5. تدوير الجهاز
 ================================ */
 #rotate-device-overlay {
-    display: none;
-    position: fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    background-color: rgba(0,0,0,0.95);
-    color: white;
-    z-index: 9999; /* أعلى طبقة */
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 1.5rem;
+    display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+    background-color: rgba(0,0,0,0.95); color: white;
+    z-index: 9999;
+    flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; font-size: 1.5rem;
 }
 #close-rotate-overlay {
-    position: absolute;
-    top: 20px; right: 20px;
-    background: transparent;
-    border: 2px solid white;
-    color: white;
-    font-size: 1.5rem;
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
+    position: absolute; top: 20px; right: 20px;
+    background: transparent; border: 2px solid white; color: white;
+    font-size: 1.5rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
 }
-/* إظهار الرسالة فقط في الجوال بالوضع الطولي */
 @media screen and (max-width:768px) and (orientation:portrait) {
     #rotate-device-overlay { display: flex; }
 }
 
 /* ================================
-    6. القائمة الرئيسية (Main Menu)
+    6. القائمة الرئيسية
 ================================ */
 .settings-container {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    display: flex; flex-direction: column; align-items: stretch;
     padding: 20px 30px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    border: 1px solid var(--color-yellow);
-    max-width: 700px;
-    width: 90%;
-    margin: 20px 0;
+    background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+    border-radius: 20px; border: 1px solid var(--color-yellow);
+    max-width: 700px; width: 90%; margin: 20px 0;
 }
 .settings-container h2 {
-    font-size: 2rem;
-    margin-top: 0; margin-bottom: 25px;
-    border-bottom: 3px solid var(--color-yellow);
-    text-align: center;
+    font-size: 2rem; margin-top: 0; margin-bottom: 25px;
+    border-bottom: 3px solid var(--color-yellow); text-align: center;
 }
 .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; }
 .settings-column { display: flex; flex-direction: column; gap: 20px; }
@@ -197,21 +145,14 @@ body.light-mode {
 .button-group { display: flex; flex-wrap: wrap; gap: 8px; }
 .setting-button {
     font-size: 0.9rem; padding: 6px 12px;
-    border: 2px solid var(--color-grey);
-    background-color: transparent;
-    color: var(--color-grey);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    border: 2px solid var(--color-grey); background-color: transparent;
+    color: var(--color-grey); border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
 }
 .setting-button.active {
-    background-color: var(--color-yellow);
-    color: var(--color-dark-bg);
-    border-color: var(--color-yellow);
-    transform: scale(1.05);
+    background-color: var(--color-yellow); color: var(--color-dark-bg);
+    border-color: var(--color-yellow); transform: scale(1.05);
 }
 
-/* إعدادات الفرق */
 .team-setup-panel { width: 100%; border-top: 1px solid var(--color-grey); padding-top: 15px; }
 .team-setup-panel h4 { font-size: 1.2rem; color: var(--color-yellow); margin: 0 0 15px 0; text-align: center; }
 .team-columns { display: flex; flex-direction: column; gap: 20px; width: 100%; }
@@ -254,24 +195,13 @@ body.light-mode {
 }
 
 /* ================================
-    7. لوحة اللعبة (Game Board Container)
-    تم التعديل للتحجيم الديناميكي
+    7. لوحة اللعب (Game Board)
 ================================ */
 #game-board-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    
-    /* (مهم) نقطة الارتكاز للتكبير تكون في المنتصف */
-    transform-origin: center center;
-    transition: transform 0.3s ease; /* حركة ناعمة عند تغيير الحجم */
-    
-    /* Z-Index منخفض لتظهر القوائم فوقه */
-    z-index: 1; 
-    margin: 0 auto;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    transform-origin: center center; transition: transform 0.3s ease;
+    z-index: 1; margin: 0 auto;
 }
-
 .hex-row { display: flex; flex-direction: row; margin-top: var(--hex-vertical-overlap); }
 .hex-row:nth-child(even) { margin-left: var(--hex-horizontal-offset); }
 .hex-cell {
@@ -290,22 +220,20 @@ body.light-mode {
 .hex-cell.playable:hover { transform: scale(1.05); filter: brightness(1.2); cursor: pointer; }
 
 /* ================================
-    8. هيدر اللعبة (Scoreboards) - Z-Index: 50
+    8. الهيدر (Header)
 ================================ */
 .game-header {
     display: flex; justify-content: space-around; align-items: center;
     width: 90%; margin-top: 10px; position: relative;
-    z-index: 50; /* فوق اللوحة */
-    pointer-events: none; /* للسماح بالنقر تحته إذا لزم الأمر */
+    z-index: 50; pointer-events: none;
 }
-.game-header > * { pointer-events: auto; } /* إعادة تفعيل النقر للعناصر الداخلية */
-
+.game-header > * { pointer-events: auto; }
 .scoreboard-container {
-    width: 400px; height: 183px; /* يمكن تصغير هذا لاحقاً بالسكربت إذا لزم */
+    width: 400px; height: 183px;
     background-image: url('assets/images/scoreboard.png');
     background-size: contain; background-repeat: no-repeat; background-position: center;
     display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px;
-    transform: scale(0.8); /* تصغير افتراضي طفيف للهيدر */
+    transform: scale(0.8);
 }
 .team-name { font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; }
 .score { font-size: 1.5rem; font-weight: bold; color: var(--color-yellow); }
@@ -320,13 +248,13 @@ body.light-mode {
 #turn-indicator-right { background-image: url('assets/images/turn.indicator.to.right.png'); }
 
 /* ================================
-    9. النوافذ المنبثقة (Modals) - Z-Index: 2000+
+    9. نافذة السؤال (Modal)
 ================================ */
 #question-modal-overlay {
     position: fixed; top:0; left:0; width:100vw; height:100vh;
     background-color: rgba(0,0,0,0.8);
     display: flex; align-items: center; justify-content: center;
-    z-index: 5000; /* أعلى من كل شيء ما عدا رسالة التدوير */
+    z-index: 5000;
 }
 #question-modal-overlay.hidden { display: none !important; }
 
@@ -370,24 +298,30 @@ body.light-mode {
 #team-purple-win-button { background-image:url('assets/images/ui.purple.team.png'); }
 #team-red-win-button { background-image:url('assets/images/ui.red.team.png'); }
 
-#competitive-skip-button, #turn-skip-button {
-    background-image: url('assets/images/ui.button.skip.png');
-    background-size: contain; background-repeat: no-repeat; background-position: center;
-    background-color: transparent; border: none;
-    width: 200px; height: 50px; margin-top: 15px; cursor: pointer;
-    color: white; font-family: var(--font-primary); font-size: 1.1rem; font-weight: bold;
+/* (تم التصحيح هنا) توحيد الأزرار */
+#turn-correct-button, #turn-skip-button, #competitive-skip-button {
+    font-family: var(--font-primary);
+    font-size: 1.1rem; /* إظهار النص */
+    font-weight: bold;
+    color: white;
+    border: none;
+    cursor: pointer;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%; /* ملء كامل */
+    width: 200px; 
+    height: 60px; 
+    margin-top: 15px;
+    display: flex; align-items: center; justify-content: center;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 
-#turn-correct-button {
-    background-image: url('assets/images/ui.button.correct.answer.png');
-    background-size: contain; background-repeat: no-repeat; background-position: center;
-    background-color: transparent; border: none;
-    width: 200px; height: 60px; cursor: pointer;
-    font-size: 0; /* إخفاء النص لأن الصورة تحتوي عليه */
-}
+#turn-correct-button { background-image: url('assets/images/ui.button.correct.answer.png'); }
+#turn-skip-button, #competitive-skip-button { background-image: url('assets/images/ui.button.skip.png'); }
 
 /* ================================
-    10. الحروف داخل الخلايا
+    10. الحروف
 ================================ */
 .hex-letter {
     font-size: 2.2rem; font-weight:bold; color: var(--color-dark-bg);
@@ -404,15 +338,15 @@ body.light-mode {
     color:white; text-shadow:1px 1px 2px rgba(0,0,0,0.5);
 }
 
-/* (جديد) إضاءة المسار الفائز */
+/* (تم التصحيح هنا) المسار الذهبي بدون تكبير */
 .winning-path-cell {
-    filter: brightness(1.5) drop-shadow(0 0 15px gold) !important;
-    z-index: 10; /* رفع الخلية المضيئة */
-    transform: scale(1.1);
+    filter: brightness(1.3) drop-shadow(0 0 10px gold) !important;
+    z-index: 10;
+    transition: filter 0.5s ease;
 }
 
 /* ================================
-    12. شاشة الفوز بالجولة (Overlay)
+    12. شاشة الفوز
 ================================ */
 #round-win-overlay {
     position: fixed; top:0; left:0; width:100vw; height:100vh;
@@ -432,24 +366,21 @@ body.light-mode {
 #next-round-button:hover { transform: scale(1.05); }
 
 /* ================================
-    13. أزرار التحكم باللعبة (Footer)
+    13. أزرار التحكم
 ================================ */
-.game-controls {
-    position: fixed; bottom:15px; left:15px; z-index:100;
-}
+.game-controls { position: fixed; bottom:15px; left:15px; z-index:100; }
 .game-controls button {
     font-family: var(--font-primary); font-size:0.9rem; padding:8px 16px;
     border: 1px solid rgba(255, 255, 255, 0.3); border-radius:8px;
     background-color: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
-    color:white; cursor:pointer; margin-right:5px;
-    transition: background-color 0.2s ease;
+    color:white; cursor:pointer; margin-right:5px; transition: background-color 0.2s ease;
 }
 .game-controls button:hover { background-color: rgba(255,255,255,0.4); }
 
 .hex-cell-transparent { background-image: none !important; opacity: 0; pointer-events: none; }
 
 /* ================================
-    14. نافذة التعليمات
+    14. تعليمات وخروج
 ================================ */
 #instructions-modal-overlay {
     position: fixed; top:0; left:0; width:100vw; height:100vh;
@@ -466,9 +397,6 @@ body.light-mode {
     cursor: pointer; margin-top: 20px;
 }
 
-/* ================================
-    15. نافذة تأكيد الخروج
-================================ */
 .modal-overlay-small {
     position: fixed; top:0; left:0; width:100vw; height:100vh;
     background-color: rgba(0,0,0,0.7); display: flex;
