@@ -16,26 +16,29 @@
     --color-grey: #bdc3c7;
     --color-yellow: #f1c40f;
 
-    /* (تم الإصلاح) متغيرات الخلايا السداسية (للتوجيه مدبب الرأس) */
-    /* هذه هي القيم الصحيحة والمحسوبة لشبكة متلاصقة */
+    /* مقاسات الخلايا (سنعتمد عليها في التحجيم) */
     --hex-width: 90px;
     --hex-height: 104px; 
-    --hex-vertical-overlap: -35px; /* (height / 4) بالسالب */
-    --hex-horizontal-offset: 80px; /* (width / 2) */
-    --hex-horizontal-overlap: -4px; /* (width / 4) بالسالب */
+    --hex-vertical-overlap: -35px;
+    --hex-horizontal-offset: 80px;
+    --hex-horizontal-overlap: -4px;
 }
 
 body {
     font-family: var(--font-primary);
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow: hidden; /* مهم جداً لمنع التمرير */
     color: var(--color-text-dark);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     height: 100vh;
+    width: 100vw;
     transition: background-color 0.3s ease;
+    /* منع تحديد النصوص بالخطأ أثناء اللعب */
+    user-select: none; 
+    -webkit-user-select: none;
 }
 
 /* ===== 1.1 تبديل الوضع (فاتح/غامق) ===== */
@@ -50,10 +53,7 @@ body.light-mode {
     color: var(--color-text-light);
 }
 
-/* ===== 1.2 كلاس مساعد (جديد) - تم التأكيد على وجوده وفعاليته ===== */
-.hidden {
-    display: none !important;
-}
+.hidden { display: none !important; }
 
 /* ================================
     2. نظام إدارة الشاشات (Screens)
@@ -65,46 +65,44 @@ body.light-mode {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    overflow-y: auto;
+    position: absolute;
+    top: 0; left: 0;
+    overflow-y: auto; /* السماح بالتمرير في القوائم فقط */
+    overflow-x: hidden;
 }
-.screen.active {
-    display: flex;
+.screen.active { display: flex; }
+
+/* شاشة اللعب لا يجب أن يكون فيها تمرير */
+#game-screen {
+    overflow: hidden;
 }
 
 /* ================================
-    3. شاشة الدخول (Login) - (تصميم زجاجي)
+    3. شاشة الدخول (Login)
 ================================ */
 .login-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 30px; /* (تصغير) */
-    
+    padding: 30px;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     border: 1px solid var(--color-yellow);
-    
-    max-width: 350px; /* (تصغير) */
+    max-width: 350px;
     width: 90%;
+    z-index: 10;
 }
-.login-logo {
-    width: 130px; /* (تصغير) */
-    margin-bottom: 20px;
-}
-.login-container label {
-    font-size: 1.1rem; /* (تصغير) */
-    margin-bottom: 10px;
-    color: var(--color-text-dark);
-}
+.login-logo { width: 130px; margin-bottom: 20px; }
+.login-container label { font-size: 1.1rem; margin-bottom: 10px; color: var(--color-text-dark); }
 .login-container input {
     font-family: var(--font-primary);
-    padding: 10px; /* (تصغير) */
+    padding: 10px;
     border: 2px solid var(--color-grey);
     border-radius: 8px;
     text-align: center;
-    font-size: 1rem; /* (تصغير) */
+    font-size: 1rem;
     margin-bottom: 20px;
     direction: ltr;
     width: 80%;
@@ -112,9 +110,9 @@ body.light-mode {
     color: #333;
 }
 .login-container button {
-    font-size: 1.1rem; /* (تصغير) */
+    font-size: 1.1rem;
     font-weight: bold;
-    padding: 10px 30px; /* (تصغير) */
+    padding: 10px 30px;
     border: none;
     border-radius: 8px;
     background-color: var(--color-yellow);
@@ -122,25 +120,15 @@ body.light-mode {
     cursor: pointer;
     width: 85%;
     box-shadow: 0 4px 15px rgba(241,196,15,0.3);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease;
 }
-.login-container button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(241,196,15,0.5);
-}
-#login-error-message {
-    color: var(--color-red);
-    font-weight: bold;
-    margin-top: 15px;
-    min-height: 1.2em;
-}
+.login-container button:hover { transform: scale(1.05); }
+#login-error-message { color: var(--color-red); font-weight: bold; margin-top: 15px; min-height: 1.2em; }
 
 /* ================================
     4. اهتزاز (Shake Animation)
 ================================ */
-.shake-animation {
-    animation: shake 0.5s ease;
-}
+.shake-animation { animation: shake 0.5s ease; }
 @keyframes shake {
     0%,100% { transform: translateX(0); }
     10%,30%,50%,70%,90% { transform: translateX(-10px); }
@@ -148,16 +136,16 @@ body.light-mode {
 }
 
 /* ================================
-    5. شاشة تدوير الجهاز (Rotate Overlay)
+    5. شاشة تدوير الجهاز (Z-Index: 9999)
 ================================ */
 #rotate-device-overlay {
     display: none;
     position: fixed;
     top:0; left:0;
     width:100%; height:100%;
-    background-color: rgba(0,0,0,0.9);
+    background-color: rgba(0,0,0,0.95);
     color: white;
-    z-index: 9999;
+    z-index: 9999; /* أعلى طبقة */
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -166,84 +154,49 @@ body.light-mode {
 }
 #close-rotate-overlay {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 20px; right: 20px;
     background: transparent;
     border: 2px solid white;
     color: white;
     font-size: 1.5rem;
-    font-weight: bold;
-    width: 40px;
-    height: 40px;
+    width: 40px; height: 40px;
     border-radius: 50%;
     cursor: pointer;
 }
-
+/* إظهار الرسالة فقط في الجوال بالوضع الطولي */
 @media screen and (max-width:768px) and (orientation:portrait) {
-    #rotate-device-overlay {
-        display: flex;
-    }
+    #rotate-device-overlay { display: flex; }
 }
 
 /* ================================
-    6. القائمة الرئيسية (Main Menu) - (تم التعديل بالكامل)
+    6. القائمة الرئيسية (Main Menu)
 ================================ */
 .settings-container {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    padding: 20px 30px; /* (تصغير) */
+    padding: 20px 30px;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: 20px;
     border: 1px solid var(--color-yellow);
-    max-width: 700px; /* (تصغير) */
+    max-width: 700px;
     width: 90%;
-    margin: 20px 0; 
+    margin: 20px 0;
 }
-
 .settings-container h2 {
-    font-size: 2rem; /* (تصغير) */
-    margin-top: 0;
-    margin-bottom: 25px;
+    font-size: 2rem;
+    margin-top: 0; margin-bottom: 25px;
     border-bottom: 3px solid var(--color-yellow);
     text-align: center;
 }
-
-/* (جديد) تصميم الشبكة بعمودين */
-.settings-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    width: 100%;
-}
-.settings-column {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.setting-group {
-    margin-bottom: 0; /* (إلغاء) */
-    width: 100%;
-    display: flex;
-    flex-direction: column; 
-    align-items: flex-start;
-}
-.setting-group h3 {
-    font-size: 1.1rem; /* (تصغير) */
-    margin: 0;
-    margin-bottom: 10px;
-}
-.button-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px; /* (تصغير) */
-}
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; }
+.settings-column { display: flex; flex-direction: column; gap: 20px; }
+.setting-group { width: 100%; display: flex; flex-direction: column; align-items: flex-start; }
+.setting-group h3 { font-size: 1.1rem; margin: 0 0 10px 0; }
+.button-group { display: flex; flex-wrap: wrap; gap: 8px; }
 .setting-button {
-    font-size: 0.9rem; /* (تصغير) */
-    padding: 6px 12px; /* (تصغير) */
-    margin: 0;
+    font-size: 0.9rem; padding: 6px 12px;
     border: 2px solid var(--color-grey);
     background-color: transparent;
     color: var(--color-grey);
@@ -258,578 +211,279 @@ body.light-mode {
     transform: scale(1.05);
 }
 
-/* (جديد) لوحة إعدادات الفرق */
-.team-setup-panel {
-    width: 100%;
-    border-top: 1px solid var(--color-grey);
-    padding-top: 15px; /* (تصغير) */
-    margin-top: 0; /* (تصغير) */
-}
-.team-setup-panel h4 {
-    font-size: 1.2rem; /* (تصغير) */
-    color: var(--color-yellow);
-    margin: 0 0 15px 0;
-    text-align: center;
-}
-.team-columns {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    width: 100%;
-}
-.team-column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-.input-group {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-.input-group label {
-    margin-bottom: 5px;
-    font-size: 0.9rem; /* (تصغير) */
-    color: var(--color-text-dark);
-}
+/* إعدادات الفرق */
+.team-setup-panel { width: 100%; border-top: 1px solid var(--color-grey); padding-top: 15px; }
+.team-setup-panel h4 { font-size: 1.2rem; color: var(--color-yellow); margin: 0 0 15px 0; text-align: center; }
+.team-columns { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+.team-column { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+.input-group { flex: 1; display: flex; flex-direction: column; }
+.input-group label { margin-bottom: 5px; font-size: 0.9rem; color: var(--color-text-dark); }
 .input-group input {
-    font-family: var(--font-primary);
-    padding: 8px; /* (تصغير) */
-    border: 2px solid var(--color-grey);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.9);
-    color: #333;
-    width: 95%; 
+    font-family: var(--font-primary); padding: 8px;
+    border: 2px solid var(--color-grey); border-radius: 8px;
+    background: rgba(255,255,255,0.9); color: #333; width: 95%;
 }
-.input-group textarea {
-    display: none; 
-}
-
-/* (جديد) تصميم "+ إضافة عضو" */
-.members-list {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-bottom: 5px; /* (إضافة هامش) */
-}
-.member-input-container { /* (جديد) */
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.member-input-container input {
-    width: 80% !important; /* (تصغير) */
-    flex: 1;
-}
-.remove-member-button { /* (جديد) */
-    font-family: var(--font-primary);
-    font-size: 1rem;
-    font-weight: bold;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: var(--color-red);
-    cursor: pointer;
-    width: 20px;
-    height: 20px;
+.members-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 5px; }
+.member-input-container { display: flex; align-items: center; gap: 5px; }
+.member-input-container input { width: 80% !important; flex: 1; }
+.remove-member-button {
+    font-family: var(--font-primary); font-size: 1rem; font-weight: bold;
+    border: none; background: transparent; color: var(--color-red); cursor: pointer;
 }
 .add-member-button {
-    font-family: var(--font-primary);
-    font-size: 0.8rem; /* (تصغير) */
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: var(--color-grey);
-    color: var(--color-dark-bg);
-    cursor: pointer;
-    width: 90px; /* (تصغير) */
-    margin-top: 5px;
+    font-family: var(--font-primary); font-size: 0.8rem; padding: 5px 10px;
+    border: none; border-radius: 5px; background-color: var(--color-grey);
+    color: var(--color-dark-bg); cursor: pointer; width: 90px; margin-top: 5px;
 }
 
 .footer-buttons {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    border-top: 1px solid var(--color-grey);
-    margin-top: 20px;
-    padding-top: 20px;
+    display: flex; flex-direction: column; align-items: center;
+    width: 100%; border-top: 1px solid var(--color-grey);
+    margin-top: 20px; padding-top: 20px;
 }
 .start-button {
-    font-size: 1.3rem; /* (تصغير) */
-    font-weight: bold;
-    padding: 12px 35px; /* (تصغير) */
-    margin-top: 0; 
-    border: none;
-    border-radius: 10px;
-    background-color: var(--color-purple);
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    align-self: center;
+    font-size: 1.3rem; font-weight: bold; padding: 12px 35px;
+    border: none; border-radius: 10px; background-color: var(--color-purple);
+    color: white; cursor: pointer; transition: all 0.2s ease;
 }
-/* (جديد) تصميم الزر المعطل */
-.start-button:disabled {
-    background-color: var(--color-grey);
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-.start-button:hover:not(:disabled) { 
-    transform: scale(1.05); 
-}
+.start-button:disabled { background-color: var(--color-grey); opacity: 0.5; cursor: not-allowed; }
+.start-button:hover:not(:disabled) { transform: scale(1.05); }
 #instructions-button {
-    background: transparent;
-    border: none;
-    color: var(--color-yellow);
-    text-decoration: underline;
-    font-size: 0.9rem; /* (تصغير) */
-    margin-top: 15px;
-    cursor: pointer;
-    align-self: center;
+    background: transparent; border: none; color: var(--color-yellow);
+    text-decoration: underline; font-size: 0.9rem; margin-top: 15px; cursor: pointer;
 }
 
 /* ================================
-    7. لوحة اللعبة (Game Board)
+    7. لوحة اللعبة (Game Board Container)
+    تم التعديل للتحجيم الديناميكي
 ================================ */
 #game-board-container {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     justify-content: center;
-    align-items: center; 
-    margin-top: -30px; 
+    align-items: center;
+    
+    /* (مهم) نقطة الارتكاز للتكبير تكون في المنتصف */
+    transform-origin: center center;
+    transition: transform 0.3s ease; /* حركة ناعمة عند تغيير الحجم */
+    
+    /* Z-Index منخفض لتظهر القوائم فوقه */
+    z-index: 1; 
+    margin: 0 auto;
 }
-.hex-row {
-    display: flex;
-    flex-direction: row;
-    margin-top: var(--hex-vertical-overlap);
-}
-.hex-row:nth-child(even) {
-    margin-left: var(--hex-horizontal-offset); 
-}
+
+.hex-row { display: flex; flex-direction: row; margin-top: var(--hex-vertical-overlap); }
+.hex-row:nth-child(even) { margin-left: var(--hex-horizontal-offset); }
 .hex-cell {
     position: relative;
-    width: var(--hex-width);
-    height: var(--hex-height);
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    margin-left: var(--hex-horizontal-overlap);
-    margin-right: var(--hex-horizontal-overlap);
+    width: var(--hex-width); height: var(--hex-height);
+    background-size: contain; background-position: center; background-repeat: no-repeat;
+    margin-left: var(--hex-horizontal-overlap); margin-right: var(--hex-horizontal-overlap);
     transition: transform 0.2s ease, filter 0.2s ease;
 }
-.hex-row:first-child {
-    margin-top: 0;
-}
-.hex-row .hex-cell:first-child { 
-    margin-left: 0; 
-    margin-right: 0; 
-}
+.hex-row:first-child { margin-top: 0; }
+.hex-row .hex-cell:first-child { margin-left: 0; margin-right: 0; }
+
 .hex-cell-default { background-image: url('assets/images/hex.cell.default.png'); }
 .hex-cell-red { background-image: url('assets/images/hex.red.png'); }
 .hex-cell-purple { background-image: url('assets/images/hex.purple.png'); }
-.hex-cell.playable:hover {
-    transform: scale(1.05);
-    filter: brightness(1.2);
-    cursor: pointer;
-}
+.hex-cell.playable:hover { transform: scale(1.05); filter: brightness(1.2); cursor: pointer; }
 
 /* ================================
-    8. هيدر اللعبة (Scoreboards & Logo)
+    8. هيدر اللعبة (Scoreboards) - Z-Index: 50
 ================================ */
 .game-header {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    width: 90%;
-    margin-top: 20px;
-    position: relative;
-    z-index: 10;
+    display: flex; justify-content: space-around; align-items: center;
+    width: 90%; margin-top: 10px; position: relative;
+    z-index: 50; /* فوق اللوحة */
+    pointer-events: none; /* للسماح بالنقر تحته إذا لزم الأمر */
 }
+.game-header > * { pointer-events: auto; } /* إعادة تفعيل النقر للعناصر الداخلية */
+
 .scoreboard-container {
-    width: 400px;
-    height: 183px;
+    width: 400px; height: 183px; /* يمكن تصغير هذا لاحقاً بالسكربت إذا لزم */
     background-image: url('assets/images/scoreboard.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
+    background-size: contain; background-repeat: no-repeat; background-position: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px;
+    transform: scale(0.8); /* تصغير افتراضي طفيف للهيدر */
 }
-.scoreboard-container.left { text-align: left; }
-.scoreboard-container.right { text-align: right; }
-
-.team-name {
-    font-size: 0.9rem; /* (تصغير) */
-    font-weight: bold;
-    margin-bottom: 5px; 
-}
-.score {
-    font-size: 1.5rem; /* (تصغير) */
-    font-weight: bold;
-    color: var(--color-yellow);
-}
-
-.game-logo { width: 170px; } /* (تكبير) */
-
+.team-name { font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; }
+.score { font-size: 1.5rem; font-weight: bold; color: var(--color-yellow); }
+.game-logo { width: 150px; }
 .turn-indicator {
-    width: 30px; height:30px; /* (تصغير) */
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0.3;
-    transition: all 0.3s ease;
+    width: 30px; height:30px;
+    background-size: contain; background-repeat: no-repeat; background-position: center;
+    opacity: 0.3; transition: all 0.3s ease;
 }
-.turn-indicator.active {
-    opacity: 1;
-    filter: drop-shadow(0 0 10px var(--color-yellow));
-    transform: scale(1.1);
-}
+.turn-indicator.active { opacity: 1; filter: drop-shadow(0 0 10px var(--color-yellow)); transform: scale(1.1); }
 #turn-indicator-left { background-image: url('assets/images/turn.indicator.to.left.png'); }
 #turn-indicator-right { background-image: url('assets/images/turn.indicator.to.right.png'); }
 
 /* ================================
-    9. نافذة السؤال (Modal) - (تم التعديل)
+    9. النوافذ المنبثقة (Modals) - Z-Index: 2000+
 ================================ */
 #question-modal-overlay {
-    position: fixed;
-    top:0; left:0;
-    width:100vw; height:100vh;
-    background-color: rgba(0,0,0,0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* 🛠️ التعديل الأول: رفع قيمة Z-Index */
-    z-index: 5000;
+    position: fixed; top:0; left:0; width:100vw; height:100vh;
+    background-color: rgba(0,0,0,0.8);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 5000; /* أعلى من كل شيء ما عدا رسالة التدوير */
 }
-
-/* 🛠️ التعديل الثاني: القاعدة الضرورية لضمان عمل كلاس 'hidden' بشكل صارم */
-#question-modal-overlay.hidden {
-    display: none !important; 
-}
+#question-modal-overlay.hidden { display: none !important; }
 
 .modal-content {
-    background-color: var(--color-light-bg);
-    color: var(--color-dark-bg);
-    padding: 30px;
-    border-radius: 15px;
-    width: 80%;
-    max-width: 600px;
-    text-align: center;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-    position: relative; 
+    background-color: var(--color-light-bg); color: var(--color-dark-bg);
+    padding: 30px; border-radius: 15px; width: 80%; max-width: 600px;
+    text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.4); position: relative;
 }
 
-/* (تم التعديل) تنسيق المؤقت */
 #question-timer {
-    position: absolute;
-    top: -15px; /* (تعديل) */
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: var(--color-yellow);
-    color: var(--color-dark-bg);
-    font-size: 1.2rem; /* (تصغير) */
-    font-weight: bold;
-    width: 40px; /* (تصغير) */
-    height: 40px; /* (تصغير) */
-    display: none; /* (مخفي افتراضياً) */
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    border: 4px solid var(--color-light-bg);
+    position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+    background-color: var(--color-yellow); color: var(--color-dark-bg);
+    font-size: 1.2rem; font-weight: bold; width: 50px; height: 50px;
+    display: none; align-items: center; justify-content: center;
+    border-radius: 50%; border: 4px solid var(--color-light-bg); z-index: 2;
 }
 
-#question-text { font-size:1.8rem; margin-bottom:25px; }
+#question-text { font-size:1.6rem; margin-bottom:25px; line-height: 1.4; }
 #show-answer-button {
-    font-size:1.2rem;
-    padding: 10px 20px;
+    font-size:1.2rem; padding: 10px 20px;
     background-image: url('assets/images/ui.button.show.answer.png');
-    background-size:100% 100%;
-    border:none;
-    background-color:transparent;
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
-    min-height:50px;
-    width:200px;
+    background-size:contain; background-repeat: no-repeat; background-position: center;
+    border:none; background-color:transparent; color:white; font-weight:bold;
+    cursor:pointer; height:60px; width:220px;
 }
-#answer-reveal-section {
-    display:none;
-    margin-top:20px;
-    padding-top:20px;
-    border-top:2px solid var(--color-grey);
-}
-#answer-text { font-size:1.5rem; color:var(--color-purple); font-weight:bold; }
-#answer-reveal-section h4 { font-size:1.2rem; margin-bottom:15px; }
+#answer-reveal-section { display:none; margin-top:20px; padding-top:20px; border-top:2px solid var(--color-grey); }
+#answer-text { font-size:1.5rem; color:var(--color-purple); font-weight:bold; margin-bottom: 20px;}
 
-.team-choice-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap; /* (جديد) */
-}
+.team-choice-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
 .team-choice-buttons button {
-    width:150px; height:60px;
-    border:none;
-    background-size:contain;
-    background-repeat:no-repeat;
-    background-position:center;
-    background-color:transparent;
-    cursor:pointer;
+    width:160px; height:65px; border:none;
+    background-size:contain; background-repeat:no-repeat; background-position:center;
+    background-color:transparent; cursor:pointer;
+    display: flex; align-items: center; justify-content: center;
 }
-
 .team-name-in-button {
-    font-family: var(--font-primary);
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 0 10px;
+    font-family: var(--font-primary); font-size: 1rem; font-weight: bold;
+    color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px;
 }
-
 #team-purple-win-button { background-image:url('assets/images/ui.purple.team.png'); }
 #team-red-win-button { background-image:url('assets/images/ui.red.team.png'); }
 
-#competitive-skip-button {
+#competitive-skip-button, #turn-skip-button {
     background-image: url('assets/images/ui.button.skip.png');
-    background-size: 100% 100%; 
-    background-repeat: no-repeat;
-    background-position: center;
-    background-color: transparent;
-    border: none;
-    width: 200px; 
-    height: 50px; 
-    margin-top: 10px;
-    cursor: pointer;
-    color: white;
-    font-family: var(--font-primary);
-    font-size: 1.1rem;
-    font-weight: bold;
+    background-size: contain; background-repeat: no-repeat; background-position: center;
+    background-color: transparent; border: none;
+    width: 200px; height: 50px; margin-top: 15px; cursor: pointer;
+    color: white; font-family: var(--font-primary); font-size: 1.1rem; font-weight: bold;
 }
 
-#turn-correct-button, #turn-skip-button {
-    font-family: var(--font-primary);
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    cursor: pointer;
-    width: 200px; 
-    height: 50px; 
-}
 #turn-correct-button {
-    /* (تم التعديل) استخدام الصورة بدلاً من اللون الأخضر */
     background-image: url('assets/images/ui.button.correct.answer.png');
-    background-size: 100% 100%;
-    background-color: transparent;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-#turn-skip-button {
-    background-image: url('assets/images/ui.button.skip.png'); 
-    background-size: 100% 100%;
-    background-color: transparent;
+    background-size: contain; background-repeat: no-repeat; background-position: center;
+    background-color: transparent; border: none;
+    width: 200px; height: 60px; cursor: pointer;
+    font-size: 0; /* إخفاء النص لأن الصورة تحتوي عليه */
 }
 
 /* ================================
     10. الحروف داخل الخلايا
 ================================ */
 .hex-letter {
-    font-size:2rem;
-    font-weight:bold;
-    color: var(--color-dark-bg);
-    position:absolute;
-    top:50%; left:50%;
-    transform: translate(-50%, -50%);
-    user-select:none;
-    text-shadow:1px 1px 2px rgba(255,255,255,0.5);
+    font-size: 2.2rem; font-weight:bold; color: var(--color-dark-bg);
+    position:absolute; top:50%; left:50%; transform: translate(-50%, -50%);
+    user-select:none; text-shadow:1px 1px 2px rgba(255,255,255,0.5);
 }
 
 /* ================================
-    11. الخلايا المملوكة (Owned Cells)
+    11. الخلايا المملوكة
 ================================ */
-.hex-cell-purple-owned { 
-    background-image: url('assets/images/hex.purple.png') !important; 
-}
-.hex-cell-red-owned { 
-    background-image: url('assets/images/hex.red.png') !important; 
+.hex-cell-purple-owned { background-image: url('assets/images/hex.purple.png') !important; }
+.hex-cell-red-owned { background-image: url('assets/images/hex.red.png') !important; }
+.hex-cell-purple-owned .hex-letter, .hex-cell-red-owned .hex-letter {
+    color:white; text-shadow:1px 1px 2px rgba(0,0,0,0.5);
 }
 
-.hex-cell-purple-owned .hex-letter,
-.hex-cell-red-owned .hex-letter { 
-    color:white; 
-    text-shadow:1px 1px 2px rgba(0,0,0,0.5); 
+/* (جديد) إضاءة المسار الفائز */
+.winning-path-cell {
+    filter: brightness(1.5) drop-shadow(0 0 15px gold) !important;
+    z-index: 10; /* رفع الخلية المضيئة */
+    transform: scale(1.1);
 }
 
 /* ================================
-    12. شاشة الفوز بالجولة
+    12. شاشة الفوز بالجولة (Overlay)
 ================================ */
 #round-win-overlay {
-    position: fixed;
-    top:0; left:0;
-    width:100vw; height:100vh;
-    background-color: rgba(26,26,46,0.85);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    z-index:2000;
+    position: fixed; top:0; left:0; width:100vw; height:100vh;
+    background-color: rgba(26,26,46,0.9);
+    display: none; align-items: center; justify-content: center;
+    flex-direction: column; z-index:6000;
     backdrop-filter: blur(5px);
 }
 .win-content { text-align:center; color:white; }
-#win-message {
-    font-size:3rem; font-weight:bold;
-    color: var(--color-yellow);
-    text-shadow:0 0 10px var(--color-yellow);
-}
+#win-message { font-size:3rem; font-weight:bold; color: var(--color-yellow); text-shadow:0 0 10px var(--color-yellow); margin-bottom: 0;}
 .score-update { font-size:4rem; font-weight:bold; margin:20px 0; }
 #next-round-button {
-    font-size:1.5rem; font-weight:bold;
-    padding:15px 40px;
-    border:none;
-    border-radius:10px;
-    background-color: var(--color-yellow);
-    color: var(--color-dark-bg);
-    cursor:pointer;
-    transition: transform 0.2s ease;
+    font-size:1.5rem; font-weight:bold; padding:15px 40px;
+    border:none; border-radius:10px; background-color: var(--color-yellow);
+    color: var(--color-dark-bg); cursor:pointer; transition: transform 0.2s ease;
 }
 #next-round-button:hover { transform: scale(1.05); }
 
 /* ================================
-    13. أزرار التحكم باللعبة (تصميم زجاجي)
+    13. أزرار التحكم باللعبة (Footer)
 ================================ */
 .game-controls {
-    position: fixed;
-    bottom:20px; left:20px;
-    z-index:500;
+    position: fixed; bottom:15px; left:15px; z-index:100;
 }
 .game-controls button {
-    font-family: var(--font-primary);
-    font-size:0.9rem;
-    padding:10px 20px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius:8px;
-    background-color: rgba(255,255,255,0.2);
-    backdrop-filter: blur(5px);
-    color:white;
-    cursor:pointer;
-    margin-right:10px;
+    font-family: var(--font-primary); font-size:0.9rem; padding:8px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.3); border-radius:8px;
+    background-color: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
+    color:white; cursor:pointer; margin-right:5px;
     transition: background-color 0.2s ease;
 }
-.game-controls button:hover {
-    background-color: rgba(255,255,255,0.4);
-}
+.game-controls button:hover { background-color: rgba(255,255,255,0.4); }
+
+.hex-cell-transparent { background-image: none !important; opacity: 0; pointer-events: none; }
 
 /* ================================
-    14. الخلايا الشفافة
-================================ */
-.hex-cell-transparent {
-    background-image: none !important;
-    opacity: 0;
-    pointer-events: none; /* لا يمكن النقر عليها */
-}
-
-/* ================================
-    15. نافذة التعليمات
+    14. نافذة التعليمات
 ================================ */
 #instructions-modal-overlay {
-    position: fixed;
-    top:0; left:0;
-    width:100vw; height:100vh;
-    background-color: rgba(0,0,0,0.7);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+    position: fixed; top:0; left:0; width:100vw; height:100vh;
+    background-color: rgba(0,0,0,0.7); display: none;
+    align-items: center; justify-content: center; z-index: 2000;
 }
-
-#instructions-modal-overlay .modal-content {
-    background-color: var(--color-light-bg);
-    color: var(--color-dark-bg);
-    padding: 30px;
-    border-radius: 15px;
-    width: 80%;
-    max-width: 600px;
-    text-align: right; 
-    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-}
-#instructions-modal-overlay .modal-content h3 {
-    color: var(--color-purple);
-}
-#instructions-modal-overlay .modal-content ul {
-    list-style-type: '✔️ ';
-    padding-right: 20px;
-}
+#instructions-modal-overlay .modal-content { text-align: right; }
+#instructions-modal-overlay .modal-content h3 { color: var(--color-purple); }
+#instructions-modal-overlay .modal-content ul { list-style-type: '✔️ '; padding-right: 20px; }
 #close-instructions-button {
-    font-family: var(--font-primary);
-    font-size: 1.2rem;
-    font-weight: bold;
-    padding: 10px 30px;
-    border: none;
-    border-radius: 8px;
-    background-color: var(--color-yellow);
-    color: var(--color-dark-bg);
-    cursor: pointer;
-    margin-top: 20px;
+    font-family: var(--font-primary); font-size: 1.2rem; font-weight: bold;
+    padding: 10px 30px; border: none; border-radius: 8px;
+    background-color: var(--color-yellow); color: var(--color-dark-bg);
+    cursor: pointer; margin-top: 20px;
 }
 
 /* ================================
-    16. (جديد) نافذة تأكيد الخروج
+    15. نافذة تأكيد الخروج
 ================================ */
 .modal-overlay-small {
-    position: fixed;
-    top:0; left:0;
-    width:100vw; height:100vh;
-    background-color: rgba(0,0,0,0.7);
-    /* (تم التعديل) ستستخدم 'hidden' للإخفاء */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 3000; 
+    position: fixed; top:0; left:0; width:100vw; height:100vh;
+    background-color: rgba(0,0,0,0.7); display: flex;
+    align-items: center; justify-content: center; z-index: 4000;
     backdrop-filter: blur(5px);
 }
 .modal-content-small {
-    background-color: var(--color-light-bg);
-    color: var(--color-dark-bg);
-    padding: 25px;
-    border-radius: 15px;
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
+    background-color: var(--color-light-bg); color: var(--color-dark-bg);
+    padding: 25px; border-radius: 15px; max-width: 400px; width: 90%; text-align: center;
 }
-.modal-content-small h4 {
-    margin: 0 0 10px 0;
-    font-size: 1.4rem;
-    color: var(--color-red);
-}
-.modal-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
-}
+.modal-content-small h4 { margin: 0 0 10px 0; font-size: 1.4rem; color: var(--color-red); }
+.modal-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
 .modal-buttons button {
-    font-family: var(--font-primary);
-    font-size: 1rem;
-    font-weight: bold;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
+    font-family: var(--font-primary); font-size: 1rem; font-weight: bold;
+    padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;
 }
-#exit-confirm-yes {
-    background-color: var(--color-red);
-    color: white;
-}
-#exit-confirm-no {
-    background-color: var(--color-grey);
-    color: var(--color-dark-bg);
-}
+#exit-confirm-yes { background-color: var(--color-red); color: white; }
+#exit-confirm-no { background-color: var(--color-grey); color: var(--color-dark-bg); }
