@@ -80,7 +80,7 @@ const soundWrong = document.getElementById('sound-wrong');
 export const gameSettings = {
     mode: 'turns',
     teams: 'individual',
-    timer: 'off',
+    timer: 'off', // الافتراضي إيقاف
     team1Name: 'اللاعب 1 (أحمر)',
     team2Name: 'اللاعب 2 (بنفسجي)',
     team1Members: [],
@@ -94,8 +94,7 @@ let currentClickedCell = null;
 let currentQuestion = null;
 let gameActive = true;
 let scores = { purple: 0, red: 0 }; 
-// (تم التعديل) عدد النقاط للفوز أصبح 1 فقط
-const WINNING_SCORE = 1; 
+const WINNING_SCORE = 1; // الفوز من جولة واحدة
 let timerInterval = null;
 let remainingTime = 0;
 
@@ -154,7 +153,6 @@ function resizeBoard() {
     gameBoardContainer.style.transform = `scale(${scale})`;
 }
 
-// دالة تشغيل الصوت
 function playSound(audioElement) {
     if (audioElement) {
         audioElement.currentTime = 0;
@@ -496,6 +494,9 @@ function handleGameWin(teamColor, winningPath){
     gameActive=false;
     stopTimer();
     
+    // إخفاء نافذة السؤال فوراً
+    questionModalOverlay.classList.add('hidden');
+
     if (winningPath) {
         winningPath.forEach(coord => {
             const [r, c] = coord.split(',');
@@ -517,7 +518,12 @@ function handleGameWin(teamColor, winningPath){
 
     winScorePurple.textContent = scores.purple;
     winScoreRed.textContent = scores.red;
-    roundWinOverlay.classList.remove('hidden');
+    
+    // تأخير ظهور الرسالة للاستمتاع بالوهج الذهبي
+    setTimeout(() => {
+        roundWinOverlay.classList.remove('hidden');
+        playSound(soundClick); 
+    }, 1500);
 }
 
 function updateScoreboard(){
@@ -551,20 +557,41 @@ function hideRotateMessage(){ rotateOverlay.style.display='none'; }
 function checkDevice(){ if(!('ontouchstart' in window || navigator.maxTouchPoints>0)) rotateOverlay.style.display='none'; }
 
 function startTimer(duration){
-    remainingTime=duration;
-    questionTimerDisplay.textContent=duration<10?`0${duration}`:duration;
-    questionTimerDisplay.style.display='flex';
-    timerInterval=setInterval(()=>{
+    stopTimer(); // إيقاف أي مؤقت سابق
+    
+    remainingTime = duration;
+    questionTimerDisplay.style.display = 'flex';
+    questionTimerDisplay.classList.remove('hidden');
+    questionTimerDisplay.textContent = duration < 10 ? `0${duration}` : duration;
+    
+    // إعادة الألوان
+    questionTimerDisplay.style.backgroundColor = 'var(--color-yellow)';
+    questionTimerDisplay.style.color = 'var(--color-dark-bg)';
+
+    timerInterval = setInterval(() => {
         remainingTime--;
-        questionTimerDisplay.textContent=remainingTime<10?`0${remainingTime}`:remainingTime;
-        if(remainingTime<=0) handleQuestionResult('skip');
-    },1000);
+        questionTimerDisplay.textContent = remainingTime < 10 ? `0${remainingTime}` : remainingTime;
+        
+        // تغيير اللون في آخر 5 ثواني
+        if(remainingTime <= 5) {
+            questionTimerDisplay.style.backgroundColor = 'var(--color-red)';
+            questionTimerDisplay.style.color = 'white';
+        }
+
+        if(remainingTime <= 0) {
+            stopTimer();
+            playSound(soundWrong);
+            handleQuestionResult('skip');
+        }
+    }, 1000);
 }
 
 function stopTimer(){
-    clearInterval(timerInterval);
-    timerInterval=null;
-    questionTimerDisplay.style.display='none';
+    if(timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    questionTimerDisplay.style.display = 'none';
 }
 
 function addMemberInput(team){
