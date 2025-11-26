@@ -1,32 +1,20 @@
 const turnIndicatorLeft = document.getElementById('turn-indicator-left');
 const turnIndicatorRight = document.getElementById('turn-indicator-right');
 
-const state = {
-    currentPlayer: 'red',
-    gameMode: 'turns'
-};
+const state = { currentPlayer: 'red', gameMode: 'turns' };
 
 function startGame(gameSettings) {
     state.gameMode = gameSettings.mode;
-    state.currentPlayer = 'red'; // ابدأ دائماً بالأحمر
-    
-    if (state.gameMode === 'competitive') {
-        state.currentPlayer = 'all';
-    }
-    
+    state.currentPlayer = 'red'; 
+    if (state.gameMode === 'competitive') state.currentPlayer = 'all';
     updateTurnIndicator();
 }
 
 function nextTurn() {
-    // قلب الدور إجبارياً بعد كل محاولة
     if (state.gameMode === 'competitive') {
         state.currentPlayer = 'all';
     } else {
-        if (state.currentPlayer === 'red') {
-            state.currentPlayer = 'purple';
-        } else {
-            state.currentPlayer = 'red';
-        }
+        state.currentPlayer = (state.currentPlayer === 'red') ? 'purple' : 'red';
     }
     updateTurnIndicator();
 }
@@ -34,23 +22,11 @@ function nextTurn() {
 function updateTurnIndicator() {
     turnIndicatorLeft.classList.remove('active');
     turnIndicatorRight.classList.remove('active');
-
-    if (state.currentPlayer === 'red') {
-        turnIndicatorLeft.classList.add('active'); 
-    } else if (state.currentPlayer === 'purple') {
-        turnIndicatorRight.classList.add('active'); 
-    } else if (state.currentPlayer === 'all') {
-        turnIndicatorLeft.classList.add('active');
-        turnIndicatorRight.classList.add('active');
-    }
+    if (state.currentPlayer === 'red') turnIndicatorLeft.classList.add('active'); 
+    else if (state.currentPlayer === 'purple') turnIndicatorRight.classList.add('active'); 
+    else if (state.currentPlayer === 'all') { turnIndicatorLeft.classList.add('active'); turnIndicatorRight.classList.add('active'); }
 }
 
-function getCurrentPlayer() {
-    return state.currentPlayer;
-}
+function getCurrentPlayer() { return state.currentPlayer; }
 
-export const TurnManager = {
-    startGame,
-    nextTurn,
-    getCurrentPlayer 
-};
+export const TurnManager = { startGame, nextTurn, getCurrentPlayer };
