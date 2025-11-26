@@ -21,19 +21,21 @@ body {
     background-size: cover; background-position: center;
     height: 100vh; width: 100vw; user-select: none;
 }
-
-/* --- إدارة الشاشات (الحل الجذري للتداخل) --- */
+/* الحل الجذري لمنع التداخل */
 .screen {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    display: none !important; /* إخفاء إجباري */
-    opacity: 0; pointer-events: none; /* منع الضغط */
-    transition: opacity 0.3s ease;
-    z-index: var(--z-screen);
+    display: none !important; /* (1) إخفاء إجباري لأي شاشة غير نشطة */
+    background-color: #1a1a2e !important; /* (2) لون خلفية معتم 100% يغطي ما خلفه */
+    
+    /* إعدادات الموقع */
+    position: absolute; 
+    top: 0; left: 0; 
+    width: 100vw; height: 100vh;
+    z-index: 10;
 }
 
 .screen.active {
-    display: flex !important; /* إظهار إجباري */
-    opacity: 1; pointer-events: all;
+    display: flex !important; /* إظهار الشاشة النشطة فقط */
+    z-index: 20;
 }
 
 /* --- القائمة الرئيسية (تصميم VS) --- */
