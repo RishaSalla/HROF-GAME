@@ -13,7 +13,7 @@ const instructionsButton = document.getElementById('instructions-button');
 const instructionsModalOverlay = document.getElementById('instructions-modal-overlay');
 const closeInstructionsButton = document.getElementById('close-instructions-button');
 
-// المدخلات
+// المدخلات (التصميم الجديد)
 const indivRedDiv = document.getElementById('indiv-red');
 const teamRedDiv = document.getElementById('team-red');
 const indivPurpleDiv = document.getElementById('indiv-purple');
@@ -29,13 +29,13 @@ const addTeam2Btn = document.getElementById('add-team-2-member-button');
 const team1List = document.getElementById('team-1-members-list');
 const team2List = document.getElementById('team-2-members-list');
 
-// عناصر اللعب (القوائم الجانبية)
+// القوائم الجانبية (بديل العدادات)
 const redTeamNameDisplay = document.getElementById('red-team-name');
 const purpleTeamNameDisplay = document.getElementById('purple-team-name');
 const redRosterDisplay = document.getElementById('red-roster-display');
 const purpleRosterDisplay = document.getElementById('purple-roster-display');
 
-// عناصر اللعب الأخرى
+// النوافذ والأزرار
 const questionModalOverlay = document.getElementById('question-modal-overlay');
 const questionTimerDisplay = document.getElementById('question-timer');
 const questionText = document.getElementById('question-text');
@@ -68,7 +68,7 @@ const soundCorrect = document.getElementById('sound-correct');
 const soundClick = document.getElementById('sound-click');
 const soundWrong = document.getElementById('sound-wrong');
 
-// الإعدادات
+// ===================== الإعدادات =====================
 export const gameSettings = { mode: 'turns', teams: 'individual', timer: 'off', team1Name: '', team2Name: '', team1Members: [], team2Members: [] };
 
 const questionCache = {};
@@ -96,23 +96,25 @@ const ALL_LETTERS = [
 const T = 'transparent'; const G = 'default'; const R = 'red'; const P = 'purple';
 const BOARD_LAYOUT = [ [T, T, T, T, T, T, T, T, T], [T, T, R, R, R, R, R, R, T], [T, P, G, G, G, G, G, P, T], [T, P, G, G, G, G, G, P, T], [T, P, G, G, G, G, G, P, T], [T, P, G, G, G, G, G, P, T], [T, P, G, G, G, G, G, P, T], [T, T, R, R, R, R, R, R, T], [T, T, T, T, T, T, T, T, T] ];
 
-// الوظائف
+// ===================== الوظائف =====================
+
 function resizeBoard() {
     if (!gameScreen.classList.contains('active')) return;
-    const boardWidth = 800; const boardHeight = 650; 
-    // حساب المساحة المتبقية بعد خصم الهيدر (الصغير) والفوتر والقوائم الجانبية
-    const availableWidth = window.innerWidth - 360; // 180px + 180px للقوائم الجانبية
-    const availableHeight = window.innerHeight - 100; 
     
-    // في حالة الجوال، القوائم تصبح أفقية، فالمساحة تختلف
-    let finalWidth = availableWidth;
-    let finalHeight = availableHeight;
-    if (window.innerWidth <= 768) {
-        finalWidth = window.innerWidth;
-        finalHeight = window.innerHeight - 150; // خصم القوائم الأفقية
-    }
+    // التحجيم مع مراعاة القوائم الجانبية
+    const boardWidth = 800; const boardHeight = 650; 
+    
+    // في اللابتوب: خصم عرض القوائم الجانبية (200px * 2 = 400px)
+    let sidePanelsWidth = 400;
+    // في الجوال: القوائم تصبح صغيرة في الأعلى/الأسفل، لذا الخصم الأفقي صفر
+    if (window.innerWidth <= 768) sidePanelsWidth = 0;
 
-    const scaleX = finalWidth / boardWidth; const scaleY = finalHeight / boardHeight;
+    const availableWidth = window.innerWidth - sidePanelsWidth - 20; 
+    // في الجوال نخصم ارتفاع القوائم
+    const verticalOffset = (window.innerWidth <= 768) ? 140 : 100; 
+    const availableHeight = window.innerHeight - verticalOffset;
+
+    const scaleX = availableWidth / boardWidth; const scaleY = availableHeight / boardHeight;
     let scale = Math.min(scaleX, scaleY);
     if (scale > 1.2) scale = 1.2; if (scale < 0.35) scale = 0.35; 
     gameBoardContainer.style.transform = `scale(${scale})`;
@@ -175,6 +177,7 @@ function validateSettings() {
 
 function startGame() {
     playSound(soundStart);
+    
     if (gameSettings.teams === 'individual') {
         gameSettings.team1Name = player1Input.value || 'أحمر';
         gameSettings.team2Name = player2Input.value || 'بنفسجي';
@@ -187,6 +190,7 @@ function startGame() {
         gameSettings.team2Members = Array.from(team2List.querySelectorAll('input')).map(i=>i.value).filter(v=>v);
     }
 
+    // عرض الأسماء في القوائم الجانبية
     redTeamNameDisplay.textContent = gameSettings.team1Name;
     purpleTeamNameDisplay.textContent = gameSettings.team2Name;
     fillRosterDisplay(redRosterDisplay, gameSettings.team1Members);
@@ -198,12 +202,13 @@ function startGame() {
     loadUsedQuestions();
     startNewRound();
     setTimeout(resizeBoard, 100);
+    window.addEventListener('resize', resizeBoard);
 }
 
 function fillRosterDisplay(container, members) {
     container.innerHTML = '';
     members.forEach(m => {
-        const span = document.createElement('div'); // Div ليأخذ سطراً كاملاً
+        const span = document.createElement('div'); 
         span.className = 'roster-item';
         span.textContent = m;
         container.appendChild(span);
@@ -222,6 +227,7 @@ function initializeGameBoard() {
     gameBoardContainer.innerHTML = '';
     const shuffled = shuffleArray(ALL_LETTERS);
     let idx = 0;
+    
     BOARD_LAYOUT.forEach((row, r) => {
         const rowDiv = document.createElement('div'); rowDiv.className = 'hex-row';
         row.forEach((type, c) => {
@@ -351,7 +357,7 @@ function handleWin(color, path) {
     if(path) path.forEach(k => getCell(...k.split(',')).classList.add('winning-path-cell'));
     winMessage.textContent = `الفريق ${color==='red'?gameSettings.team1Name:gameSettings.team2Name} فاز!`;
     
-    // التأكد من إزالة الـ hidden لإظهار النافذة
+    // ضمان ظهور النافذة (إلغاء الـ hidden)
     setTimeout(() => { 
         roundWinOverlay.classList.remove('hidden'); 
         playSound(soundClick); 
@@ -383,6 +389,7 @@ function startTimer(dur) {
 }
 function stopTimer() { clearInterval(timerInterval); questionTimerDisplay.classList.add('hidden'); }
 
+// تفعيل الأزرار
 modeTabs.forEach(b => b.addEventListener('click', handleModeTab));
 pillBtns.forEach(b => b.addEventListener('click', handlePillClick));
 addTeam1Btn.onclick = () => addRosterMember(1);
