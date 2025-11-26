@@ -1,226 +1,167 @@
-/* =========================================
-   1. إعدادات عامة وإصلاحات الأداء (Performance)
-   ========================================= */
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
 
 :root {
     --font-primary: 'Cairo', sans-serif;
-    --color-dark-bg: #1a1a2e;
-    --color-light-bg: #f0f0f0;
-    --color-text-dark: #ffffff;
-    --color-purple: #8e44ad;
-    --color-red: #c0392b;
-    --color-grey: #bdc3c7;
-    --color-yellow: #f1c40f;
-
+    --color-dark-bg: #1a1a2e; --color-light-bg: #f0f0f0;
+    --color-text-dark: #ffffff; --color-purple: #8e44ad; --color-red: #c0392b;
+    --color-grey: #bdc3c7; --color-yellow: #f1c40f;
+    
     /* طبقات العرض (Z-Index Map) - لمنع التداخل */
-    --z-background: 0;
-    --z-board: 10;
-    --z-ui: 50;
-    --z-modal: 1000;
-    --z-overlay-top: 9999;
+    --z-back: 0; --z-screen: 10; --z-overlay: 100; --z-modal: 1000; --z-top: 9999;
+    
+    --hex-width: 90px; --hex-height: 104px; 
+    --hex-vertical-overlap: -35px; --hex-horizontal-offset: 80px; --hex-horizontal-overlap: -4px;
 }
 
-* {
-    box-sizing: border-box; /* هام جداً لضبط المقاسات */
-}
+* { box-sizing: border-box; }
 
 body {
-    font-family: var(--font-primary);
-    margin: 0; padding: 0;
-    overflow: hidden; /* يمنع أي شريط تمرير */
-    height: 100vh; width: 100vw;
+    font-family: var(--font-primary); margin: 0; padding: 0; overflow: hidden;
+    background-color: var(--color-dark-bg); background-image: url('assets/images/background.dark.png');
     background-size: cover; background-position: center;
-    user-select: none; -webkit-user-select: none;
+    height: 100vh; width: 100vw; user-select: none;
 }
 
-/* الأوضاع اللونية */
-body.dark-mode { background-color: var(--color-dark-bg); background-image: url('assets/images/background.dark.png'); color: var(--color-text-dark); }
-body.light-mode { background-color: var(--color-light-bg); background-image: url('assets/images/background.light.png'); color: #111; }
-
-/* فئة الإخفاء الصارمة */
-.hidden { display: none !important; visibility: hidden !important; }
-
-/* =========================================
-   2. إدارة الشاشات (Screen Management)
-   ========================================= */
+/* --- إدارة الشاشات (الحل الجذري للتداخل) --- */
 .screen {
-    display: none; /* الافتراضي: مخفي */
-    position: absolute; top: 0; left: 0;
-    width: 100%; height: 100%;
-    overflow-y: auto; overflow-x: hidden;
-    z-index: var(--z-ui);
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: none !important; /* إخفاء إجباري */
+    opacity: 0; pointer-events: none; /* منع الضغط */
+    transition: opacity 0.3s ease;
+    z-index: var(--z-screen);
 }
 
-/* فقط الشاشة النشطة تظهر وتأخذ تنسيق Flex */
 .screen.active {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    display: flex !important; /* إظهار إجباري */
+    opacity: 1; pointer-events: all;
 }
 
-/* شاشة اللعب لا تحتاج لتمرير */
-#game-screen { overflow: hidden; justify-content: flex-start; }
-
-/* =========================================
-   3. القائمة الرئيسية (التصميم الجديد - مخفف)
-   ========================================= */
+/* --- القائمة الرئيسية (تصميم VS) --- */
+#main-menu-screen { overflow-y: auto; }
 .main-menu-wrapper {
-    width: 95%; max-width: 900px;
-    display: flex; flex-direction: column; align-items: center;
-    padding: 20px;
-    /* تخفيف الزجاج لمنع التعليق */
-    background: rgba(20, 20, 30, 0.8); 
+    width: 90%; max-width: 900px; margin: auto; padding: 20px;
+    background: rgba(20, 20, 30, 0.9); /* لون ثابت لمنع التعليق */
     border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+    display: flex; flex-direction: column; align-items: center;
 }
+.menu-logo { width: 150px; margin-bottom: 20px; }
 
-.menu-logo { width: 160px; margin-bottom: 20px; }
+.mode-switcher { display: flex; gap: 20px; margin-bottom: 20px; }
+.mode-tab { background: none; border: none; color: #777; font-size: 1.5rem; font-family: var(--font-primary); cursor: pointer; transition: 0.3s; }
+.mode-tab.active { color: white; transform: scale(1.1); font-weight: bold; border-bottom: 2px solid var(--color-yellow); }
+.mode-divider { color: #555; font-size: 1.5rem; }
 
-/* أزرار التبديل */
-.mode-switcher { display: flex; gap: 20px; margin-bottom: 20px; align-items: center; }
-.mode-tab { background: none; border: none; color: var(--color-grey); font-size: 1.4rem; font-weight: bold; cursor: pointer; opacity: 0.5; transition: 0.2s; font-family: var(--font-primary); }
-.mode-tab.active { opacity: 1; color: white; transform: scale(1.1); border-bottom: 2px solid var(--color-yellow); }
-.mode-divider { color: var(--color-grey); font-size: 1.5rem; }
-
-/* منطقة المواجهة VS */
 .vs-arena {
-    display: flex; width: 100%; justify-content: space-between; align-items: flex-start;
-    background: rgba(255,255,255,0.02); border-radius: 15px; padding: 20px;
-    position: relative; min-height: 250px;
+    display: flex; width: 100%; justify-content: space-between; 
+    background: rgba(255,255,255,0.03); border-radius: 15px; padding: 20px; position: relative;
 }
-.team-column { flex: 1; display: flex; flex-direction: column; align-items: center; z-index: 2; }
-.column-title { font-size: 1.5rem; margin-bottom: 15px; font-weight: 900; }
+.team-column { flex: 1; text-align: center; }
+.column-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 15px; }
 .red-side .column-title { color: var(--color-red); }
 .purple-side .column-title { color: var(--color-purple); }
+.vs-divider { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: 900; color: rgba(255,255,255,0.1); }
 
-.vs-divider { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: 900; color: rgba(255,255,255,0.1); font-style: italic; }
-
-/* المدخلات */
 .individual-input-group input, .team-input-group input {
     background: transparent; border: none; border-bottom: 2px solid #555;
-    color: white; font-family: var(--font-primary); font-size: 1.1rem;
-    padding: 8px; text-align: center; width: 90%; margin-bottom: 10px;
+    color: white; font-family: var(--font-primary); font-size: 1.1rem; padding: 8px; text-align: center; width: 90%;
 }
-.individual-input-group input:focus, .team-input-group input:focus { outline: none; border-color: var(--color-yellow); }
+.individual-input-group input:focus { border-color: var(--color-yellow); outline: none; }
 
-/* الشريط السفلي */
-.bottom-settings-bar {
-    display: flex; gap: 20px; margin-top: 20px; margin-bottom: 20px;
-    background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 50px;
-}
-.pill-btn {
-    background: transparent; border: 1px solid #555; color: #aaa;
-    padding: 5px 15px; border-radius: 15px; cursor: pointer; font-family: var(--font-primary);
-}
+.bottom-settings-bar { display: flex; gap: 15px; margin: 20px 0; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 50px; }
+.pill-btn { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 15px; border-radius: 15px; cursor: pointer; font-family: var(--font-primary); }
 .pill-btn.active { background: white; color: black; border-color: white; font-weight: bold; }
 
 .launch-button {
-    font-size: 1.4rem; font-weight: 900; color: white;
+    font-size: 1.5rem; font-weight: 900; color: white;
     background: linear-gradient(90deg, var(--color-purple), var(--color-red));
-    border: none; padding: 12px 60px; border-radius: 50px; cursor: pointer;
+    border: none; padding: 15px 60px; border-radius: 50px; cursor: pointer;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.2s;
 }
-.launch-button:hover { transform: scale(1.05); }
-.launch-button:disabled { filter: grayscale(100%); opacity: 0.5; cursor: not-allowed; }
+.launch-button:hover:not(:disabled) { transform: scale(1.05); }
+.launch-button:disabled { filter: grayscale(100%); cursor: not-allowed; opacity: 0.5; }
 
-/* =========================================
-   4. شاشة اللعب (Game Screen Layout)
-   ========================================= */
-#game-screen {
-    display: flex; flex-direction: row; /* أفقي */
-    justify-content: space-between;
-    width: 100%; height: 100vh;
-}
+/* --- شاشة اللعب (Game Screen) --- */
+#game-screen { flex-direction: row; justify-content: space-between; }
 
-/* القوائم الجانبية */
 .side-panel {
-    width: 200px; height: 100%;
-    background: rgba(0,0,0,0.3); /* لون ثابت خفيف بدل التغبيش الثقيل */
-    display: flex; flex-direction: column;
-    border-left: 1px solid rgba(255,255,255,0.05);
-    border-right: 1px solid rgba(255,255,255,0.05);
-    z-index: var(--z-ui);
+    width: 200px; height: 100%; background: rgba(0,0,0,0.4);
+    display: flex; flex-direction: column; border-left: 1px solid #333; border-right: 1px solid #333;
 }
+.panel-header { padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; color: white; border-bottom: 1px solid #444; }
 .right-panel { order: 3; border-left: 4px solid var(--color-red); }
 .left-panel { order: 1; border-right: 4px solid var(--color-purple); }
-.center-game-area { order: 2; flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; height: 100%; }
+.center-game-area { order: 2; flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
 
-.panel-header { padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; }
-.roster-vertical-list { flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
-.roster-item { color: #ddd; font-size: 0.9rem; padding: 5px; background: rgba(255,255,255,0.05); border-radius: 5px; text-align: center; }
+.roster-vertical-list { flex: 1; padding: 10px; overflow-y: auto; }
+.roster-item { display: block; padding: 5px; color: #ddd; border-bottom: 1px solid #444; text-align: center; }
 
 /* اللوحة */
 #game-board-container {
-    flex: 1;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    transform-origin: center center; transition: transform 0.2s ease; /* حركة أسرع */
-    z-index: var(--z-board);
-    width: 100%;
+    flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    transform-origin: center; transition: transform 0.2s; z-index: var(--z-board);
 }
-
-/* =========================================
-   5. العناصر داخل اللعبة
-   ========================================= */
-.game-header-minimal { display: flex; align-items: center; gap: 20px; margin-top: 10px; z-index: var(--z-ui); }
-.game-logo-small { width: 80px; }
-.turn-indicator { width: 40px; height: 40px; opacity: 0.2; background-size: contain; background-repeat: no-repeat; }
-.turn-indicator.active { opacity: 1; filter: drop-shadow(0 0 10px gold); transform: scale(1.1); }
-#turn-indicator-left { background-image: url('assets/images/turn.indicator.to.left.png'); }
-#turn-indicator-right { background-image: url('assets/images/turn.indicator.to.right.png'); }
-
-/* خلايا اللعب */
 .hex-row { display: flex; margin-top: -35px; }
 .hex-row:nth-child(even) { margin-left: 80px; }
 .hex-cell {
     position: relative; width: 90px; height: 104px;
     background-size: contain; background-position: center; background-repeat: no-repeat;
-    margin: 0 -4px; transition: transform 0.1s; cursor: pointer;
+    margin: 0 -4px; cursor: pointer; transition: transform 0.1s;
 }
 .hex-cell:hover { transform: scale(1.05); }
 .hex-cell-default { background-image: url('assets/images/hex.cell.default.png'); }
 .hex-cell-red { background-image: url('assets/images/hex.red.png'); }
 .hex-cell-purple { background-image: url('assets/images/hex.purple.png'); }
-.hex-letter { font-size: 2rem; font-weight: bold; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: var(--color-dark-bg); }
-.winning-path-cell { filter: brightness(1.3) drop-shadow(0 0 10px gold) !important; z-index: 11; }
+.hex-letter { font-size: 2rem; font-weight: bold; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #1a1a2e; }
+.winning-path-cell { filter: brightness(1.4) drop-shadow(0 0 10px gold) !important; z-index: 11; }
 .hex-cell-transparent { opacity: 0; pointer-events: none; }
 
-/* =========================================
-   6. النوافذ المنبثقة (Modals)
-   ========================================= */
+/* --- النوافذ (Modals) --- */
 #question-modal-overlay, #round-win-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.85);
+    background-color: rgba(0,0,0,0.9);
     display: flex; align-items: center; justify-content: center;
-    z-index: var(--z-modal); /* أعلى من الجميع */
+    z-index: var(--z-modal);
 }
+.hidden { display: none !important; }
 
 .modal-content {
-    background: #f0f0f0; color: #1a1a2e;
-    padding: 30px; border-radius: 20px; width: 90%; max-width: 600px;
-    text-align: center; display: flex; flex-direction: column; align-items: center;
+    background: #eee; color: #111; padding: 30px; border-radius: 20px;
+    width: 90%; max-width: 600px; text-align: center; display: flex; flex-direction: column; align-items: center;
 }
+#question-char-display { font-size: 4rem; font-weight: bold; color: var(--color-purple); margin-bottom: 10px; }
+#question-text { font-size: 1.6rem; margin-bottom: 20px; width: 100%; }
+#show-answer-button {
+    padding: 15px 30px; font-size: 1.2rem; background: var(--color-purple); color: white;
+    border: none; border-radius: 10px; cursor: pointer; width: 100%;
+}
+#answer-reveal-section { width: 100%; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 20px; }
+#answer-text { font-size: 1.5rem; color: var(--color-purple); font-weight: bold; margin-bottom: 20px; }
 
-/* نافذة الفوز (خاصة) */
-#round-win-overlay {
-    background-color: rgba(20, 20, 40, 0.98); /* تغطية كاملة */
-    flex-direction: column;
-    z-index: 2000; /* أعلى من السؤال */
+.team-choice-buttons { display: flex; justify-content: center; gap: 15px; width: 100%; }
+.team-choice-buttons button {
+    width: 45%; padding: 15px; border: none; border-radius: 10px;
+    color: white; font-weight: bold; font-size: 1rem; cursor: pointer;
 }
-#win-message { font-size: 3rem; color: var(--color-yellow); margin-bottom: 20px; }
+#team-red-win-button { background: var(--color-red); }
+#team-purple-win-button { background: var(--color-purple); }
+#turn-correct-button { background: #27ae60; }
+#turn-wrong-button { background: #c0392b; }
+#competitive-skip-button { background: #7f8c8d; margin-top: 10px; width: 100%; padding: 10px; color: white; border: none; border-radius: 10px; cursor: pointer; }
+
+/* نافذة الفوز (تظهر فوق الكل) */
+#round-win-overlay { z-index: 9999; background: rgba(20,20,35,0.98); flex-direction: column; }
+#win-message { font-size: 3rem; color: var(--color-yellow); margin-bottom: 30px; }
 #next-round-button {
-    font-size: 1.5rem; padding: 15px 50px; border: none; border-radius: 50px;
-    background: var(--color-yellow); color: black; font-weight: bold; cursor: pointer;
+    font-size: 1.5rem; padding: 15px 50px; background: var(--color-yellow); border: none; border-radius: 50px; cursor: pointer; font-weight: bold;
 }
 
-/* =========================================
-   7. تدوير الجهاز (للهواتف)
-   ========================================= */
+/* الجوال */
 @media (max-width: 768px) {
     #game-screen { flex-direction: column; }
     .side-panel { width: 100%; height: 60px; flex-direction: row; align-items: center; padding: 0 10px; border: none; }
     .right-panel { order: 1; border-bottom: 2px solid var(--color-red); }
     .left-panel { order: 3; border-top: 2px solid var(--color-purple); }
     .center-game-area { order: 2; height: calc(100vh - 120px); }
-    .roster-vertical-list { flex-direction: row; overflow-x: auto; justify-content: flex-start; }
+    .roster-vertical-list { flex-direction: row; overflow-x: auto; }
+    .roster-item { border-bottom: none; border-right: 1px solid #444; padding: 0 10px; display: flex; align-items: center; }
 }
