@@ -8,7 +8,7 @@ const state = {
 
 function startGame(gameSettings) {
     state.gameMode = gameSettings.mode;
-    state.currentPlayer = 'red'; 
+    state.currentPlayer = 'red'; // ابدأ دائماً بالأحمر
     
     if (state.gameMode === 'competitive') {
         state.currentPlayer = 'all';
@@ -18,7 +18,7 @@ function startGame(gameSettings) {
 }
 
 function nextTurn() {
-    // في كل الحالات، اقلب الدور (تناوب مستمر)
+    // قلب الدور إجبارياً بعد كل محاولة
     if (state.gameMode === 'competitive') {
         state.currentPlayer = 'all';
     } else {
