@@ -4,26 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HROF-GAME</title>
-    <link rel="stylesheet" href="style.css?v=restructure">
+    <link rel="stylesheet" href="style.css?v=final_fix">
 </head>
 <body class="dark-mode"> 
 
     <div id="round-win-overlay" class="hidden">
         <div class="win-content">
-            <h2 id="win-message">الفريق الأحمر فاز!</h2>
-            <button id="next-round-button">ابدأ تحدي جديد</button>
+            <h2 id="win-message">مبروك للفائز!</h2>
+            <button id="next-round-button">لعبة جديدة</button>
         </div>
     </div>
 
     <div id="rotate-device-overlay">
         <button id="close-rotate-overlay">X</button>
-        <p>لتجربة لعب أفضل، الرجاء تدوير جهازك</p>
+        <p>يرجى تدوير الجهاز</p>
     </div>
 
     <main id="security-screen" class="screen active">
         <div class="login-container">
             <img src="assets/images/logo.hrof.png" alt="Logo" class="login-logo">
-            <label for="game-code-input">أدخل كود اللعبة</label>
+            <label>كود الدخول</label>
             <input type="password" id="game-code-input" placeholder="********">
             <button id="login-button">دخول</button>
             <p id="login-error-message"></p> 
@@ -43,11 +43,11 @@
             <div class="vs-arena">
                 <div class="team-column red-side">
                     <h3 class="column-title">الأحمر</h3>
-                    <div class="individual-input-group" id="indiv-red">
-                        <input type="text" id="player-1-name-input" placeholder="اسم اللاعب 1">
+                    <div class="input-group" id="indiv-red">
+                        <input type="text" id="player-1-name-input" placeholder="اللاعب 1">
                     </div>
-                    <div class="team-input-group hidden" id="team-red">
-                        <input type="text" id="team-1-name-input-team" placeholder="اسم الفريق الأحمر">
+                    <div class="input-group hidden" id="team-red">
+                        <input type="text" id="team-1-name-input-team" placeholder="اسم الفريق">
                         <div id="team-1-members-list" class="roster-list"></div>
                         <button type="button" class="add-roster-btn" id="add-team-1-member-button">+ عضو</button>
                     </div>
@@ -57,11 +57,11 @@
 
                 <div class="team-column purple-side">
                     <h3 class="column-title">البنفسجي</h3>
-                    <div class="individual-input-group" id="indiv-purple">
-                        <input type="text" id="player-2-name-input" placeholder="اسم اللاعب 2">
+                    <div class="input-group" id="indiv-purple">
+                        <input type="text" id="player-2-name-input" placeholder="اللاعب 2">
                     </div>
-                    <div class="team-input-group hidden" id="team-purple">
-                        <input type="text" id="team-2-name-input-team" placeholder="اسم الفريق البنفسجي">
+                    <div class="input-group hidden" id="team-purple">
+                        <input type="text" id="team-2-name-input-team" placeholder="اسم الفريق">
                         <div id="team-2-members-list" class="roster-list"></div>
                         <button type="button" class="add-roster-btn" id="add-team-2-member-button">+ عضو</button>
                     </div>
@@ -69,46 +69,35 @@
             </div>
 
             <div class="bottom-settings-bar">
-                <div class="setting-row">
-                    <span class="setting-label">النمط:</span>
-                    <button class="pill-btn active" data-setting="mode" data-value="turns">أدوار</button>
-                    <button class="pill-btn" data-setting="mode" data-value="competitive">تنافسي</button>
-                </div>
-                <div class="setting-row">
-                    <span class="setting-label">المؤقت:</span>
-                    <button class="pill-btn active" data-setting="timer" data-value="off">إيقاف</button>
-                    <button class="pill-btn" data-setting="timer" data-value="30">30ث</button>
-                    <button class="pill-btn" data-setting="timer" data-value="60">60ث</button>
-                </div>
+                <button class="pill-btn active" data-setting="mode" data-value="turns">أدوار</button>
+                <button class="pill-btn" data-setting="mode" data-value="competitive">تنافسي</button>
+                <div style="width: 20px;"></div> <button class="pill-btn active" data-setting="timer" data-value="off">بدون وقت</button>
+                <button class="pill-btn" data-setting="timer" data-value="30">30 ثانية</button>
             </div>
 
-            <button id="start-game-button" class="launch-button">ابــــدأ الــتــحــدي</button>
-            <button id="instructions-button" class="text-link">طريقة اللعب</button>
+            <button id="start-game-button" class="launch-button">ابــــدأ</button>
+            <button id="instructions-button" style="background:none; border:none; color:#aaa; margin-top:10px; text-decoration:underline; cursor:pointer;">التعليمات</button>
         </div>
 
         <div id="instructions-modal-overlay" class="hidden">
             <div class="modal-content">
                 <h2>التعليمات</h2>
-                <h3>الهدف: صِل لتربح!</h3>
-                <p>الهدف هو بناء مسار متصل من خلايا فريقك.</p>
-                <button id="close-instructions-button">فهمت!</button>
+                <p>وصل المسار لتفوز!</p>
+                <button id="close-instructions-button" style="padding:10px 30px; background:var(--color-yellow); border:none; border-radius:10px; cursor:pointer;">فهمت</button>
             </div>
         </div>
     </div>
 
     <div id="game-screen" class="screen">
-        
         <div class="side-panel right-panel">
-            <div class="panel-header red-header">
-                <span id="red-team-name">الأحمر</span>
-            </div>
+            <div class="panel-header"><span id="red-team-name">الأحمر</span></div>
             <div id="red-roster-display" class="roster-vertical-list"></div>
         </div>
 
         <div class="center-game-area">
             <header class="game-header-minimal">
                 <div id="turn-indicator-left" class="turn-indicator"></div>
-                <img src="assets/images/logo.hrof.png" alt="HROF Logo" class="game-logo-small">
+                <img src="assets/images/logo.hrof.png" alt="Logo" class="game-logo-small">
                 <div id="turn-indicator-right" class="turn-indicator"></div>
             </header>
 
@@ -116,14 +105,12 @@
 
             <div class="game-controls">
                 <button id="exit-game-button">خروج</button>
-                <button id="toggle-theme-button">إضاءة</button>
+                <button id="toggle-theme-button">تبديل الإضاءة</button>
             </div>
         </div>
 
         <div class="side-panel left-panel">
-            <div class="panel-header purple-header">
-                <span id="purple-team-name">البنفسجي</span>
-            </div>
+            <div class="panel-header"><span id="purple-team-name">البنفسجي</span></div>
             <div id="purple-roster-display" class="roster-vertical-list"></div>
         </div>
 
@@ -137,18 +124,16 @@
                 <div id="answer-reveal-section">
                     <p id="answer-text">...</p>
                     <div id="competitive-controls">
-                        <h4>من الذي حصل على الإجابة؟</h4>
                         <div class="team-choice-buttons">
-                            <button id="team-red-win-button"><span class="team-name-in-button">الفريق الأحمر</span></button>
-                            <button id="team-purple-win-button"><span class="team-name-in-button">الفريق البنفسجي</span></button>
+                            <button id="team-red-win-button">فوز الأحمر</button>
+                            <button id="team-purple-win-button">فوز البنفسجي</button>
                         </div>
-                        <button id="competitive-skip-button">تخطي السؤال</button>
+                        <button id="competitive-skip-button">تخطي</button>
                     </div>
                     <div id="turns-controls" class="hidden">
-                        <h4 id="turns-status-text">هل تمت الإجابة بشكل صحيح؟</h4>
                         <div class="team-choice-buttons">
-                            <button id="turn-correct-button">نعم</button>
-                            <button id="turn-wrong-button">لا</button>
+                            <button id="turn-correct-button">إجابة صحيحة</button>
+                            <button id="turn-wrong-button">إجابة خاطئة</button>
                         </div>
                     </div>
                 </div>
@@ -158,10 +143,9 @@
         <div id="exit-confirm-modal" class="modal-overlay-small hidden">
             <div class="modal-content-small">
                 <h4>تأكيد الخروج</h4>
-                <p>هل أنت متأكد أنك تريد إنهاء اللعبة؟</p>
                 <div class="modal-buttons">
-                    <button id="exit-confirm-yes">نعم</button>
-                    <button id="exit-confirm-no">لا</button>
+                    <button id="exit-confirm-yes" style="background:red; color:white;">نعم</button>
+                    <button id="exit-confirm-no" style="background:grey; color:white;">لا</button>
                 </div>
             </div>
         </div>
