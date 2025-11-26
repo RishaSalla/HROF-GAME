@@ -1,5 +1,7 @@
+// --- استيراد مدير الأدوار ---
 import { TurnManager } from './turn_manager.js';
 
+// ===================== العناصر =====================
 const mainMenuScreen = document.getElementById('main-menu-screen');
 const gameScreen = document.getElementById('game-screen');
 const gameBoardContainer = document.getElementById('game-board-container');
@@ -67,7 +69,16 @@ const soundCorrect = document.getElementById('sound-correct');
 const soundClick = document.getElementById('sound-click');
 const soundWrong = document.getElementById('sound-wrong');
 
-export const gameSettings = { mode: 'turns', teams: 'individual', timer: 'off', team1Name: 'اللاعب 1 (أحمر)', team2Name: 'اللاعب 2 (بنفسجي)', team1Members: [], team2Members: [] };
+// ===================== الإعدادات =====================
+export const gameSettings = {
+    mode: 'turns',
+    teams: 'individual',
+    timer: 'off',
+    team1Name: 'اللاعب 1 (أحمر)',
+    team2Name: 'اللاعب 2 (بنفسجي)',
+    team1Members: [],
+    team2Members: []
+};
 
 const questionCache = {};
 let usedQuestions = {};
@@ -78,7 +89,6 @@ let scores = { purple: 0, red: 0 };
 const WINNING_SCORE = 1; 
 let timerInterval = null;
 let remainingTime = 0;
-let isStealPhase = false; 
 
 const ALL_LETTERS = [
     { id: '01alif', char: 'أ', name: 'حرف الألف' }, { id: '02ba', char: 'ب', name: 'حرف الباء' }, { id: '03ta', char: 'ت', name: 'حرف التاء' },
@@ -94,7 +104,13 @@ const ALL_LETTERS = [
 ];
 
 const T = 'transparent'; const G = 'default'; const R = 'red'; const P = 'purple';
-const BOARD_LAYOUT = [ [T, T, T, T, T, T, T, T, T], [T, T, R, R, R, R, R, R, T], [T, P, G, G, G, G, G, P, T], [T, P, G, G, G, G, G, P, T], [T, P, G, G, G, G, G, P, T], [T, P, G, G, G, G, G, P, T], [T, P, G, G, G, G, G, P, T], [T, T, R, R, R, R, R, R, T], [T, T, T, T, T, T, T, T, T] ];
+const BOARD_LAYOUT = [
+    [T, T, T, T, T, T, T, T, T], [T, T, R, R, R, R, R, R, T], [T, P, G, G, G, G, G, P, T],
+    [T, P, G, G, G, G, G, P, T], [T, P, G, G, G, G, G, P, T], [T, P, G, G, G, G, G, P, T],
+    [T, P, G, G, G, G, G, P, T], [T, T, R, R, R, R, R, R, T], [T, T, T, T, T, T, T, T, T]
+];
+
+// ===================== الوظائف =====================
 
 function resizeBoard() {
     if (!gameScreen.classList.contains('active')) return;
@@ -111,14 +127,25 @@ function resizeBoard() {
 }
 
 function playSound(audioElement) {
-    if (audioElement) { audioElement.currentTime = 0; audioElement.play().catch(e => console.log('Audio playback failed:', e)); }
+    if (audioElement) {
+        audioElement.currentTime = 0;
+        audioElement.play().catch(e => console.log('Audio playback failed:', e));
+    }
 }
 
 function shuffleArray(array) {
-    let newArray = [...array]; for (let i = newArray.length-1; i>0; i--){ const j = Math.floor(Math.random() * (i+1)); [newArray[i], newArray[j]] = [newArray[j], newArray[i]]; } return newArray;
+    let newArray = [...array];
+    for (let i = newArray.length-1; i>0; i--){
+        const j = Math.floor(Math.random() * (i+1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
 }
 
-function loadUsedQuestions() { const stored = localStorage.getItem('hrof_used_questions'); usedQuestions = stored ? JSON.parse(stored) : {}; }
+function loadUsedQuestions() {
+    const stored = localStorage.getItem('hrof_used_questions');
+    usedQuestions = stored ? JSON.parse(stored) : {};
+}
 function saveUsedQuestions() { localStorage.setItem('hrof_used_questions', JSON.stringify(usedQuestions)); }
 
 function handleSettingClick(event) {
@@ -128,44 +155,67 @@ function handleSettingClick(event) {
     const buttonsInGroup = document.querySelectorAll(`.setting-button[data-setting="${settingType}"]`);
     buttonsInGroup.forEach(btn=>btn.classList.remove('active')); clickedButton.classList.add('active');
     if(settingType==='teams'){
-        if(settingValue==='individual'){ individualSettingsPanel.classList.remove('hidden'); teamSettingsPanel.classList.add('hidden'); } 
-        else { individualSettingsPanel.classList.add('hidden'); teamSettingsPanel.classList.remove('hidden'); }
+        if(settingValue==='individual'){
+            individualSettingsPanel.classList.remove('hidden'); teamSettingsPanel.classList.add('hidden');
+        } else {
+            individualSettingsPanel.classList.add('hidden'); teamSettingsPanel.classList.remove('hidden');
+        }
     }
     validateSettings();
 }
 
 function startGame() {
     playSound(soundStart);
-    if(gameSettings.teams==='individual'){ gameSettings.team1Name = player1NameInput.value || 'اللاعب 1 (أحمر)'; gameSettings.team2Name = player2NameInput.value || 'اللاعب 2 (بنفسجي)'; } 
-    else { gameSettings.team1Name = team1NameInput_team.value || 'الفريق الأحمر'; gameSettings.team2Name = team2NameInput_team.value || 'الفريق البنفسجي'; gameSettings.team1Members = Array.from(team1MembersList.querySelectorAll('input')).map(i=>i.value); gameSettings.team2Members = Array.from(team2MembersList.querySelectorAll('input')).map(i=>i.value); }
+    if(gameSettings.teams==='individual'){
+        gameSettings.team1Name = player1NameInput.value || 'اللاعب 1 (أحمر)';
+        gameSettings.team2Name = player2NameInput.value || 'اللاعب 2 (بنفسجي)';
+    } else {
+        gameSettings.team1Name = team1NameInput_team.value || 'الفريق الأحمر';
+        gameSettings.team2Name = team2NameInput_team.value || 'الفريق البنفسجي';
+        gameSettings.team1Members = Array.from(team1MembersList.querySelectorAll('input')).map(i=>i.value);
+        gameSettings.team2Members = Array.from(team2MembersList.querySelectorAll('input')).map(i=>i.value);
+    }
     mainMenuScreen.classList.remove('active'); gameScreen.classList.add('active');
     redScoreboardName.textContent = gameSettings.team1Name; purpleScoreboardName.textContent = gameSettings.team2Name;
     redButtonName.textContent = gameSettings.team1Name; purpleButtonName.textContent = gameSettings.team2Name;
-    scores = { purple:0, red:0 }; updateScoreboard(); loadUsedQuestions(); startNewRound();
+    scores = { purple:0, red:0 };
+    updateScoreboard(); loadUsedQuestions(); startNewRound();
     setTimeout(() => { resizeBoard(); }, 100); window.addEventListener('resize', resizeBoard);
 }
 
 function startNewRound() {
     gameActive = true; roundWinOverlay.classList.add('hidden');
-    if (scores.red >= WINNING_SCORE || scores.purple >= WINNING_SCORE) { scores = { purple:0, red:0 }; updateScoreboard(); }
+    if (scores.red >= WINNING_SCORE || scores.purple >= WINNING_SCORE) {
+        scores = { purple:0, red:0 }; updateScoreboard();
+    }
     initializeGameBoard(); TurnManager.startGame({mode: gameSettings.mode}); resizeBoard();
 }
 
 function initializeGameBoard() {
-    gameBoardContainer.innerHTML = ''; const shuffledLetters = shuffleArray(ALL_LETTERS); const gameLetters = shuffledLetters.slice(0,25); let letterIndex = 0;
+    gameBoardContainer.innerHTML = '';
+    const shuffledLetters = shuffleArray(ALL_LETTERS);
+    const gameLetters = shuffledLetters.slice(0,25);
+    let letterIndex = 0;
+
     BOARD_LAYOUT.forEach((rowData, r)=>{
         const row = document.createElement('div'); row.classList.add('hex-row');
         rowData.forEach((cellType,c)=>{
-            const cell = document.createElement('div'); cell.classList.add('hex-cell'); cell.dataset.row = r; cell.dataset.col = c;
+            const cell = document.createElement('div'); cell.classList.add('hex-cell');
+            cell.dataset.row = r; cell.dataset.col = c;
             switch(cellType){
-                case R: cell.classList.add('hex-cell-red'); break; case P: cell.classList.add('hex-cell-purple'); break;
+                case R: cell.classList.add('hex-cell-red'); break;
+                case P: cell.classList.add('hex-cell-purple'); break;
                 case G:
                     cell.classList.add('hex-cell-default','playable');
                     if(letterIndex<gameLetters.length){
-                        const letterData = gameLetters[letterIndex]; cell.dataset.letterId = letterData.id; cell.dataset.letterName = letterData.name;
-                        const span = document.createElement('span'); span.classList.add('hex-letter'); span.textContent = letterData.char; cell.appendChild(span); letterIndex++;
+                        const letterData = gameLetters[letterIndex];
+                        cell.dataset.letterId = letterData.id;
+                        cell.dataset.letterName = letterData.name;
+                        const span = document.createElement('span'); span.classList.add('hex-letter');
+                        span.textContent = letterData.char; cell.appendChild(span); letterIndex++;
                     }
-                    cell.addEventListener('click', handleCellClick); break;
+                    cell.addEventListener('click', handleCellClick);
+                    break;
                 case T: cell.classList.add('hex-cell-transparent'); break;
             }
             row.appendChild(cell);
@@ -175,111 +225,182 @@ function initializeGameBoard() {
 }
 
 async function handleCellClick(event){
-    if(!gameActive) return; const clickedCell = event.currentTarget;
+    if(!gameActive) return;
+    const clickedCell = event.currentTarget;
     if(!clickedCell.classList.contains('playable')) return;
-    
-    // التحقق من أن الخلية تنتمي للاعب صاحب الدور (في وضع الأدوار فقط)
-    if (gameSettings.mode === 'turns') {
-        const currentPlayer = TurnManager.getCurrentPlayer();
-        // (ملاحظة: يمكنك إلغاء هذا الشرط إذا كنت تريد السماح بالنقر على أي خلية، 
-        // لكن المنطق السليم يقتضي أن الأحمر يضغط فقط في دوره، إلا إذا أردت حرية كاملة للحكم)
-    }
 
-    playSound(soundFlip); currentClickedCell = clickedCell;
+    playSound(soundFlip);
+    currentClickedCell = clickedCell;
     questionCharDisplay.textContent = clickedCell.dataset.letterName;
-    const letterId = clickedCell.dataset.letterId; const question = await getQuestionForLetter(letterId);
-    isStealPhase = false; 
+
+    const letterId = clickedCell.dataset.letterId;
+    const question = await getQuestionForLetter(letterId);
 
     if(gameSettings.mode==='turns'){
-        competitiveControls.classList.add('hidden'); turnsControls.classList.remove('hidden');
-        turnsStatusText.textContent = "هل تمت الإجابة بشكل صحيح؟"; turnsStatusText.style.color = "var(--color-dark-bg)";
-        turnCorrectButton.textContent = "نعم، إجابة صحيحة"; turnWrongButton.textContent = "لا، إجابة خاطئة";
-    } else { competitiveControls.classList.remove('hidden'); turnsControls.classList.add('hidden'); }
+        competitiveControls.classList.add('hidden');
+        turnsControls.classList.remove('hidden');
+        // نصوص ثابتة بسيطة
+        turnsStatusText.textContent = "هل تمت الإجابة بشكل صحيح؟";
+        turnsStatusText.style.color = "var(--color-dark-bg)";
+    } else {
+        competitiveControls.classList.remove('hidden');
+        turnsControls.classList.add('hidden');
+    }
 
-    answerRevealSection.style.display = 'none'; showAnswerButton.classList.remove('hidden');
-    if(question){ currentQuestion = question; questionText.textContent = question.question; answerText.textContent = question.answer; questionModalOverlay.classList.remove('hidden'); } 
-    else { questionText.textContent = 'حدث خطأ في جلب السؤال.'; questionModalOverlay.classList.remove('hidden'); }
-    if(gameSettings.timer!=='off'){ startTimer(parseInt(gameSettings.timer)); } else { questionTimerDisplay.classList.add('hidden'); }
+    answerRevealSection.style.display = 'none';
+    showAnswerButton.classList.remove('hidden');
+
+    if(question){
+        currentQuestion = question;
+        questionText.textContent = question.question;
+        answerText.textContent = question.answer;
+        questionModalOverlay.classList.remove('hidden');
+    } else {
+        questionText.textContent = 'حدث خطأ في جلب السؤال.';
+        questionModalOverlay.classList.remove('hidden');
+    }
+
+    if(gameSettings.timer!=='off'){
+        startTimer(parseInt(gameSettings.timer));
+    } else {
+        questionTimerDisplay.classList.add('hidden');
+    }
 }
 
 async function getQuestionForLetter(letterId){
     if(!questionCache[letterId]){
-        try{ const response = await fetch(`data/questions/${letterId}.json`); if(!response.ok) throw new Error(); questionCache[letterId] = await response.json(); } catch(err){ return null; }
+        try{
+            const response = await fetch(`data/questions/${letterId}.json`);
+            if(!response.ok) throw new Error();
+            questionCache[letterId] = await response.json();
+        } catch(err){ return null; }
     }
-    const allQuestions = questionCache[letterId]; if(!allQuestions) return null;
+    const allQuestions = questionCache[letterId];
+    if(!allQuestions) return null;
     let unused = allQuestions.filter((q,i)=>!usedQuestions[`${letterId}_q${i}`]);
-    if(unused.length===0){ allQuestions.forEach((q,i)=> delete usedQuestions[`${letterId}_q${i}`]); saveUsedQuestions(); unused = allQuestions.map((q,i)=>({...q,id:`${letterId}_q${i}`})); }
-    const rand = Math.floor(Math.random()*unused.length); const q = unused[rand]; return {...q, id: `${letterId}_q${allQuestions.indexOf(q)}`}; 
+    if(unused.length===0){
+        allQuestions.forEach((q,i)=> delete usedQuestions[`${letterId}_q${i}`]);
+        saveUsedQuestions();
+        unused = allQuestions.map((q,i)=>({...q,id:`${letterId}_q${i}`}));
+    }
+    const rand = Math.floor(Math.random()*unused.length);
+    const q = unused[rand];
+    return {...q, id: `${letterId}_q${allQuestions.indexOf(q)}`}; 
 }
 
-function showAnswer(){ playSound(soundClick); answerRevealSection.style.display = 'block'; showAnswerButton.classList.add('hidden'); }
+function showAnswer(){
+    playSound(soundClick);
+    answerRevealSection.style.display = 'block';
+    showAnswerButton.classList.add('hidden');
+}
 
+// --- المنطق المبسط (بدون سرقة) ---
 function handleQuestionResult(result){
     stopTimer();
-    if (gameSettings.mode === 'competitive') { processResult(result); return; }
+
+    // 1. التنافسي (من يضغط أولاً)
+    if (gameSettings.mode === 'competitive') {
+        processResult(result);
+        return;
+    }
+
+    // 2. الأدوار (كلاسيكي: صح = نقطة، خطأ = ولا شيء)
     if (result === 'turn_correct') {
-        if (!isStealPhase) { processResult('turn_correct'); } else { processResult('steal_success'); }
+        processResult('turn_correct'); 
     } else if (result === 'turn_wrong') {
-        if (!isStealPhase) {
-            isStealPhase = true; playSound(soundWrong);
-            turnsStatusText.textContent = "🔥 فرصة سرقة للفريق الآخر! 🔥"; turnsStatusText.style.color = "var(--color-red)";
-            turnCorrectButton.textContent = "سرقة ناجحة ✅"; turnWrongButton.textContent = "فشل السرقة ❌";
-        } else { processResult('steal_fail'); }
+        // مجرد إغلاق وتمرير الدور
+        processResult('skip'); 
     }
 }
 
 function processResult(finalResult) {
     questionModalOverlay.classList.add('hidden');
     if(currentQuestion){ usedQuestions[currentQuestion.id]=true; saveUsedQuestions(); }
-    let teamColor = null; let isCorrect = false;
+
+    let teamColor = null;
+    let isCorrect = false;
+
     if (finalResult === 'purple') { teamColor = 'purple'; isCorrect = true; }
     else if (finalResult === 'red') { teamColor = 'red'; isCorrect = true; }
-    else if (finalResult === 'turn_correct') { teamColor = TurnManager.getCurrentPlayer(); isCorrect = true; }
-    else if (finalResult === 'steal_success') { teamColor = (TurnManager.getCurrentPlayer() === 'red') ? 'purple' : 'red'; isCorrect = true; }
+    else if (finalResult === 'turn_correct') { 
+        teamColor = TurnManager.getCurrentPlayer(); 
+        isCorrect = true; 
+    }
+    // 'skip' أو 'turn_wrong' لا تعطي لوناً لأحد
 
     if (isCorrect) playSound(soundCorrect); else playSound(soundWrong);
+
     if (teamColor) {
-        currentClickedCell.classList.remove('playable','hex-cell-default'); currentClickedCell.classList.add(`hex-cell-${teamColor}-owned`);
+        currentClickedCell.classList.remove('playable','hex-cell-default');
+        currentClickedCell.classList.add(`hex-cell-${teamColor}-owned`);
         const winningPath = checkWinCondition(teamColor);
         if(winningPath){ handleGameWin(teamColor, winningPath); return; }
     }
-    checkDrawCondition(); TurnManager.nextTurn(); currentClickedCell=null; currentQuestion=null;
+
+    checkDrawCondition();
+    TurnManager.nextTurn(); // تبديل الدور دائماً
+    currentClickedCell=null; currentQuestion=null;
 }
 
 function checkDrawCondition() {
     const playableCells = document.querySelectorAll('.hex-cell.playable');
-    if (playableCells.length === 0 && gameActive) { gameActive = false; winMessage.textContent = "تعادل! انتهت الجولة بلا فائز"; roundWinOverlay.classList.remove('hidden'); playSound(soundWrong); }
+    if (playableCells.length === 0 && gameActive) {
+        gameActive = false;
+        winMessage.textContent = "تعادل! انتهت الجولة بلا فائز";
+        roundWinOverlay.classList.remove('hidden');
+        playSound(soundWrong);
+    }
 }
 
 function getCell(r,c){ return document.querySelector(`.hex-cell[data-row="${r}"][data-col="${c}"]`); }
+
 function getNeighbors(r,c){
     r=parseInt(r); c=parseInt(c); const isOdd = r%2!==0; 
     let potential = isOdd ? [[r,c-1],[r,c+1],[r-1,c-1],[r-1,c],[r+1,c-1],[r+1,c]] : [[r,c-1],[r,c+1],[r-1,c],[r-1,c+1],[r+1,c],[r+1,c+1]];
-    return potential.filter(([nr,nc])=>{ const cellType = BOARD_LAYOUT[nr] ? BOARD_LAYOUT[nr][nc] : undefined; return (cellType !== undefined && cellType !== T); });
+    return potential.filter(([nr,nc])=>{
+        const cellType = BOARD_LAYOUT[nr] ? BOARD_LAYOUT[nr][nc] : undefined;
+        return (cellType !== undefined && cellType !== T);
+    });
 }
 
 function checkWinCondition(teamColor){
     const visited = new Set(); const queue = []; const parentMap = new Map();
-    if(teamColor==='red'){ for(let c=2;c<=6;c++) if(getCell(2,c)?.classList.contains('hex-cell-red-owned')) { queue.push([2,c]); visited.add(`2,${c}`); parentMap.set(`2,${c}`, null); } } 
-    else { for(let r=2;r<=6;r++) if(getCell(r,6)?.classList.contains('hex-cell-purple-owned')) { queue.push([r,6]); visited.add(`${r},6`); parentMap.set(`${r},6`, null); } }
+    if(teamColor==='red'){
+        for(let c=2;c<=6;c++) if(getCell(2,c)?.classList.contains('hex-cell-red-owned')) { queue.push([2,c]); visited.add(`2,${c}`); parentMap.set(`2,${c}`, null); }
+    } else {
+        for(let r=2;r<=6;r++) if(getCell(r,6)?.classList.contains('hex-cell-purple-owned')) { queue.push([r,6]); visited.add(`${r},6`); parentMap.set(`${r},6`, null); }
+    }
 
     while(queue.length>0){
         const [r,c] = queue.shift(); const currentKey = `${r},${c}`;
         for(const [nr,nc] of getNeighbors(r,c)){
             const neighborKey = `${nr},${nc}`; const nCell = getCell(nr, nc);
             let won = (teamColor==='red' && nr===7 && BOARD_LAYOUT[nr][nc]===R) || (teamColor==='purple' && nc===1 && BOARD_LAYOUT[nr][nc]===P);
-            if (won) { const path = []; let curr = currentKey; while (curr) { path.push(curr); curr = parentMap.get(curr); } return path; }
-            if(nCell && !visited.has(neighborKey) && nCell.classList.contains(`hex-cell-${teamColor}-owned`)){ visited.add(neighborKey); parentMap.set(neighborKey, currentKey); queue.push([nr,nc]); }
+            if (won) {
+                const path = []; let curr = currentKey;
+                while (curr) { path.push(curr); curr = parentMap.get(curr); }
+                return path;
+            }
+            if(nCell && !visited.has(neighborKey) && nCell.classList.contains(`hex-cell-${teamColor}-owned`)){
+                visited.add(neighborKey); parentMap.set(neighborKey, currentKey); queue.push([nr,nc]);
+            }
         }
-    } return null;
+    }
+    return null;
 }
 
 function handleGameWin(teamColor, winningPath){
     playSound(soundWin); gameActive=false; stopTimer(); questionModalOverlay.classList.add('hidden');
     if (winningPath) winningPath.forEach(c => getCell(...c.split(',')).classList.add('winning-path-cell'));
     scores[teamColor]++; updateScoreboard();
-    if (scores[teamColor] >= WINNING_SCORE) { winMessage.textContent = `🏆 مبروك! ${teamColor==='red'?gameSettings.team1Name:gameSettings.team2Name} فاز بالمباراة! 🏆`; nextRoundButton.textContent = "ابدأ مباراة جديدة"; } 
-    else { winMessage.textContent = `${teamColor==='red'?gameSettings.team1Name:gameSettings.team2Name} فاز بالجولة!`; nextRoundButton.textContent = "ابدأ الجولة التالية"; }
+    
+    if (scores[teamColor] >= WINNING_SCORE) {
+        winMessage.textContent = `🏆 مبروك! ${teamColor==='red'?gameSettings.team1Name:gameSettings.team2Name} فاز بالمباراة! 🏆`;
+        nextRoundButton.textContent = "ابدأ مباراة جديدة";
+    } else {
+        winMessage.textContent = `${teamColor==='red'?gameSettings.team1Name:gameSettings.team2Name} فاز بالجولة!`;
+        nextRoundButton.textContent = "ابدأ الجولة التالية";
+    }
     winScorePurple.textContent = scores.purple; winScoreRed.textContent = scores.red;
     setTimeout(() => { roundWinOverlay.classList.remove('hidden'); playSound(soundClick); }, 1500);
 }
@@ -299,10 +420,17 @@ function startTimer(duration){
     questionTimerDisplay.style.display = 'flex'; questionTimerDisplay.classList.remove('hidden');
     questionTimerDisplay.textContent = duration < 10 ? `0${duration}` : duration;
     questionTimerDisplay.style.backgroundColor = 'var(--color-yellow)'; questionTimerDisplay.style.color = 'var(--color-dark-bg)';
+
     timerInterval = setInterval(() => {
-        remainingTime--; questionTimerDisplay.textContent = remainingTime < 10 ? `0${remainingTime}` : remainingTime;
+        remainingTime--;
+        questionTimerDisplay.textContent = remainingTime < 10 ? `0${remainingTime}` : remainingTime;
         if(remainingTime <= 5) { questionTimerDisplay.style.backgroundColor = 'var(--color-red)'; questionTimerDisplay.style.color = 'white'; }
-        if(remainingTime <= 0) { stopTimer(); if(gameSettings.mode === 'turns') handleQuestionResult('turn_wrong'); else handleQuestionResult('skip'); }
+        if(remainingTime <= 0) {
+            stopTimer(); 
+            // عند انتهاء الوقت في النمط العادي -> خطأ عادي (تفويت الدور)
+            if(gameSettings.mode === 'turns') handleQuestionResult('turn_wrong');
+            else handleQuestionResult('skip');
+        }
     }, 1000);
 }
 function stopTimer(){ if(timerInterval) { clearInterval(timerInterval); timerInterval = null; } questionTimerDisplay.style.display = 'none'; }
