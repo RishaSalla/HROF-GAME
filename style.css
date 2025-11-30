@@ -18,18 +18,56 @@ body {
 
 .hidden { display: none !important; }
 
-/* --- إدارة الشاشات (لمنع التداخل) --- */
+/* ================= 1. إصلاح شاشة الدخول (هام جداً) ================= */
+#security-screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    /* خلفية صلبة ومعتمة لمنع رؤية ما خلفها */
+    background-color: #1a1a2e !important; 
+    background-image: url('assets/images/background.dark.png');
+    background-size: cover;
+    /* أعلى طبقة في المتصفح */
+    z-index: 2147483647 !important; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+.login-container {
+    display: flex; flex-direction: column; align-items: center; padding: 40px;
+    background: rgba(0, 0, 0, 0.85); /* خلفية غامقة واضحة */
+    backdrop-filter: blur(10px);
+    border-radius: 30px; border: 2px solid var(--color-yellow);
+    box-shadow: 0 0 60px rgba(0,0,0,0.9);
+    max-width: 400px; width: 90%;
+}
+.login-logo { width: 150px; margin-bottom: 30px; }
+.login-container label { font-size: 1.1rem; margin-bottom: 10px; color: var(--color-text-dark); }
+.login-container input {
+    font-family: var(--font-primary); padding: 15px; margin-bottom: 20px;
+    border: none; border-bottom: 2px solid var(--color-grey);
+    background: transparent; color: white; text-align: center; font-size: 1.2rem; width: 80%;
+}
+.login-container input:focus { outline: none; border-color: var(--color-yellow); }
+.login-container button {
+    font-size: 1.2rem; font-weight: bold; padding: 12px 40px; border: none; border-radius: 50px;
+    background: var(--color-yellow); color: #000; cursor: pointer; width: 100%;
+    transition: transform 0.2s;
+}
+.login-container button:hover { transform: scale(1.05); }
+#login-error-message { color: var(--color-red); font-weight: bold; margin-top: 15px; min-height: 1.2em; }
+
+/* ================= 2. إدارة الشاشات العامة ================= */
 .screen {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: none !important; z-index: 10;
 }
+/* الشاشة النشطة فقط تظهر */
 .screen.active { display: flex !important; flex-direction: column; align-items: center; z-index: 20; }
 
-/* --- القائمة الرئيسية --- */
+/* ================= 3. القائمة الرئيسية (تصميم VS) ================= */
 .main-menu-wrapper {
     width: 90%; max-width: 900px; margin: auto; padding: 20px;
-    background: rgba(0, 0, 0, 0.6); /* لون خفيف بدل الزجاج الثقيل */
+    background: rgba(0, 0, 0, 0.7); /* خلفية نصف شفافة */
     border-radius: 20px; display: flex; flex-direction: column; align-items: center;
+    max-height: 90vh; overflow-y: auto;
 }
 .menu-logo { width: 150px; margin-bottom: 20px; }
 
@@ -46,7 +84,7 @@ body {
 .column-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 10px; }
 .red-side .column-title { color: var(--color-red); }
 .purple-side .column-title { color: var(--color-purple); }
-.vs-divider { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: 900; color: rgba(255,255,255,0.1); }
+.vs-divider { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: 900; color: rgba(255,255,255,0.1); pointer-events: none; }
 
 .input-group input {
     background: transparent; border: none; border-bottom: 2px solid #555;
@@ -54,7 +92,7 @@ body {
     text-align: center; width: 90%;
 }
 .roster-list { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; align-items: center; }
-.member-input-container { width: 90%; }
+.member-input-container { width: 90%; position: relative; }
 .add-roster-btn { background: #333; color: white; border: none; padding: 5px 15px; border-radius: 10px; margin-top: 5px; cursor: pointer; font-family: var(--font-primary); }
 
 .bottom-settings-bar { display: flex; gap: 15px; margin: 20px 0; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 50px; }
@@ -65,9 +103,10 @@ body {
     font-size: 1.5rem; font-weight: 900; color: white;
     background: linear-gradient(90deg, var(--color-purple), var(--color-red));
     border: none; padding: 15px 60px; border-radius: 50px; cursor: pointer; margin-top: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* --- شاشة اللعب --- */
+/* ================= 4. شاشة اللعب (تصميم جانبي) ================= */
 #game-screen { flex-direction: row; justify-content: space-between; overflow: hidden; }
 
 .side-panel {
@@ -80,7 +119,7 @@ body {
 
 .panel-header { padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; color: white; border-bottom: 1px solid #444; }
 .roster-vertical-list { flex: 1; padding: 10px; overflow-y: auto; }
-.roster-item { display: block; padding: 5px; color: #ddd; text-align: center; border-bottom: 1px solid #444; }
+.roster-item { display: block; padding: 5px; color: #ddd; text-align: center; border-bottom: 1px solid #444; font-size: 1rem; }
 
 .game-header-minimal { display: flex; align-items: center; gap: 20px; margin-top: 10px; z-index: 30; }
 .game-logo-small { width: 90px; }
@@ -105,10 +144,10 @@ body {
 .game-controls { position: absolute; bottom: 20px; display: flex; gap: 10px; z-index: 40; }
 .game-controls button { background: rgba(255,255,255,0.1); border: 1px solid #555; color: white; padding: 5px 15px; border-radius: 10px; cursor: pointer; font-family: var(--font-primary); }
 
-/* --- النوافذ المنبثقة (إصلاح الصور والتعليق) --- */
+/* ================= 5. النوافذ المنبثقة (إصلاح الصور) ================= */
 #question-modal-overlay, #round-win-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.9); /* خلفية صلبة بدلاً من Blur الثقيل */
+    background-color: rgba(0,0,0,0.9); /* خلفية صلبة */
     display: flex; align-items: center; justify-content: center;
     z-index: 5000;
 }
@@ -116,50 +155,41 @@ body {
 .modal-content {
     background: #f0f0f0; color: #111; padding: 30px; border-radius: 20px;
     width: 90%; max-width: 600px; text-align: center; display: flex; flex-direction: column; align-items: center;
-    /* إزالة الظلال الثقيلة لمنع التعليق */
-    box-shadow: 0 0 20px rgba(0,0,0,0.5); 
+    box-shadow: 0 0 20px rgba(0,0,0,0.5); pointer-events: auto !important;
 }
 
 #question-char-display { font-size: 4rem; font-weight: 900; color: var(--color-purple); margin-bottom: 10px; }
 #question-text { font-size: 1.6rem; margin-bottom: 20px; width: 100%; }
 #show-answer-button {
-    /* زر إظهار الإجابة (صورة) */
     width: 220px; height: 60px; border: none; cursor: pointer;
     background-color: transparent; background-repeat: no-repeat; background-position: center; background-size: contain;
     background-image: url('assets/images/ui.button.show.answer.png');
     font-size: 1.2rem; color: white; font-weight: bold; font-family: var(--font-primary);
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
-/* ===[ إصلاح الأزرار: العودة للصور + حل مشكلة التعليق ]=== */
+
+#answer-reveal-section { width: 100%; margin-top: 20px; padding-top: 20px; border-top: 1px solid #ccc; }
+#answer-text { font-size: 1.5rem; color: var(--color-purple); font-weight: bold; margin-bottom: 20px; }
+
+.team-choice-buttons { display: flex; justify-content: center; gap: 15px; width: 100%; flex-wrap: wrap; }
+
+/* === الأزرار بصورها الأصلية === */
 .team-choice-buttons button, #turn-correct-button, #turn-wrong-button, #competitive-skip-button {
-    /* 1. التنسيق البصري (قديم - لا تحذفه) */
     width: 180px; height: 60px; border: none; cursor: pointer;
     background-color: transparent; background-repeat: no-repeat; background-position: center; background-size: 100% 100%;
     color: white; font-weight: bold; font-size: 1.1rem; font-family: var(--font-primary);
     display: flex; align-items: center; justify-content: center;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    margin-top: 10px;
-
-    /* 2. الإضافة الجديدة (لحل مشكلة التعليق وعدم الاستجابة) */
-    position: relative; /* ضروري لعمل الـ z-index */
-    z-index: 99999 !important; /* يجعل الزر فوق أي طبقة شفافة تمنع الضغط */
-    pointer-events: auto !important; /* يجبر الزر على استقبال النقرات */
+    margin-top: 10px; position: relative; z-index: 99999;
 }
 
-/* صور أزرار الفرق */
 #team-red-win-button { background-image: url('assets/images/ui.red.team.png'); }
 #team-purple-win-button { background-image: url('assets/images/ui.purple.team.png'); }
-
-/* صور أزرار التحكم (إصلاح جذري) */
-#turn-correct-button { 
-    background-image: url('assets/images/ui.button.correct.answer.png'); 
-}
-#turn-wrong-button, #competitive-skip-button { 
-    background-image: url('assets/images/ui.button.skip.png'); 
-}
+#turn-correct-button { background-image: url('assets/images/ui.button.correct.answer.png'); }
+#turn-wrong-button, #competitive-skip-button { background-image: url('assets/images/ui.button.skip.png'); }
 
 /* نافذة الفوز */
-#round-win-overlay { z-index: 9999; background: rgba(20,20,30,0.98); flex-direction: column; }
+#round-win-overlay { z-index: 2147483647 !important; background: rgba(20,20,30,0.98); flex-direction: column; }
 #win-message { font-size: 3rem; color: var(--color-yellow); margin-bottom: 30px; font-weight: 900; }
 #next-round-button {
     font-size: 1.5rem; padding: 15px 50px; background: var(--color-yellow);
