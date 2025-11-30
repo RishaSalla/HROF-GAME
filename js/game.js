@@ -1,53 +1,37 @@
 import { TurnManager } from './turn_manager.js';
 
-// ===================== إدارة الشاشات (الإصلاح) =====================
-function switchScreen(screenId) {
-    document.querySelectorAll('.screen').forEach(s => {
-        s.classList.remove('active');
-        s.style.display = 'none'; // إخفاء إجباري
-    });
-    const target = document.getElementById(screenId);
-    target.style.display = 'flex';
-    setTimeout(() => target.classList.add('active'), 50);
-}
-
 // ===================== العناصر =====================
+const gameScreen = document.getElementById('game-screen');
 const gameBoardContainer = document.getElementById('game-board-container');
-const modeTabs = document.querySelectorAll('.mode-tab');
-const pillBtns = document.querySelectorAll('.pill-btn');
-const startGameButton = document.getElementById('start-game-button');
-const player1Input = document.getElementById('player-1-name-input');
-const player2Input = document.getElementById('player-2-name-input');
-const team1Input = document.getElementById('team-1-name-input-team');
-const team2Input = document.getElementById('team-2-name-input-team');
-const indivRedDiv = document.getElementById('indiv-red');
-const teamRedDiv = document.getElementById('team-red');
-const indivPurpleDiv = document.getElementById('indiv-purple');
-const teamPurpleDiv = document.getElementById('team-purple');
-const addTeam1Btn = document.getElementById('add-team-1-member-button');
-const addTeam2Btn = document.getElementById('add-team-2-member-button');
-const team1List = document.getElementById('team-1-members-list');
-const team2List = document.getElementById('team-2-members-list');
+const mainMenuScreen = document.getElementById('main-menu-screen');
 
+// النوافذ
+const questionModalOverlay = document.getElementById('question-modal-overlay');
+const roundWinOverlay = document.getElementById('round-win-overlay');
+const exitConfirmModal = document.getElementById('exit-confirm-modal');
+
+// عناصر النافذة
+const showAnswerButton = document.getElementById('show-answer-button');
+const answerRevealSection = document.getElementById('answer-reveal-section');
+const questionText = document.getElementById('question-text');
+const answerText = document.getElementById('answer-text');
+const questionCharDisplay = document.getElementById('question-char-display');
+const questionTimerDisplay = document.getElementById('question-timer');
+
+// الأزرار داخل النافذة
+const btnTurnCorrect = document.getElementById('turn-correct-button');
+const btnTurnWrong = document.getElementById('turn-wrong-button');
+const btnCompRed = document.getElementById('team-red-win-button');
+const btnCompPurple = document.getElementById('team-purple-win-button');
+const btnCompSkip = document.getElementById('competitive-skip-button');
+
+// القوائم الجانبية
 const redTeamNameDisplay = document.getElementById('red-team-name');
 const purpleTeamNameDisplay = document.getElementById('purple-team-name');
 const redRosterDisplay = document.getElementById('red-roster-display');
 const purpleRosterDisplay = document.getElementById('purple-roster-display');
 
-const questionModalOverlay = document.getElementById('question-modal-overlay');
-const questionTimerDisplay = document.getElementById('question-timer');
-const questionText = document.getElementById('question-text');
-const questionCharDisplay = document.getElementById('question-char-display');
-const showAnswerButton = document.getElementById('show-answer-button');
-const answerRevealSection = document.getElementById('answer-reveal-section');
-const answerText = document.getElementById('answer-text');
-const competitiveControls = document.getElementById('competitive-controls');
-const turnsControls = document.getElementById('turns-controls');
-
-const roundWinOverlay = document.getElementById('round-win-overlay');
-const winMessage = document.getElementById('win-message');
-const nextRoundButton = document.getElementById('next-round-button');
-
+// الصوتيات
 const soundClick = document.getElementById('sound-click');
 const soundFlip = document.getElementById('sound-flip');
 const soundCorrect = document.getElementById('sound-correct');
@@ -55,15 +39,19 @@ const soundWrong = document.getElementById('sound-wrong');
 const soundWin = document.getElementById('sound-win');
 const soundStart = document.getElementById('sound-start');
 
+// الإعدادات والمتغيرات
 export const gameSettings = { mode: 'turns', teams: 'individual', timer: 'off', team1Name: '', team2Name: '', team1Members: [], team2Members: [] };
-
-let gameActive = true;
+const questionCache = {};
+let usedQuestions = JSON.parse(localStorage.getItem('hrof_used')) || {};
 let currentClickedCell = null;
 let currentQuestion = null;
-let usedQuestions = JSON.parse(localStorage.getItem('hrof_used')) || {};
+let gameActive = true;
 let timerInterval = null;
 let remainingTime = 0;
+let scores = { red: 0, purple: 0 };
+const WINNING_SCORE = 1;
 
+// الحروف
 const ALL_LETTERS = [
     { id: '01alif', char: 'أ', name: 'حرف الألف' }, { id: '02ba', char: 'ب', name: 'حرف الباء' },
     { id: '03ta', char: 'ت', name: 'حرف التاء' }, { id: '04tha', char: 'ث', name: 'حرف الثاء' },
@@ -89,20 +77,40 @@ const BOARD_LAYOUT = [
     ['T','T','T','T','T','T','T','T','T']
 ];
 
+// --- الوظائف الأساسية ---
+
+function switchScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => {
+        s.classList.remove('active');
+        s.style.display = 'none'; 
+    });
+    const target = document.getElementById(screenId);
+    if(target) {
+        target.style.display = 'flex';
+        setTimeout(() => target.classList.add('active'), 10);
+    }
+}
+
 function playSound(audio) { if(audio){ audio.currentTime=0; audio.play().catch(()=>{}); } }
 
 function startGame() {
     playSound(soundStart);
+    // جلب البيانات من المدخلات
+    const p1 = document.getElementById('player-1-name-input').value;
+    const p2 = document.getElementById('player-2-name-input').value;
+    const t1 = document.getElementById('team-1-name-input-team').value;
+    const t2 = document.getElementById('team-2-name-input-team').value;
+
     if (gameSettings.teams === 'individual') {
-        gameSettings.team1Name = player1Input.value || 'أحمر';
-        gameSettings.team2Name = player2Input.value || 'بنفسجي';
-        gameSettings.team1Members = [player1Input.value];
-        gameSettings.team2Members = [player2Input.value];
+        gameSettings.team1Name = p1 || 'أحمر';
+        gameSettings.team2Name = p2 || 'بنفسجي';
+        gameSettings.team1Members = [p1];
+        gameSettings.team2Members = [p2];
     } else {
-        gameSettings.team1Name = team1Input.value || 'فريق 1';
-        gameSettings.team2Name = team2Input.value || 'فريق 2';
-        gameSettings.team1Members = Array.from(team1List.querySelectorAll('input')).map(i=>i.value).filter(v=>v);
-        gameSettings.team2Members = Array.from(team2List.querySelectorAll('input')).map(i=>i.value).filter(v=>v);
+        gameSettings.team1Name = t1 || 'فريق 1';
+        gameSettings.team2Name = t2 || 'فريق 2';
+        gameSettings.team1Members = Array.from(document.getElementById('team-1-members-list').querySelectorAll('input')).map(i=>i.value).filter(v=>v);
+        gameSettings.team2Members = Array.from(document.getElementById('team-2-members-list').querySelectorAll('input')).map(i=>i.value).filter(v=>v);
     }
 
     redTeamNameDisplay.textContent = gameSettings.team1Name;
@@ -112,8 +120,6 @@ function startGame() {
 
     switchScreen('game-screen');
     startNewRound();
-    setTimeout(resizeBoard, 100);
-    window.addEventListener('resize', resizeBoard);
 }
 
 function fillRoster(container, list) {
@@ -126,6 +132,7 @@ function startNewRound() {
     roundWinOverlay.classList.add('hidden');
     initializeBoard();
     TurnManager.startGame({mode: gameSettings.mode});
+    resizeBoard();
 }
 
 function initializeBoard() {
@@ -162,32 +169,42 @@ async function handleCellClick(e) {
     currentClickedCell = cell;
     questionCharDisplay.textContent = cell.dataset.name;
 
+    // محاولة جلب السؤال
     try {
         const res = await fetch(`data/questions/${cell.dataset.id}.json`);
         if(res.ok) {
             const data = await res.json();
             const q = data.filter((_,i)=>!usedQuestions[`${cell.dataset.id}_${i}`]);
-            const selected = q.length>0 ? q[Math.floor(Math.random()*q.length)] : data[0]; // Recycle if empty
+            const selected = q.length>0 ? q[Math.floor(Math.random()*q.length)] : data[0];
             currentQuestion = selected; currentQuestion.uid = `${cell.dataset.id}_${data.indexOf(selected)}`;
             questionText.textContent = selected.question;
             answerText.textContent = selected.answer;
-        }
-    } catch {}
-
-    if (gameSettings.mode === 'turns') {
-        competitiveControls.classList.add('hidden'); turnsControls.classList.remove('hidden');
-    } else {
-        competitiveControls.classList.remove('hidden'); turnsControls.classList.add('hidden');
+        } else { throw new Error('File not found'); }
+    } catch(err) {
+        questionText.textContent = "سؤال تجريبي (الأسئلة غير متصلة)";
+        answerText.textContent = "إجابة نموذجية";
     }
 
-    answerRevealSection.style.display = 'none'; showAnswerButton.classList.remove('hidden');
-    questionModalOverlay.classList.remove('hidden');
+    // إعداد الأزرار
+    const isTurns = gameSettings.mode === 'turns';
+    document.getElementById('competitive-controls').classList.toggle('hidden', isTurns);
+    document.getElementById('turns-controls').classList.toggle('hidden', !isTurns);
+
+    answerRevealSection.style.display = 'none'; 
+    showAnswerButton.classList.remove('hidden');
+    questionModalOverlay.classList.remove('hidden'); // إظهار النافذة
+
     if(gameSettings.timer!=='off') startTimer(parseInt(gameSettings.timer));
+    else questionTimerDisplay.classList.add('hidden');
 }
 
+// --- معالجة النتائج (الإصلاح الرئيسي هنا) ---
 function handleResult(res) {
+    // 1. إيقاف وإخفاء كل شيء فوراً لمنع التعليق
     stopTimer();
-    questionModalOverlay.classList.add('hidden');
+    questionModalOverlay.classList.add('hidden'); 
+    
+    // 2. تسجيل السؤال كمستخدم
     if(currentQuestion && currentQuestion.uid) { 
         usedQuestions[currentQuestion.uid] = true; 
         localStorage.setItem('hrof_used', JSON.stringify(usedQuestions));
@@ -204,9 +221,14 @@ function handleResult(res) {
     if(color) {
         currentClickedCell.classList.remove('playable','hex-cell-default');
         currentClickedCell.classList.add(`hex-cell-${color}-owned`);
-        if(checkWin(color)) { handleWin(color); return; }
+        
+        // التحقق من الفوز (مع حماية من التعليق)
+        try {
+            if(checkWin(color)) { handleWin(color); return; }
+        } catch(e) { console.error("Win check error", e); }
     }
 
+    checkDraw();
     TurnManager.nextTurn();
 }
 
@@ -214,10 +236,14 @@ function checkWin(color) {
     const q = []; const visited = new Set(); const parent = new Map();
     const getC = (r,c) => document.querySelector(`.hex-cell[data-row="${r}"][data-col="${c}"]`);
     
+    // نقاط البداية
     if(color==='red') { for(let c=2;c<=6;c++) if(getC(2,c)?.classList.contains('hex-cell-red-owned')) { q.push([2,c]); visited.add(`2,${c}`); parent.set(`2,${c}`, null); } }
     else { for(let r=2;r<=6;r++) if(getC(r,6)?.classList.contains('hex-cell-purple-owned')) { q.push([r,6]); visited.add(`${r},6`); parent.set(`${r},6`, null); } }
 
-    while(q.length>0) {
+    let loopCount = 0; // قاطع أمان
+    while(q.length > 0) {
+        loopCount++; if(loopCount > 1000) return null; // منع التعليق
+
         const [r,c] = q.shift();
         const odd = r%2!==0;
         const diffs = odd ? [[0,-1],[0,1],[-1,-1],[-1,0],[1,-1],[1,0]] : [[0,-1],[0,1],[-1,0],[-1,1],[1,0],[1,1]];
@@ -234,8 +260,9 @@ function checkWin(color) {
             }
 
             const cell = getC(nr,nc);
-            if(cell && !visited.has(`${nr},${nc}`) && cell.classList.contains(`hex-cell-${color}-owned`)) {
-                visited.add(`${nr},${nc}`); parent.set(`${nr},${nc}`, `${r},${c}`); q.push([nr,nc]);
+            const key = `${nr},${nc}`;
+            if(cell && !visited.has(key) && cell.classList.contains(`hex-cell-${color}-owned`)) {
+                visited.add(key); parent.set(key, `${r},${c}`); q.push([nr,nc]);
             }
         }
     }
@@ -243,19 +270,19 @@ function checkWin(color) {
 }
 
 function handleWin(color) {
-    playSound(soundWin); gameActive = false;
-    winMessage.textContent = `الفريق ${color==='red'?'الأحمر':'البنفسجي'} فاز!`;
-    roundWinOverlay.classList.remove('hidden');
+    playSound(soundWin);
+    gameActive = false;
+    document.getElementById('win-message').textContent = `الفريق ${color==='red'?'الأحمر':'البنفسجي'} فاز!`;
+    roundWinOverlay.classList.remove('hidden'); // إظهار نافذة الفوز
 }
 
-function resizeBoard() {
-    if (!gameScreen.classList.contains('active')) return;
-    const h = window.innerHeight;
-    // تحجيم دقيق للجوال واللابتوب
-    let wOffset = (window.innerWidth > 768) ? 440 : 0; 
-    let hOffset = (window.innerWidth > 768) ? 100 : 150;
-    const scale = Math.min((window.innerWidth - wOffset)/800, (h - hOffset)/650);
-    gameBoardContainer.style.transform = `scale(${Math.max(0.3, Math.min(scale, 1.2))})`;
+function checkDraw() {
+    if (!document.querySelector('.hex-cell.playable') && gameActive) {
+        gameActive = false; 
+        document.getElementById('win-message').textContent = "تعادل!";
+        roundWinOverlay.classList.remove('hidden');
+        playSound(soundWrong);
+    }
 }
 
 function startTimer(dur) {
@@ -270,31 +297,70 @@ function startTimer(dur) {
 }
 function stopTimer() { clearInterval(timerInterval); questionTimerDisplay.classList.add('hidden'); }
 
-// Events
-modeTabs.forEach(b => b.onclick = (e) => {
-    modeTabs.forEach(t => t.classList.remove('active')); e.target.classList.add('active');
-    gameSettings.teams = e.target.dataset.value;
-    if(gameSettings.teams === 'individual') { indivRedDiv.classList.remove('hidden'); teamRedDiv.classList.add('hidden'); indivPurpleDiv.classList.remove('hidden'); teamPurpleDiv.classList.add('hidden'); }
-    else { indivRedDiv.classList.add('hidden'); teamRedDiv.classList.remove('hidden'); indivPurpleDiv.classList.add('hidden'); teamPurpleDiv.classList.remove('hidden'); }
-});
-pillBtns.forEach(b => b.onclick = (e) => {
-    const t = e.target.dataset.setting;
-    document.querySelectorAll(`.pill-btn[data-setting="${t}"]`).forEach(p => p.classList.remove('active'));
-    e.target.classList.add('active'); gameSettings[t] = e.target.dataset.value;
-});
-addTeam1Btn.onclick = () => { const i = document.createElement('input'); i.placeholder = 'عضو جديد'; team1List.appendChild(i); };
-addTeam2Btn.onclick = () => { const i = document.createElement('input'); i.placeholder = 'عضو جديد'; team2List.appendChild(i); };
-startGameButton.onclick = startGame;
-showAnswerButton.onclick = () => { answerRevealSection.style.display='block'; showAnswerButton.classList.add('hidden'); playSound(soundClick); };
-nextRoundButton.onclick = () => location.reload();
-document.getElementById('exit-game-button').onclick = () => location.reload();
-document.getElementById('close-instructions-button').onclick = () => instructionsModalOverlay.classList.add('hidden');
-instructionsButton.onclick = () => instructionsModalOverlay.classList.remove('hidden');
+function resizeBoard() {
+    if (gameScreen.style.display === 'none') return;
+    // منطق تحجيم بسيط
+    const h = window.innerHeight;
+    const w = window.innerWidth;
+    const scale = Math.min((w - 400)/800, (h - 150)/650); 
+    // للجوال
+    if(w < 768) {
+        gameBoardContainer.style.transform = `scale(${Math.min(w/850, 0.6)})`;
+    } else {
+        gameBoardContainer.style.transform = `scale(${Math.max(0.5, Math.min(scale, 1.2))})`;
+    }
+}
 
-document.getElementById('turn-correct-button').onclick = () => handleResult('turn_correct');
-document.getElementById('turn-wrong-button').onclick = () => handleResult('skip');
-document.getElementById('team-red-win-button').onclick = () => handleResult('red');
-document.getElementById('team-purple-win-button').onclick = () => handleResult('purple');
-document.getElementById('competitive-skip-button').onclick = () => handleResult('skip');
+// === تفعيل الأزرار (Event Listeners) ===
+document.addEventListener('DOMContentLoaded', () => {
+    // تبديل التابات
+    document.querySelectorAll('.mode-tab').forEach(b => b.onclick = (e) => {
+        document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active')); e.target.classList.add('active');
+        gameSettings.teams = e.target.dataset.value;
+        const isIndiv = gameSettings.teams === 'individual';
+        document.getElementById('indiv-red').style.display = isIndiv ? 'block' : 'none';
+        document.getElementById('team-red').style.display = isIndiv ? 'none' : 'block';
+        document.getElementById('indiv-purple').style.display = isIndiv ? 'block' : 'none';
+        document.getElementById('team-purple').style.display = isIndiv ? 'none' : 'block';
+    });
 
-window.onresize = resizeBoard;
+    // أزرار المؤقت
+    document.querySelectorAll('.pill-btn').forEach(b => b.onclick = (e) => {
+        const t = e.target.dataset.setting;
+        document.querySelectorAll(`.pill-btn[data-setting="${t}"]`).forEach(p => p.classList.remove('active'));
+        e.target.classList.add('active'); gameSettings[t] = e.target.dataset.value;
+    });
+
+    // أزرار اللعبة
+    document.getElementById('start-game-button').onclick = startGame;
+    document.getElementById('exit-game-button').onclick = () => location.reload();
+    document.getElementById('next-round-button').onclick = () => location.reload();
+    document.getElementById('close-instructions-button').onclick = () => document.getElementById('instructions-modal-overlay').classList.add('hidden');
+    document.getElementById('instructions-button').onclick = () => document.getElementById('instructions-modal-overlay').classList.remove('hidden');
+    
+    // زر إظهار الإجابة
+    showAnswerButton.onclick = () => { 
+        answerRevealSection.style.display='block'; 
+        showAnswerButton.classList.add('hidden'); 
+        playSound(soundClick); 
+    };
+
+    // أزرار النتائج
+    btnTurnCorrect.onclick = () => handleResult('turn_correct');
+    btnTurnWrong.onclick = () => handleResult('skip');
+    btnCompRed.onclick = () => handleResult('red');
+    btnCompPurple.onclick = () => handleResult('purple');
+    btnCompSkip.onclick = () => handleResult('skip');
+
+    // إضافات الفريق
+    document.getElementById('add-team-1-member-button').onclick = () => {
+        const i = document.createElement('input'); i.placeholder='عضو جديد';
+        document.getElementById('team-1-members-list').appendChild(i);
+    };
+    document.getElementById('add-team-2-member-button').onclick = () => {
+        const i = document.createElement('input'); i.placeholder='عضو جديد';
+        document.getElementById('team-2-members-list').appendChild(i);
+    };
+
+    window.onresize = resizeBoard;
+});
