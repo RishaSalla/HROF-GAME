@@ -39,7 +39,7 @@ const BOARD_LAYOUT = [
 // ===================== 2. الوظائف الأساسية =====================
 
 function validateInputs() {
-    // تفعيل زر البدء دائماً لتجنب المشاكل، لكن التحقق الفعلي يتم عند الضغط
+    // تفعيل زر البدء دائماً لتجنب المشاكل التقنية
     const btn = document.getElementById('start-game-button');
     if(btn) {
         btn.disabled = false;
@@ -72,13 +72,10 @@ function toggleSound() {
         ? "M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"
         : "M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z";
     
-    // تحديث الأيقونة في الزرين (القائمة واللعبة)
     [document.getElementById('main-sound-toggle'), document.getElementById('game-sound-toggle')].forEach(btn => {
         if(btn) {
-            // إذا كان زر SVG
             const svgIcon = btn.querySelector('path');
             if(svgIcon) svgIcon.setAttribute('d', svgPath);
-            // إذا كان زر نصي
             else btn.textContent = isMuted ? 'صامت' : 'صوت';
         }
     });
@@ -93,15 +90,12 @@ function startGame() {
     const t1 = document.getElementById('team-1-name-input-team').value.trim();
     const t2 = document.getElementById('team-2-name-input-team').value.trim();
 
-    // التحقق من الأسماء قبل البدء
     if (gameSettings.teams === 'individual') {
-        if(!p1 && !p2) { alert('الرجاء كتابة الأسماء'); return; }
         gameSettings.team1Name = p1 || 'الأحمر';
         gameSettings.team2Name = p2 || 'البنفسجي';
         gameSettings.team1Members = [gameSettings.team1Name];
         gameSettings.team2Members = [gameSettings.team2Name];
     } else {
-        if(!t1 && !t2) { alert('الرجاء كتابة أسماء الفرق'); return; }
         gameSettings.team1Name = t1 || 'فريق 1';
         gameSettings.team2Name = t2 || 'فريق 2';
         gameSettings.team1Members = Array.from(document.getElementById('team-1-members-list').querySelectorAll('input')).map(i=>i.value).filter(v=>v);
@@ -125,7 +119,7 @@ function fillRoster(id, list) {
 
 function startNewRound() {
     gameActive = true; currentTurn = 'red';
-    updateSidebars(); // تحديث الإضاءة حسب النمط
+    updateSidebars();
     
     document.getElementById('round-win-overlay').classList.add('hidden');
     document.getElementById('exit-confirm-modal').classList.add('hidden');
@@ -138,16 +132,13 @@ function updateSidebars() {
     const red = document.getElementById('panel-red');
     const purple = document.getElementById('panel-purple');
     
-    // إزالة الإضاءة أولاً
     red.classList.remove('active-turn-red');
     purple.classList.remove('active-turn-purple');
 
-    // إذا كان الوضع "تنافسي"، لا تضيء أحداً (لأن الدور للجميع)
-    if (gameSettings.mode === 'competitive') {
-        return; 
-    }
+    // لا تضيء في الوضع التنافسي
+    if (gameSettings.mode === 'competitive') return; 
 
-    // إذا كان الوضع "أدوار"، أضئ صاحب الدور
+    // أضئ صاحب الدور في وضع الأدوار
     if(currentTurn==='red') red.classList.add('active-turn-red');
     else purple.classList.add('active-turn-purple');
 }
@@ -187,7 +178,7 @@ async function handleCellClick(e) {
     document.getElementById('show-answer-button').classList.remove('hidden');
     document.getElementById('answer-reveal-section').style.display = 'none';
 
-    // إخفاء/إظهار الأزرار حسب النمط
+    // تبديل الأزرار حسب النمط
     const isTurns = gameSettings.mode === 'turns';
     document.getElementById('competitive-controls').classList.toggle('hidden', isTurns);
     document.getElementById('turns-controls').classList.toggle('hidden', !isTurns);
@@ -227,10 +218,16 @@ function handleResult(res) {
     if(res==='red') { winColor='red'; switchT=false; } // تنافسي أحمر
     else if(res==='purple') { winColor='purple'; switchT=false; } // تنافسي بنفسجي
     else if(res==='turn_correct') { winColor=currentTurn; switchT=true; } // أدوار صحيح
-    else { 
-        // إجابة خاطئة أو تخطي
+    else if(res==='skip') { // تخطي
+        playSound('sound-click');
+        if(gameSettings.mode === 'turns') {
+            currentTurn=(currentTurn==='red')?'purple':'red'; 
+            updateSidebars(); 
+        }
+        return;
+    }
+    else { // إجابة خاطئة
         playSound('sound-wrong'); 
-        // في الأدوار: الخاطئ يقلب الدور
         if(gameSettings.mode === 'turns') {
             currentTurn=(currentTurn==='red')?'purple':'red'; 
             updateSidebars(); 
@@ -246,7 +243,6 @@ function handleResult(res) {
         setTimeout(() => { if(checkWin(winColor)) handleGameWin(winColor); }, 100);
     }
 
-    // تبديل الدور فقط في نمط الأدوار
     if((switchT || gameSettings.mode==='turns') && !checkWin(winColor)) {
         currentTurn=(currentTurn==='red')?'purple':'red';
     }
@@ -319,15 +315,15 @@ function resizeBoard() {
 document.addEventListener('DOMContentLoaded', () => {
     validateInputs(); 
     
-    // زر إضافة عضو (ديناميكي)
+    // تفعيل أزرار إضافة الأعضاء (ديناميكياً)
     const addP1 = document.getElementById('add-team-1-member-button');
     if(addP1) addP1.onclick = () => { 
-        const i=document.createElement('input'); i.placeholder='اسم العضو'; 
+        const i=document.createElement('input'); i.placeholder='اسم العضو'; i.className='member-input';
         document.getElementById('team-1-members-list').appendChild(i); 
     };
     const addP2 = document.getElementById('add-team-2-member-button');
     if(addP2) addP2.onclick = () => { 
-        const i=document.createElement('input'); i.placeholder='اسم العضو'; 
+        const i=document.createElement('input'); i.placeholder='اسم العضو'; i.className='member-input';
         document.getElementById('team-2-members-list').appendChild(i); 
     };
 
@@ -355,14 +351,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     document.getElementById('turn-correct-button').onclick = () => handleResult('turn_correct');
-    document.getElementById('turn-wrong-button').onclick = () => handleResult('skip');
+    document.getElementById('turn-wrong-button').onclick = () => handleResult('skip'); // خطأ = تخطي الدور
     document.getElementById('team-red-win-button').onclick = () => handleResult('red');
     document.getElementById('team-purple-win-button').onclick = () => handleResult('purple');
     document.getElementById('competitive-skip-button').onclick = () => handleResult('skip');
     
+    // الخروج والنافذة الجديدة
     document.getElementById('exit-game-button').onclick = () => document.getElementById('exit-confirm-modal').classList.remove('hidden');
     document.getElementById('exit-confirm-yes').onclick = () => { stopTimer(); document.getElementById('exit-confirm-modal').classList.add('hidden'); switchScreen('main-menu-screen'); };
     document.getElementById('exit-confirm-no').onclick = () => document.getElementById('exit-confirm-modal').classList.add('hidden');
+    
     document.getElementById('next-round-button').onclick = () => { document.getElementById('round-win-overlay').classList.add('hidden'); switchScreen('main-menu-screen'); };
     document.getElementById('instructions-button').onclick = () => document.getElementById('instructions-modal-overlay').classList.remove('hidden');
     document.getElementById('close-instructions-button').onclick = () => document.getElementById('instructions-modal-overlay').classList.add('hidden');
