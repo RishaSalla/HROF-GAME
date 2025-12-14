@@ -126,9 +126,22 @@ body {
 #team-purple-win-button { background-image: url('assets/images/ui.purple.team.png'); }
 #turn-correct-button { background-image: url('assets/images/ui.button.correct.answer.png'); }
 /* زر التخطي (في التنافسي والأدوار) يستخدم صورة Skip */
+/* === تعديل زر التخطي (صورة أصلية بدون تغيير ألوان) === */
 #turn-wrong-button, #competitive-skip-button { 
-    background-image: url('assets/images/ui.button.skip.png'); 
-    filter: hue-rotate(320deg); /* لون مختلف قليلاً للتمييز أو اتركه كما هو */
+    /* تأكد أن اسم الصورة هنا يطابق الموجود في مجلدك تماماً */
+    background-image: url('assets/images/ui.button.skip.png') !important; 
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-color: transparent; 
+    border: none;
+    
+    /* إلغاء أي فلتر للألوان */
+    filter: none !important; 
+    
+    /* تنسيق النص فوق الزر */
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: bold; font-size: 1.1rem;
+    text-shadow: 1px 1px 2px black;
 }
 
 /* نافذة الخروج */
