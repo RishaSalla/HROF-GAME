@@ -107,17 +107,24 @@ body {
     font-size: 4rem; font-weight: 900; color: rgba(255,255,255,0.05); font-style: italic; user-select: none;
 }
 
-.input-group input {
-    background: transparent; border: none; border-bottom: 2px solid #444;
-    color: white; font-family: var(--font-primary); font-size: 1.1rem; padding: 8px;
-    text-align: center; width: 90%; transition: 0.3s;
+/* --- إصلاح حقول الإدخال (جعلها قابلة للكتابة) --- */
+.input-group input, .team-input-group input {
+    background: rgba(0, 0, 0, 0.3); 
+    border: none; border-bottom: 2px solid #666;
+    color: white; font-family: var(--font-primary); font-size: 1.1rem; padding: 10px;
+    text-align: center; width: 90%; margin-bottom: 10px;
+    /* رفع الطبقة لتستقبل النقر */
+    position: relative; z-index: 10000 !important; pointer-events: auto !important;
 }
 .input-group input:focus { border-color: var(--color-yellow); outline: none; }
 
 .roster-list { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; align-items: center; max-height: 150px; overflow-y: auto; }
+
+/* إصلاح زر إضافة عضو */
 .add-roster-btn { 
     background: rgba(255,255,255,0.1); color: #ccc; border: none; 
     padding: 6px 15px; border-radius: 15px; margin-top: 10px; cursor: pointer; font-family: var(--font-primary); 
+    position: relative; z-index: 10000 !important;
 }
 .add-roster-btn:hover { background: rgba(255,255,255,0.2); color: white; }
 
@@ -201,7 +208,7 @@ body {
 .hex-cell-red { background-image: url('assets/images/hex.red.png'); }
 .hex-cell-purple { background-image: url('assets/images/hex.purple.png'); }
 
-/* ===[ إصلاح صور الخلايا المملوكة ]=== */
+/* صور الخلايا المملوكة */
 .hex-cell-red-owned { 
     background-image: url('assets/images/hex.red.png') !important; 
     filter: brightness(1.1); 
@@ -251,7 +258,7 @@ body {
 #show-answer-button {
     width: 200px; height: 55px; border: none; cursor: pointer;
     background: url('assets/images/ui.button.show.answer.png') center/contain no-repeat;
-    background-color: transparent; font-size: 0; /* إخفاء النص واستخدام الصورة */
+    background-color: transparent; font-size: 0;
 }
 
 #answer-reveal-section { width: 100%; margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd; }
@@ -261,20 +268,19 @@ body {
 .control-label { color: #777; margin-bottom: 10px; font-size: 0.9rem; }
 .team-choice-buttons { display: flex; justify-content: center; gap: 20px; width: 100%; }
 
-/* أزرار الإجابة (صور) */
+/* أزرار الإجابة */
 .team-choice-buttons button, #turn-correct-button, #turn-wrong-button {
     width: 160px; height: 55px; border: none; cursor: pointer; background-color: transparent;
     background-size: 100% 100%; background-repeat: no-repeat;
-    font-size: 0; /* إخفاء النص */
-    transition: transform 0.1s;
+    font-size: 0; position: relative; z-index: 10000; /* إصلاح التعليق */
 }
 .team-choice-buttons button:active { transform: scale(0.95); }
 
 #team-red-win-button { background-image: url('assets/images/ui.red.team.png'); }
 #team-purple-win-button { background-image: url('assets/images/ui.purple.team.png'); }
 #turn-correct-button { background-image: url('assets/images/ui.button.correct.answer.png'); }
-#turn-wrong-button { background-image: url('assets/images/ui.button.skip.png'); filter: hue-rotate(320deg); /* تحويل للون الأحمر للخطأ */ }
-.skip-btn { background: #95a5a6; color: white; border: none; padding: 10px 30px; border-radius: 10px; margin-top: 15px; cursor: pointer; font-family: var(--font-primary); }
+#turn-wrong-button { background-image: url('assets/images/ui.button.skip.png'); filter: hue-rotate(320deg); }
+.skip-btn { background: #95a5a6; color: white; border: none; padding: 10px 30px; border-radius: 10px; margin-top: 15px; cursor: pointer; font-family: var(--font-primary); position: relative; z-index: 10000; }
 
 /* نافذة الفوز */
 #round-win-overlay { z-index: 2147483647 !important; background: rgba(20,20,35,0.98); flex-direction: column; }
@@ -290,7 +296,6 @@ body {
 /* Confetti */
 #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99999; }
 
-/* Media Queries للجوال */
 @media (max-width: 768px) {
     #game-screen { flex-direction: column; }
     .side-panel { width: 100%; height: 60px; flex-direction: row; padding: 0 15px; border: none; }
