@@ -27,7 +27,7 @@ body {
 
 .hidden { display: none !important; }
 
-/* ================= 1. إدارة الشاشات (منع التداخل) ================= */
+/* ================= 1. إدارة الشاشات ================= */
 .screen {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: none !important; z-index: 10;
@@ -196,15 +196,28 @@ body {
 .game-controls button { background: rgba(255,255,255,0.1); border: 1px solid #555; color: white; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-family: var(--font-primary); }
 
 /* ================= 5. النوافذ المنبثقة (Modals) ================= */
-#question-modal-overlay, #round-win-overlay, #exit-confirm-modal, #instructions-modal-overlay {
+#question-modal-overlay, #round-win-overlay, #instructions-modal-overlay, .modal-overlay-small {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 5000;
 }
+
+/* نافذة عامة */
 .modal-content {
     background: #f8f9fa; color: #111; padding: 30px; border-radius: 20px;
     width: 90%; max-width: 650px; text-align: center; box-shadow: 0 0 50px black;
     display: flex; flex-direction: column; align-items: center;
 }
+
+/* نافذة الخروج الصغيرة (إصلاح التصميم) */
+.modal-content-small {
+    background: #f0f0f0; color: #111; padding: 25px; border-radius: 15px;
+    width: 300px; text-align: center; box-shadow: 0 0 30px black;
+}
+.modal-content-small h4 { margin-top: 0; color: var(--color-red); font-size: 1.4rem; }
+.modal-buttons { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
+.danger-btn { background: var(--color-red); color: white; border: none; padding: 8px 20px; border-radius: 8px; cursor: pointer; }
+.safe-btn { background: #ccc; color: black; border: none; padding: 8px 20px; border-radius: 8px; cursor: pointer; }
+
 /* التعليمات */
 .instructions-content { text-align: right; max-width: 700px; }
 .instructions-body { text-align: right; width: 100%; margin: 20px 0; max-height: 400px; overflow-y: auto; }
@@ -218,7 +231,7 @@ body {
 #show-answer-button {
     width: 220px; height: 60px; cursor: pointer; border: none; background: transparent;
     background-image: url('assets/images/ui.button.show.answer.png'); background-size: contain; background-repeat: no-repeat;
-    font-size: 0; /* النص مخفي لأن الزر صورة */
+    font-size: 0; 
 }
 #answer-reveal-section { border-top: 1px solid #ccc; margin-top: 15px; padding-top: 15px; width: 100%; }
 #answer-text { font-size: 1.6rem; color: var(--color-purple); font-weight: bold; margin-bottom: 20px; }
@@ -232,16 +245,23 @@ body {
     position: relative; z-index: 10000;
     
     /* إظهار النص فوق الصورة */
-    color: white; font-family: var(--font-primary); font-size: 1.1rem; font-weight: bold;
+    color: white; font-family: var(--font-primary); font-size: 1.1rem !important; font-weight: bold;
     display: flex; align-items: center; justify-content: center;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.8); /* ظل للنص ليبرز */
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
 }
 
 #team-red-win-button { background-image: url('assets/images/ui.red.team.png'); }
 #team-purple-win-button { background-image: url('assets/images/ui.purple.team.png'); }
 #turn-correct-button { background-image: url('assets/images/ui.button.correct.answer.png'); }
 #turn-wrong-button { background-image: url('assets/images/ui.button.skip.png'); filter: hue-rotate(320deg); }
-.skip-btn { background: #7f8c8d; color: white; border: none; padding: 10px 30px; border-radius: 10px; margin-top: 10px; cursor: pointer; font-family: var(--font-primary); font-weight: bold; }
+
+/* زر التخطي */
+.skip-btn { 
+    background: #7f8c8d; color: white; border: none; 
+    padding: 10px 30px; border-radius: 10px; margin-top: 10px; 
+    cursor: pointer; font-family: var(--font-primary); font-weight: bold;
+    width: auto !important; height: auto !important; background-image: none !important;
+}
 
 /* Win & Confetti */
 #round-win-overlay { z-index: 2147483647 !important; background: rgba(20,20,30,0.98); flex-direction: column; }
