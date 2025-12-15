@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HROF - لعبة حروف</title>
-    <link rel="stylesheet" href="style.css?v=final_roster_v1">
+    <link rel="stylesheet" href="style.css?v=final_fixed">
 </head>
 <body class="dark-mode">
 
@@ -14,13 +14,8 @@
         <div class="win-content">
             <h1 id="win-title">مبروك الفوز!</h1>
             <h2 id="win-message">الفريق الفائز</h2>
-            <button id="next-round-button" class="pulse-button">لعبة جديدة</button>
+            <button id="next-round-button" class="pulse-button">عودة للقائمة</button>
         </div>
-    </div>
-
-    <div id="rotate-device-overlay">
-        <button id="close-rotate-overlay">X</button>
-        <p>يرجى تدوير الجهاز لتجربة أفضل</p>
     </div>
 
     <main id="security-screen" class="screen active">
@@ -37,8 +32,8 @@
         <div class="main-menu-wrapper">
             <img src="assets/images/logo.hrof.png" alt="HROF" class="menu-logo">
 
-            <button id="main-sound-toggle" class="sound-icon-btn" title="التحكم بالصوت">
-                <svg viewBox="0 0 24 24" fill="white" width="24" height="24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <button id="main-sound-toggle" class="sound-icon-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
             </button>
 
             <div class="mode-switcher">
@@ -50,11 +45,12 @@
             <div class="vs-arena">
                 <div class="team-column red-side">
                     <h3 class="column-title">الأحمر</h3>
+                    
                     <div class="input-group" id="indiv-red">
                         <input type="text" id="player-1-name-input" placeholder="اسم اللاعب">
                     </div>
+
                     <div class="input-group hidden" id="team-red">
-                        <input type="text" id="team-1-name-input-team" placeholder="اسم الفريق الأحمر">
                         <div id="team-1-members-list" class="roster-list"></div>
                         <button type="button" class="add-roster-btn" id="add-team-1-member-button">+ عضو</button>
                     </div>
@@ -64,11 +60,12 @@
 
                 <div class="team-column purple-side">
                     <h3 class="column-title">البنفسجي</h3>
+                    
                     <div class="input-group" id="indiv-purple">
                         <input type="text" id="player-2-name-input" placeholder="اسم اللاعب">
                     </div>
+
                     <div class="input-group hidden" id="team-purple">
-                        <input type="text" id="team-2-name-input-team" placeholder="اسم الفريق البنفسجي">
                         <div id="team-2-members-list" class="roster-list"></div>
                         <button type="button" class="add-roster-btn" id="add-team-2-member-button">+ عضو</button>
                     </div>
@@ -90,7 +87,6 @@
             </div>
 
             <button id="start-game-button" class="launch-button">ابدأ التحدي</button>
-            
             <button id="instructions-button" class="text-link">طريقة اللعب</button>
         </div>
 
@@ -98,20 +94,10 @@
             <div class="modal-content instructions-content">
                 <h2>قواعد اللعبة</h2>
                 <div class="instructions-body">
-                    <h3>الهدف:</h3>
-                    <p>بناء جسر متصل من الخلايا الخاصة بفريقك لتربط طرفي اللوحة.</p>
-                    <hr>
-                    <h3>المسار الصحيح:</h3>
                     <ul>
-                        <li><strong>الفريق الأحمر:</strong> يصل بين (اليمين واليسار).</li>
-                        <li><strong>الفريق البنفسجي:</strong> يصل بين (الأعلى والأسفل).</li>
-                    </ul>
-                    <hr>
-                    <h3>طريقة اللعب:</h3>
-                    <ul>
-                        <li>في نمط "فريق": يتناوب الأعضاء المسجلون في الإجابة تلقائياً.</li>
-                        <li>إجابة صحيحة = تلوين الخلية.</li>
-                        <li>إجابة خاطئة = انتقال الدور للخصم (في نمط الأدوار).</li>
+                        <li><strong>الأحمر:</strong> يصل بين اليمين واليسار.</li>
+                        <li><strong>البنفسجي:</strong> يصل بين الأعلى والأسفل.</li>
+                        <li><strong>نمط الفريق:</strong> يتناوب الأعضاء في الإجابة.</li>
                     </ul>
                 </div>
                 <button id="close-instructions-button">فهمت</button>
@@ -124,8 +110,8 @@
         <div id="panel-red" class="side-panel right-panel">
             <div class="panel-header red-header">
                 <div class="team-info-box">
-                    <span id="red-team-name" class="main-name">الأحمر</span>
-                    <span id="red-current-player" class="sub-name">...</span>
+                    <span class="main-name">الأحمر</span>
+                    <span id="red-current-player" class="sub-name"></span>
                 </div>
                 <div class="turn-indicator-dot"></div>
             </div>
@@ -142,14 +128,14 @@
             <div class="game-controls">
                 <button id="exit-game-button">خروج</button>
                 <button id="game-sound-toggle">صوت</button>
-                </div>
+            </div>
         </div>
 
         <div id="panel-purple" class="side-panel left-panel">
             <div class="panel-header purple-header">
                 <div class="team-info-box">
-                    <span id="purple-team-name" class="main-name">البنفسجي</span>
-                    <span id="purple-current-player" class="sub-name">...</span>
+                    <span class="main-name">البنفسجي</span>
+                    <span id="purple-current-player" class="sub-name"></span>
                 </div>
                 <div class="turn-indicator-dot"></div>
             </div>
@@ -176,7 +162,7 @@
 
                     <div id="turns-controls" class="team-choice-buttons">
                         <button id="turn-correct-button">إجابة صحيحة</button>
-                        <button id="turn-wrong-button">إجابة خاطئة</button>
+                        <button id="turn-wrong-button">تخطي</button>
                     </div>
                 </div>
             </div>
@@ -187,20 +173,20 @@
                 <h4>تأكيد الخروج</h4>
                 <p>هل تريد العودة للقائمة الرئيسية؟</p>
                 <div class="modal-buttons">
-                    <button id="exit-confirm-yes" class="danger-btn">نعم، خروج</button>
-                    <button id="exit-confirm-no" class="safe-btn">إلغاء</button>
+                    <button id="exit-confirm-yes" class="danger-btn">نعم</button>
+                    <button id="exit-confirm-no" class="safe-btn">لا</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="audio-assets" style="display: none;">
-        <audio id="sound-start" src="assets/audio/Beginning_game.mp3" preload="auto"></audio>
-        <audio id="sound-flip" src="assets/audio/Flip_letter.mp3" preload="auto"></audio>
-        <audio id="sound-win" src="assets/audio/Winning.mp3" preload="auto"></audio>
-        <audio id="sound-correct" src="assets/audio/correct_answer.mp3" preload="auto"></audio>
-        <audio id="sound-click" src="assets/audio/ui_click.mp3" preload="auto"></audio>
-        <audio id="sound-wrong" src="assets/audio/wrong_answer.mp3" preload="auto"></audio>
+        <audio id="sound-start" src="assets/audio/Beginning_game.mp3"></audio>
+        <audio id="sound-flip" src="assets/audio/Flip_letter.mp3"></audio>
+        <audio id="sound-win" src="assets/audio/Winning.mp3"></audio>
+        <audio id="sound-correct" src="assets/audio/correct_answer.mp3"></audio>
+        <audio id="sound-click" src="assets/audio/ui_click.mp3"></audio>
+        <audio id="sound-wrong" src="assets/audio/wrong_answer.mp3"></audio>
     </div>
 
     <script src="js/security.js" type="module"></script>
