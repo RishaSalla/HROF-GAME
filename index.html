@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HROF - لعبة حروف</title>
-    <link rel="stylesheet" href="style.css?v=fix_missing_buttons">
+    <link rel="stylesheet" href="style.css?v=final_instructions_fix">
 </head>
 <body class="dark-mode">
 
@@ -45,11 +45,9 @@
             <div class="vs-arena">
                 <div class="team-column red-side">
                     <h3 class="column-title">الأحمر</h3>
-                    
                     <div class="input-group" id="indiv-red">
                         <input type="text" id="player-1-name-input" placeholder="اسم اللاعب">
                     </div>
-
                     <div class="input-group hidden" id="team-red">
                         <div id="team-1-members-list" class="roster-list"></div>
                         <button type="button" class="add-roster-btn" id="add-team-1-member-button">+ عضو</button>
@@ -60,11 +58,9 @@
 
                 <div class="team-column purple-side">
                     <h3 class="column-title">البنفسجي</h3>
-                    
                     <div class="input-group" id="indiv-purple">
                         <input type="text" id="player-2-name-input" placeholder="اسم اللاعب">
                     </div>
-
                     <div class="input-group hidden" id="team-purple">
                         <div id="team-2-members-list" class="roster-list"></div>
                         <button type="button" class="add-roster-btn" id="add-team-2-member-button">+ عضو</button>
@@ -92,11 +88,34 @@
 
         <div id="instructions-modal-overlay" class="hidden">
             <div class="modal-content instructions-content">
-                <h2>قواعد اللعبة</h2>
+                <h2 style="color:var(--color-yellow); margin-bottom:15px;">قواعد اللعبة</h2>
                 <div class="instructions-body">
+                    <h3>🎯 الهدف:</h3>
+                    <p>السيطرة على اللوحة وبناء "جسر متصل" من الخلايا يربط بين طرفي فريقك.</p>
+                    
+                    <hr style="border-color: #ddd; margin: 15px 0;">
+                    
+                    <h3>🚩 اتجاهات الفوز:</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 10px;">
+                            <span style="color: var(--color-red); font-weight: bold;">🔴 الفريق الأحمر:</span> 
+                            يجب أن يصل بين (اليمين ↔ اليسار).
+                        </li>
+                        <li>
+                            <span style="color: var(--color-purple); font-weight: bold;">🟣 الفريق البنفسجي:</span> 
+                            يجب أن يصل بين (الأعلى ↕ الأسفل).
+                        </li>
+                    </ul>
+
+                    <hr style="border-color: #ddd; margin: 15px 0;">
+
+                    <h3>🕹️ طريقة اللعب:</h3>
                     <ul>
-                        <li><strong>الأحمر:</strong> يصل بين اليمين واليسار.</li>
-                        <li><strong>البنفسجي:</strong> يصل بين الأعلى والأسفل.</li>
+                        <li>اختر حرفاً من اللوحة لتظهر لك الأسئلة.</li>
+                        <li><strong>إجابة صحيحة:</strong> تسيطر على الخلية وتصبح بلونك.</li>
+                        <li><strong>إجابة خاطئة:</strong> ينتقل الدور للمنافس (في نمط الأدوار).</li>
+                        <li><strong>نظام الفريق:</strong> يتم تدوير الأدوار تلقائياً بين أسماء الأعضاء المسجلين.</li>
+                        <li>حاول قطع طريق الخصم لمنعه من إكمال الجسر!</li>
                     </ul>
                 </div>
                 <button id="close-instructions-button">فهمت</button>
@@ -105,7 +124,6 @@
     </div>
 
     <div id="game-screen" class="screen">
-        
         <div id="panel-red" class="side-panel right-panel">
             <div class="panel-header red-header">
                 <div class="team-info-box">
@@ -121,9 +139,7 @@
             <header class="game-header-minimal">
                 <img src="assets/images/logo.hrof.png" alt="Logo" class="game-logo-small">
             </header>
-
             <div id="game-board-container"></div>
-
             <div class="game-controls">
                 <button id="exit-game-button">خروج</button>
                 <button id="game-sound-toggle">صوت</button>
@@ -145,10 +161,8 @@
             <div class="modal-content question-content">
                 <div id="question-timer" class="hidden">30</div> 
                 <div id="question-char-display"></div>
-                
                 <h3 id="question-text">...</h3>
                 <button id="show-answer-button">أظهر الإجابة</button>
-                
                 <div id="answer-reveal-section">
                     <p id="answer-text">...</p>
                     <div id="competitive-controls" class="team-choice-buttons hidden">
