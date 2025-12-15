@@ -178,7 +178,17 @@ body {
 .game-header-minimal { margin-top: 10px; z-index: 30; }
 .game-logo-small { width: 100px; }
 
-#game-board-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
+/* حل مشكلة تداخل الشعار مع الخلايا عند التكبير */
+#game-board-container { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 10; 
+    /* هذا الهامش العلوي يمنع التداخل */
+    margin-top: 80px; 
+}
 .hex-row { display: flex; margin-top: -35px; }
 .hex-row:nth-child(even) { margin-left: 80px; }
 
