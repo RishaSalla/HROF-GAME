@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HROF - لعبة حروف</title>
-    <link rel="stylesheet" href="style.css?v=final_fixed">
+    <link rel="stylesheet" href="style.css?v=fix_missing_buttons">
 </head>
 <body class="dark-mode">
 
@@ -14,7 +14,7 @@
         <div class="win-content">
             <h1 id="win-title">مبروك الفوز!</h1>
             <h2 id="win-message">الفريق الفائز</h2>
-            <button id="next-round-button" class="pulse-button">عودة للقائمة</button>
+            <button id="next-round-button" class="pulse-button">لعبة جديدة</button>
         </div>
     </div>
 
@@ -97,7 +97,6 @@
                     <ul>
                         <li><strong>الأحمر:</strong> يصل بين اليمين واليسار.</li>
                         <li><strong>البنفسجي:</strong> يصل بين الأعلى والأسفل.</li>
-                        <li><strong>نمط الفريق:</strong> يتناوب الأعضاء في الإجابة.</li>
                     </ul>
                 </div>
                 <button id="close-instructions-button">فهمت</button>
@@ -148,18 +147,15 @@
                 <div id="question-char-display"></div>
                 
                 <h3 id="question-text">...</h3>
-                
                 <button id="show-answer-button">أظهر الإجابة</button>
                 
                 <div id="answer-reveal-section">
                     <p id="answer-text">...</p>
-                    
                     <div id="competitive-controls" class="team-choice-buttons hidden">
                         <button id="team-red-win-button">فوز الأحمر</button>
                         <button id="team-purple-win-button">فوز البنفسجي</button>
                         <button id="competitive-skip-button">تخطي</button>
                     </div>
-
                     <div id="turns-controls" class="team-choice-buttons">
                         <button id="turn-correct-button">إجابة صحيحة</button>
                         <button id="turn-wrong-button">تخطي</button>
@@ -171,7 +167,6 @@
         <div id="exit-confirm-modal" class="modal-overlay-small hidden">
             <div class="modal-content-small">
                 <h4>تأكيد الخروج</h4>
-                <p>هل تريد العودة للقائمة الرئيسية؟</p>
                 <div class="modal-buttons">
                     <button id="exit-confirm-yes" class="danger-btn">نعم</button>
                     <button id="exit-confirm-no" class="safe-btn">لا</button>
