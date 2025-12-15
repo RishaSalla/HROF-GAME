@@ -13,14 +13,14 @@ const gameSettings = {
 
 let gameActive = true;
 let currentTurn = 'red'; 
-let currentMemberIndex = { red: 0, purple: 0 }; // تتبع دور اللاعب داخل الفريق
+let currentMemberIndex = { red: 0, purple: 0 }; 
 let isMuted = false;
 let currentQuestion = null;
 let currentClickedCell = null;
 let timerInterval = null;
 let usedQuestions = JSON.parse(localStorage.getItem('hrof_used')) || {};
 
-// قائمة الحروف (تم اعتماد 18ain)
+// قائمة الحروف
 const ALL_LETTERS = [
     { id: '01alif', char: 'أ', name: 'حرف الألف' }, { id: '02ba', char: 'ب', name: 'حرف الباء' },
     { id: '03ta', char: 'ت', name: 'حرف التاء' }, { id: '04tha', char: 'ث', name: 'حرف الثاء' },
@@ -73,14 +73,29 @@ function toggleSound() {
     });
 }
 
-// ===================== 3. بدء اللعب وتجهيز الفرق =====================
+// ===================== 3. دوال التحكم بالظهور (الحل الجذري) =====================
+
+// دالة خاصة لكسر الإخفاء وإظهار العناصر بالقوة
+function forceShowElement(id, show) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    
+    if (show) {
+        el.classList.remove('hidden'); // إزالة كلاس الإخفاء تماماً
+        el.style.display = 'block';    // فرض الظهور
+    } else {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+    }
+}
+
+// ===================== 4. بدء اللعب =====================
 
 function startGame() {
     playSound('sound-click');
     const p1 = document.getElementById('player-1-name-input').value.trim();
     const p2 = document.getElementById('player-2-name-input').value.trim();
     
-    // أسماء الفرق ثابتة (مهم جداً)
     const t1Name = "الأحمر";
     const t2Name = "البنفسجي";
 
@@ -91,7 +106,6 @@ function startGame() {
         gameSettings.team1Members = [p1]; 
         gameSettings.team2Members = [p2];
     } else {
-        // في وضع الفريق، نجمع الأعضاء من الخانات التي أضافها المستخدم
         const m1 = Array.from(document.querySelectorAll('#team-1-members-list input')).map(i => i.value.trim()).filter(v => v);
         const m2 = Array.from(document.querySelectorAll('#team-2-members-list input')).map(i => i.value.trim()).filter(v => v);
         
@@ -103,7 +117,6 @@ function startGame() {
         gameSettings.team2Members = m2;
     }
 
-    // تعبئة القوائم الجانبية
     fillRoster('red-roster-display', gameSettings.team1Members);
     fillRoster('purple-roster-display', gameSettings.team2Members);
 
@@ -139,9 +152,7 @@ function startNewRound() {
     resizeBoard();
 }
 
-// === تحديث اسم اللاعب الحالي (التناوب) ===
 function updatePlayerTurnDisplay() {
-    // حساب دور من عن طريق باقي القسمة
     const rIndex = currentMemberIndex.red % gameSettings.team1Members.length;
     const pIndex = currentMemberIndex.purple % gameSettings.team2Members.length;
     
@@ -165,7 +176,7 @@ function updateSidebars() {
     else purplePanel.classList.add('active-turn-purple');
 }
 
-// ===================== 4. منطق اللوحة والأسئلة =====================
+// ===================== 5. اللوحة والأسئلة =====================
 
 function initializeBoard() {
     const container = document.getElementById('game-board-container');
@@ -240,8 +251,6 @@ async function handleCellClick(e) {
     else document.getElementById('question-timer').classList.add('hidden');
 }
 
-// ===================== 5. النتائج وتناوب الأدوار =====================
-
 function handleResult(result) {
     stopTimer();
     document.getElementById('question-modal-overlay').classList.add('hidden');
@@ -253,11 +262,8 @@ function handleResult(result) {
 
     let winnerColor = null;
     
-    // التعامل مع التخطي والخطأ
     if (result === 'skip' || (result !== 'red' && result !== 'purple' && result !== 'turn_correct')) {
         playSound(result === 'skip' ? 'sound-click' : 'sound-wrong');
-        
-        // في نمط الأدوار، ننتقل للعضو التالي والفريق الآخر
         if (gameSettings.mode === 'turns') {
             currentMemberIndex[currentTurn]++;
             currentTurn = (currentTurn === 'red') ? 'purple' : 'red';
@@ -267,7 +273,6 @@ function handleResult(result) {
         return;
     }
 
-    // تحديد الفائز بالخلية
     if (result === 'red') winnerColor = 'red';
     else if (result === 'purple') winnerColor = 'purple';
     else if (result === 'turn_correct') winnerColor = currentTurn;
@@ -279,7 +284,6 @@ function handleResult(result) {
         
         setTimeout(() => { if (checkWin(winnerColor)) handleGameWin(winnerColor); }, 100);
         
-        // في نمط الأدوار، الإجابة الصحيحة أيضاً تنهي الدور (لأن السؤال "أُكِل")
         if (gameSettings.mode === 'turns') {
             currentMemberIndex[currentTurn]++;
             currentTurn = (currentTurn === 'red') ? 'purple' : 'red';
@@ -365,27 +369,48 @@ function resizeBoard() {
     else c.style.transform = `scale(${Math.max(0.4, Math.min(scale, 1.3))})`;
 }
 
-// ===================== 6. تهيئة الأحداث (Events) =====================
+// ===================== 6. تهيئة الأحداث (التشغيل) =====================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // تفعيل أزرار إضافة الأعضاء (مهم جداً)
+    
+    // 1. تفعيل زر الإضافة باستخدام المعرف المباشر
     const add1 = document.getElementById('add-team-1-member-button');
-    if(add1) add1.onclick = () => {
-        const i = document.createElement('input'); 
-        i.placeholder = 'اسم العضو'; 
-        i.className = 'member-input'; // يستخدم نفس تنسيق CSS الجديد
-        document.getElementById('team-1-members-list').appendChild(i);
-        i.focus();
-    };
+    if(add1) {
+        add1.addEventListener('click', () => {
+            const i = document.createElement('input'); 
+            i.placeholder = 'اسم العضو'; 
+            i.className = 'member-input';
+            document.getElementById('team-1-members-list').appendChild(i);
+            i.focus();
+        });
+    }
 
     const add2 = document.getElementById('add-team-2-member-button');
-    if(add2) add2.onclick = () => {
-        const i = document.createElement('input'); 
-        i.placeholder = 'اسم العضو'; 
-        i.className = 'member-input';
-        document.getElementById('team-2-members-list').appendChild(i);
-        i.focus();
-    };
+    if(add2) {
+        add2.addEventListener('click', () => {
+            const i = document.createElement('input'); 
+            i.placeholder = 'اسم العضو'; 
+            i.className = 'member-input';
+            document.getElementById('team-2-members-list').appendChild(i);
+            i.focus();
+        });
+    }
+
+    // 2. تفعيل التبديل بين فردي/فريق باستخدام دالة الظهور القسري
+    document.querySelectorAll('.mode-tab').forEach(b => b.onclick = (e) => {
+        document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        gameSettings.teams = e.target.dataset.value;
+        const isIndiv = gameSettings.teams === 'individual';
+        
+        // استخدام الدالة الجديدة لكسر الإخفاء
+        forceShowElement('indiv-red', isIndiv);
+        forceShowElement('team-red', !isIndiv);
+        
+        forceShowElement('indiv-purple', isIndiv);
+        forceShowElement('team-purple', !isIndiv);
+    });
 
     document.getElementById('start-game-button').onclick = startGame;
     
@@ -409,19 +434,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('instructions-button').onclick = () => document.getElementById('instructions-modal-overlay').classList.remove('hidden');
     document.getElementById('close-instructions-button').onclick = () => document.getElementById('instructions-modal-overlay').classList.add('hidden');
     document.getElementById('game-sound-toggle').onclick = toggleSound;
-
-    // تبديل الأنماط (فردي / فريق)
-    document.querySelectorAll('.mode-tab').forEach(b => b.onclick = (e) => {
-        document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-        e.target.classList.add('active');
-        gameSettings.teams = e.target.dataset.value;
-        const isIndiv = gameSettings.teams === 'individual';
-        
-        document.getElementById('indiv-red').style.display = isIndiv ? 'block' : 'none';
-        document.getElementById('team-red').style.display = isIndiv ? 'none' : 'block';
-        document.getElementById('indiv-purple').style.display = isIndiv ? 'block' : 'none';
-        document.getElementById('team-purple').style.display = isIndiv ? 'none' : 'block';
-    });
 
     document.querySelectorAll('.pill-btn').forEach(b => b.onclick = (e) => {
         const t = e.target.dataset.setting;
