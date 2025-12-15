@@ -79,7 +79,8 @@ function startGame() {
     playSound('sound-click');
     const p1 = document.getElementById('player-1-name-input').value.trim();
     const p2 = document.getElementById('player-2-name-input').value.trim();
-    // أسماء الفرق ثابتة في HTML، لذا لا نحتاج لجلبها من حقول إدخال مخفية، نستخدم الثوابت
+    
+    // أسماء الفرق ثابتة (مهم جداً)
     const t1Name = "الأحمر";
     const t2Name = "البنفسجي";
 
@@ -87,10 +88,10 @@ function startGame() {
         if(!p1 && !p2) { alert('الرجاء كتابة أسماء اللاعبين'); return; }
         gameSettings.team1Name = "الأحمر"; 
         gameSettings.team2Name = "البنفسجي";
-        gameSettings.team1Members = [p1]; // في الفردي، العضو هو اللاعب المدخل
+        gameSettings.team1Members = [p1]; 
         gameSettings.team2Members = [p2];
     } else {
-        // في وضع الفريق، نجمع الأعضاء من القائمة
+        // في وضع الفريق، نجمع الأعضاء من الخانات التي أضافها المستخدم
         const m1 = Array.from(document.querySelectorAll('#team-1-members-list input')).map(i => i.value.trim()).filter(v => v);
         const m2 = Array.from(document.querySelectorAll('#team-2-members-list input')).map(i => i.value.trim()).filter(v => v);
         
@@ -125,7 +126,7 @@ function fillRoster(elementId, list) {
 function startNewRound() {
     gameActive = true; 
     currentTurn = 'red';
-    currentMemberIndex = { red: 0, purple: 0 }; // تصفير العداد عند بدء جولة جديدة
+    currentMemberIndex = { red: 0, purple: 0 }; 
     
     updatePlayerTurnDisplay();
     updateSidebars();
@@ -158,7 +159,7 @@ function updateSidebars() {
     redPanel.classList.remove('active-turn-red');
     purplePanel.classList.remove('active-turn-purple');
 
-    if (gameSettings.mode === 'competitive') return; // لا إضاءة في التنافسي
+    if (gameSettings.mode === 'competitive') return; 
 
     if(currentTurn === 'red') redPanel.classList.add('active-turn-red');
     else purplePanel.classList.add('active-turn-purple');
@@ -256,9 +257,9 @@ function handleResult(result) {
     if (result === 'skip' || (result !== 'red' && result !== 'purple' && result !== 'turn_correct')) {
         playSound(result === 'skip' ? 'sound-click' : 'sound-wrong');
         
-        // في نمط الأدوار فقط، الخطأ أو التخطي ينهي دور اللاعب الحالي وينقله للفريق الآخر
+        // في نمط الأدوار، ننتقل للعضو التالي والفريق الآخر
         if (gameSettings.mode === 'turns') {
-            currentMemberIndex[currentTurn]++; // اللاعب الحالي استنفذ دوره
+            currentMemberIndex[currentTurn]++;
             currentTurn = (currentTurn === 'red') ? 'purple' : 'red';
             updatePlayerTurnDisplay();
             updateSidebars();
@@ -276,10 +277,9 @@ function handleResult(result) {
         currentClickedCell.classList.remove('playable', 'hex-cell-default');
         currentClickedCell.classList.add(`hex-cell-${winnerColor}-owned`);
         
-        // فحص الفوز باللعبة
         setTimeout(() => { if (checkWin(winnerColor)) handleGameWin(winnerColor); }, 100);
         
-        // في نمط الأدوار، الإجابة الصحيحة أيضاً تنهي دور اللاعب الحالي (لأن السؤال انتهى)
+        // في نمط الأدوار، الإجابة الصحيحة أيضاً تنهي الدور (لأن السؤال "أُكِل")
         if (gameSettings.mode === 'turns') {
             currentMemberIndex[currentTurn]++;
             currentTurn = (currentTurn === 'red') ? 'purple' : 'red';
@@ -338,7 +338,6 @@ function handleGameWin(color) {
     startConfetti();
     document.getElementById('confetti-canvas').style.display = 'block';
     
-    // إظهار اسم الفريق الفائز
     const wName = (color === 'red') ? gameSettings.team1Name : gameSettings.team2Name;
     document.getElementById('win-message').textContent = `الفريق ${wName} سيطر على اللوحة!`;
     document.getElementById('round-win-overlay').classList.remove('hidden');
@@ -369,12 +368,12 @@ function resizeBoard() {
 // ===================== 6. تهيئة الأحداث (Events) =====================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // تفعيل أزرار إضافة الأعضاء
+    // تفعيل أزرار إضافة الأعضاء (مهم جداً)
     const add1 = document.getElementById('add-team-1-member-button');
     if(add1) add1.onclick = () => {
         const i = document.createElement('input'); 
         i.placeholder = 'اسم العضو'; 
-        i.className = 'member-input';
+        i.className = 'member-input'; // يستخدم نفس تنسيق CSS الجديد
         document.getElementById('team-1-members-list').appendChild(i);
         i.focus();
     };
@@ -389,6 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     document.getElementById('start-game-button').onclick = startGame;
+    
     document.getElementById('show-answer-button').onclick = () => {
         document.getElementById('answer-reveal-section').style.display = 'block';
         document.getElementById('show-answer-button').classList.add('hidden');
@@ -401,7 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('team-purple-win-button').onclick = () => handleResult('purple');
     document.getElementById('competitive-skip-button').onclick = () => handleResult('skip');
     
-    // الخروج والعودة للقائمة
     document.getElementById('exit-game-button').onclick = () => document.getElementById('exit-confirm-modal').classList.remove('hidden');
     document.getElementById('exit-confirm-yes').onclick = () => { stopTimer(); location.reload(); };
     document.getElementById('exit-confirm-no').onclick = () => document.getElementById('exit-confirm-modal').classList.add('hidden');
@@ -411,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('close-instructions-button').onclick = () => document.getElementById('instructions-modal-overlay').classList.add('hidden');
     document.getElementById('game-sound-toggle').onclick = toggleSound;
 
-    // تبديل الأنماط
+    // تبديل الأنماط (فردي / فريق)
     document.querySelectorAll('.mode-tab').forEach(b => b.onclick = (e) => {
         document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
