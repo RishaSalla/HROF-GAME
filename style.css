@@ -98,14 +98,14 @@ body {
     font-size: 3rem; font-weight: 900; color: rgba(255,255,255,0.1); z-index: 0; pointer-events: none;
 }
 
-/* ===[ إصلاح الخانات: جعلها قابلة للكتابة ]=== */
+/* ===[ إصلاح الخانات وزر الإضافة ]=== */
 .input-group input, .team-input-group input, .member-input {
     background: rgba(255, 255, 255, 0.15); /* لون خلفية واضح */
     border: 1px solid #666; border-radius: 8px;
     color: white; font-family: var(--font-primary); font-size: 1.1rem; padding: 10px;
     text-align: center; width: 90%; margin: 5px auto; display: block;
     
-    /* رفع الطبقة لتستقبل النقر - هام جداً */
+    /* رفع الطبقة لتستقبل النقر */
     position: relative; z-index: 5000 !important; pointer-events: auto !important;
 }
 .input-group input:focus, .member-input:focus { 
@@ -116,13 +116,13 @@ body {
     display: flex; flex-direction: column; gap: 5px; width: 100%; align-items: center; margin-bottom: 10px; 
 }
 
-/* زر إضافة عضو */
+/* زر إضافة عضو - تصميم واضح */
 .add-roster-btn {
-    background: #444; color: white; border: 1px solid #666; padding: 5px 15px; 
+    background: #444; color: white; border: 1px solid #666; padding: 8px 20px; 
     border-radius: 10px; cursor: pointer; font-family: var(--font-primary); font-size: 0.9rem;
-    position: relative; z-index: 5000 !important; margin-top: 5px;
+    position: relative; z-index: 5000 !important; margin-top: 10px; display: inline-block;
 }
-.add-roster-btn:hover { background: #555; }
+.add-roster-btn:hover { background: #555; border-color: var(--color-yellow); }
 
 /* الإعدادات */
 .bottom-settings-bar { 
@@ -186,8 +186,7 @@ body {
     justify-content: center; 
     align-items: center; 
     z-index: 10; 
-    /* هذا الهامش العلوي يمنع التداخل */
-    margin-top: 80px; 
+    margin-top: 80px; /* مسافة أمان */
 }
 .hex-row { display: flex; margin-top: -35px; }
 .hex-row:nth-child(even) { margin-left: 80px; }
@@ -228,7 +227,7 @@ body {
     display: flex; flex-direction: column; align-items: center;
 }
 
-/* نافذة الخروج الصغيرة (المربع الأبيض) */
+/* نافذة الخروج الصغيرة */
 .modal-content-small {
     background: #f8f9fa; color: #111; padding: 25px; border-radius: 15px;
     width: 320px; text-align: center; box-shadow: 0 0 30px black;
@@ -262,14 +261,13 @@ body {
 #answer-text { font-size: 1.6rem; color: var(--color-purple); font-weight: bold; margin-bottom: 20px; }
 .control-label { color: #666; font-size: 0.9rem; margin-bottom: 10px; }
 
-/* ===[ أزرار الإجابة: نصوص بيضاء فوق صورك ]=== */
+/* ===[ أزرار الإجابة ]=== */
 .team-choice-buttons { display: flex; justify-content: center; gap: 15px; width: 100%; flex-wrap: wrap; }
 .team-choice-buttons button, #turn-correct-button {
     width: 170px; height: 60px; margin: 5px; cursor: pointer; border: none; background-color: transparent;
     background-size: 100% 100%; background-repeat: no-repeat;
     position: relative; z-index: 10000;
     
-    /* تنسيق النص */
     color: white; font-family: var(--font-primary); font-size: 1.1rem; font-weight: bold;
     display: flex; align-items: center; justify-content: center;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
@@ -280,20 +278,20 @@ body {
 #team-purple-win-button { background-image: url('assets/images/ui.purple.team.png'); }
 #turn-correct-button { background-image: url('assets/images/ui.button.correct.answer.png'); }
 
-/* === زر التخطي (صورة أصلية بدون فلتر) === */
+/* زر التخطي (صورة أصلية) */
 #turn-wrong-button, #competitive-skip-button { 
     width: 170px; height: 60px; margin: 5px; cursor: pointer; border: none; background-color: transparent;
     
     background-image: url('assets/images/ui.button.skip.png') !important; 
     background-size: 100% 100%; background-repeat: no-repeat;
-    filter: none !important; /* إلغاء الفلتر تماماً */
+    filter: none !important; 
     
     color: white; font-family: var(--font-primary); font-size: 1.1rem; font-weight: bold;
     display: flex; align-items: center; justify-content: center;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
 }
 
-/* Win & Confetti */
+/* Confetti */
 #round-win-overlay { z-index: 2147483647 !important; background: rgba(20,20,30,0.98); flex-direction: column; }
 #win-title { font-size: 3.5rem; color: gold; margin: 0; }
 #win-message { font-size: 2rem; color: white; margin-bottom: 30px; }
