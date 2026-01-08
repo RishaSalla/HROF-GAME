@@ -73,23 +73,15 @@ function toggleSound() {
     });
 }
 
-// ===================== 3. دوال التحكم بالظهور (الحل الجذري) =====================
-
-// دالة خاصة لكسر الإخفاء وإظهار العناصر بالقوة
+// دالة لكسر الإخفاء وإظهار العناصر بالقوة (لحل مشكلة اختفاء الأزرار)
 function forceShowElement(id, show) {
     const el = document.getElementById(id);
     if (!el) return;
-    
-    if (show) {
-        el.classList.remove('hidden'); // إزالة كلاس الإخفاء تماماً
-        el.style.display = 'block';    // فرض الظهور
-    } else {
-        el.classList.add('hidden');
-        el.style.display = 'none';
-    }
+    if (show) { el.classList.remove('hidden'); el.style.display = 'block'; } 
+    else { el.classList.add('hidden'); el.style.display = 'none'; }
 }
 
-// ===================== 4. بدء اللعب =====================
+// ===================== 3. بدء اللعب =====================
 
 function startGame() {
     playSound('sound-click');
@@ -144,6 +136,7 @@ function startNewRound() {
     updatePlayerTurnDisplay();
     updateSidebars();
     
+    // إخفاء النوافذ المنبثقة
     document.getElementById('round-win-overlay').classList.add('hidden');
     document.getElementById('exit-confirm-modal').classList.add('hidden');
     document.getElementById('confetti-canvas').style.display = 'none';
@@ -166,17 +159,14 @@ function updatePlayerTurnDisplay() {
 function updateSidebars() {
     const redPanel = document.getElementById('panel-red');
     const purplePanel = document.getElementById('panel-purple');
-    
     redPanel.classList.remove('active-turn-red');
     purplePanel.classList.remove('active-turn-purple');
-
     if (gameSettings.mode === 'competitive') return; 
-
     if(currentTurn === 'red') redPanel.classList.add('active-turn-red');
     else purplePanel.classList.add('active-turn-purple');
 }
 
-// ===================== 5. اللوحة والأسئلة =====================
+// ===================== 4. اللوحة =====================
 
 function initializeBoard() {
     const container = document.getElementById('game-board-container');
@@ -205,7 +195,6 @@ function initializeBoard() {
             } else if(type === 'red') cell.classList.add('hex-cell-red');
             else if(type === 'purple') cell.classList.add('hex-cell-purple');
             else cell.classList.add('hex-cell-transparent');
-            
             rowDiv.appendChild(cell);
         });
         container.appendChild(rowDiv);
@@ -250,6 +239,8 @@ async function handleCellClick(e) {
     if(gameSettings.timer !== 'off') startTimer(parseInt(gameSettings.timer));
     else document.getElementById('question-timer').classList.add('hidden');
 }
+
+// ===================== 5. النتائج =====================
 
 function handleResult(result) {
     stopTimer();
@@ -318,10 +309,8 @@ function checkWin(color) {
         for(const [dr, dc] of diffs) {
             const nr = r + dr, nc = c + dc;
             if(nr < 0 || nr > 8 || nc < 0 || nc > 8) continue;
-            
             const isWin = (color === 'red' && nr === 7 && BOARD_LAYOUT[nr][nc] === 'red') || 
                           (color === 'purple' && nc === 1 && BOARD_LAYOUT[nr][nc] === 'purple');
-            
             if(isWin) {
                 let k = `${r},${c}`;
                 while(k) { const [pr, pc] = k.split(','); getC(pr, pc).classList.add('winning-path-cell'); k = parent.get(k); }
@@ -373,7 +362,6 @@ function resizeBoard() {
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 1. تفعيل زر الإضافة باستخدام المعرف المباشر
     const add1 = document.getElementById('add-team-1-member-button');
     if(add1) {
         add1.addEventListener('click', () => {
@@ -396,7 +384,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. تفعيل التبديل بين فردي/فريق باستخدام دالة الظهور القسري
     document.querySelectorAll('.mode-tab').forEach(b => b.onclick = (e) => {
         document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
@@ -404,10 +391,8 @@ document.addEventListener('DOMContentLoaded', () => {
         gameSettings.teams = e.target.dataset.value;
         const isIndiv = gameSettings.teams === 'individual';
         
-        // استخدام الدالة الجديدة لكسر الإخفاء
         forceShowElement('indiv-red', isIndiv);
         forceShowElement('team-red', !isIndiv);
-        
         forceShowElement('indiv-purple', isIndiv);
         forceShowElement('team-purple', !isIndiv);
     });
@@ -427,9 +412,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('competitive-skip-button').onclick = () => handleResult('skip');
     
     document.getElementById('exit-game-button').onclick = () => document.getElementById('exit-confirm-modal').classList.remove('hidden');
-    document.getElementById('exit-confirm-yes').onclick = () => { stopTimer(); location.reload(); };
+    // تعديل زر الخروج أثناء اللعب ليعود للقائمة بدلاً من التحديث
+    document.getElementById('exit-confirm-yes').onclick = () => { stopTimer(); switchScreen('main-menu-screen'); };
     document.getElementById('exit-confirm-no').onclick = () => document.getElementById('exit-confirm-modal').classList.add('hidden');
-    document.getElementById('next-round-button').onclick = () => { location.reload(); };
+    
+    // === برمجة أزرار الفوز الجديدة (النسخة النهائية) ===
+    const restartBtn = document.getElementById('restart-round-button');
+    if(restartBtn) {
+        restartBtn.onclick = () => {
+            startNewRound(); // يعيد تصفير اللوحة بنفس الفرق
+        };
+    }
+
+    const backMenuBtn = document.getElementById('back-to-menu-button');
+    if(backMenuBtn) {
+        backMenuBtn.onclick = () => {
+            switchScreen('main-menu-screen'); // يعود للقائمة
+        };
+    }
+    // ===============================================
 
     document.getElementById('instructions-button').onclick = () => document.getElementById('instructions-modal-overlay').classList.remove('hidden');
     document.getElementById('close-instructions-button').onclick = () => document.getElementById('instructions-modal-overlay').classList.add('hidden');
