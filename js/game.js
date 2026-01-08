@@ -1,6 +1,6 @@
 import { TurnManager } from './turn_manager.js';
 
-// ===================== 1. إعدادات اللعبة =====================
+// ===================== 1. الإعدادات =====================
 const gameSettings = { 
     mode: 'turns', 
     teams: 'individual', 
@@ -65,15 +65,24 @@ function playSound(id) {
 
 function toggleSound() {
     isMuted = !isMuted;
-    const path = isMuted 
-        ? "M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"
-        : "M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z";
-    [document.getElementById('main-sound-toggle'), document.getElementById('game-sound-toggle')].forEach(b => {
-        if(b) b.querySelector('path').setAttribute('d', path);
+    
+    // مسار أيقونة الصوت المفتوح (مكبر صوت)
+    const soundOnPath = "M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z";
+    // مسار أيقونة الصوت المغلق (مكبر وعليه خط)
+    const soundOffPath = "M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z";
+
+    const path = isMuted ? soundOffPath : soundOnPath;
+
+    // تحديث الأيقونة في الزرين (زر القائمة وزر اللعبة)
+    const buttons = [document.getElementById('main-sound-toggle'), document.getElementById('game-sound-toggle')];
+    buttons.forEach(btn => {
+        if(btn) {
+            const pathElem = btn.querySelector('path');
+            if(pathElem) pathElem.setAttribute('d', path);
+        }
     });
 }
 
-// دالة لكسر الإخفاء وإظهار العناصر بالقوة (لحل مشكلة اختفاء الأزرار)
 function forceShowElement(id, show) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -136,7 +145,6 @@ function startNewRound() {
     updatePlayerTurnDisplay();
     updateSidebars();
     
-    // إخفاء النوافذ المنبثقة
     document.getElementById('round-win-overlay').classList.add('hidden');
     document.getElementById('exit-confirm-modal').classList.add('hidden');
     document.getElementById('confetti-canvas').style.display = 'none';
@@ -166,7 +174,7 @@ function updateSidebars() {
     else purplePanel.classList.add('active-turn-purple');
 }
 
-// ===================== 4. اللوحة =====================
+// ===================== 4. اللوحة والأسئلة =====================
 
 function initializeBoard() {
     const container = document.getElementById('game-board-container');
@@ -212,7 +220,12 @@ async function handleCellClick(e) {
     document.getElementById('question-char-display').textContent = cell.dataset.name;
     document.getElementById('question-text').textContent = '...';
     document.getElementById('question-modal-overlay').classList.remove('hidden');
+    
+    // إظهار أزرار التحكم الأولية (إظهار + تخطي مبكر)
     document.getElementById('show-answer-button').classList.remove('hidden');
+    const esBtn = document.getElementById('early-skip-button');
+    if(esBtn) esBtn.classList.remove('hidden');
+
     document.getElementById('answer-reveal-section').style.display = 'none';
 
     const isTurns = gameSettings.mode === 'turns';
@@ -387,10 +400,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.mode-tab').forEach(b => b.onclick = (e) => {
         document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
-        
         gameSettings.teams = e.target.dataset.value;
         const isIndiv = gameSettings.teams === 'individual';
-        
         forceShowElement('indiv-red', isIndiv);
         forceShowElement('team-red', !isIndiv);
         forceShowElement('indiv-purple', isIndiv);
@@ -399,12 +410,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('start-game-button').onclick = startGame;
     
+    // === برمجة أزرار السؤال ===
     document.getElementById('show-answer-button').onclick = () => {
         document.getElementById('answer-reveal-section').style.display = 'block';
         document.getElementById('show-answer-button').classList.add('hidden');
+        document.getElementById('early-skip-button').classList.add('hidden'); // إخفاء زر التخطي المبكر أيضاً
         playSound('sound-click');
     };
-    
+
+    const earlySkipBtn = document.getElementById('early-skip-button');
+    if(earlySkipBtn) {
+        earlySkipBtn.onclick = () => handleResult('skip');
+    }
+    // ===========================
+
     document.getElementById('turn-correct-button').onclick = () => handleResult('turn_correct');
     document.getElementById('turn-wrong-button').onclick = () => handleResult('skip');
     document.getElementById('team-red-win-button').onclick = () => handleResult('red');
@@ -412,28 +431,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('competitive-skip-button').onclick = () => handleResult('skip');
     
     document.getElementById('exit-game-button').onclick = () => document.getElementById('exit-confirm-modal').classList.remove('hidden');
-    // تعديل زر الخروج أثناء اللعب ليعود للقائمة بدلاً من التحديث
     document.getElementById('exit-confirm-yes').onclick = () => { stopTimer(); switchScreen('main-menu-screen'); };
     document.getElementById('exit-confirm-no').onclick = () => document.getElementById('exit-confirm-modal').classList.add('hidden');
     
-    // === برمجة أزرار الفوز الجديدة (النسخة النهائية) ===
+    // برمجة أزرار الفوز الجديدة
     const restartBtn = document.getElementById('restart-round-button');
-    if(restartBtn) {
-        restartBtn.onclick = () => {
-            startNewRound(); // يعيد تصفير اللوحة بنفس الفرق
-        };
-    }
-
+    if(restartBtn) restartBtn.onclick = () => startNewRound();
     const backMenuBtn = document.getElementById('back-to-menu-button');
-    if(backMenuBtn) {
-        backMenuBtn.onclick = () => {
-            switchScreen('main-menu-screen'); // يعود للقائمة
-        };
-    }
-    // ===============================================
+    if(backMenuBtn) backMenuBtn.onclick = () => switchScreen('main-menu-screen');
 
     document.getElementById('instructions-button').onclick = () => document.getElementById('instructions-modal-overlay').classList.remove('hidden');
     document.getElementById('close-instructions-button').onclick = () => document.getElementById('instructions-modal-overlay').classList.add('hidden');
+    
+    // ربط زري الصوت بوظيفة التبديل
+    document.getElementById('main-sound-toggle').onclick = toggleSound;
     document.getElementById('game-sound-toggle').onclick = toggleSound;
 
     document.querySelectorAll('.pill-btn').forEach(b => b.onclick = (e) => {
