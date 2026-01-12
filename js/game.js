@@ -1,16 +1,6 @@
 import { TurnManager } from './turn_manager.js';
 
-// ===================== 1. الإعدادات =====================
-const gameSettings = { 
-    mode: 'turns', 
-    teams: 'individual', 
-    timer: 'off', 
-    team1Name: '', 
-    team2Name: '', 
-    team1Members: [], 
-    team2Members: [] 
-};
-
+const gameSettings = { mode: 'turns', teams: 'individual', timer: 'off', team1Name: '', team2Name: '', team1Members: [], team2Members: [] };
 let gameActive = true;
 let currentTurn = 'red'; 
 let currentMemberIndex = { red: 0, purple: 0 }; 
@@ -20,7 +10,6 @@ let currentClickedCell = null;
 let timerInterval = null;
 let usedQuestions = JSON.parse(localStorage.getItem('hrof_used')) || {};
 
-// قائمة الحروف
 const ALL_LETTERS = [
     { id: '01alif', char: 'أ', name: 'حرف الألف' }, { id: '02ba', char: 'ب', name: 'حرف الباء' },
     { id: '03ta', char: 'ت', name: 'حرف التاء' }, { id: '04tha', char: 'ث', name: 'حرف الثاء' },
@@ -50,8 +39,6 @@ const BOARD_LAYOUT = [
     ['T','T','T','T','T','T','T','T','T']
 ];
 
-// ===================== 2. الوظائف المساعدة =====================
-
 function switchScreen(id) {
     document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
     const t = document.getElementById(id); 
@@ -65,21 +52,11 @@ function playSound(id) {
 
 function toggleSound() {
     isMuted = !isMuted;
-    
-    // مسار أيقونة الصوت المفتوح (مكبر صوت)
     const soundOnPath = "M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z";
-    // مسار أيقونة الصوت المغلق (مكبر وعليه خط)
     const soundOffPath = "M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z";
-
     const path = isMuted ? soundOffPath : soundOnPath;
-
-    // تحديث الأيقونة في الزرين (زر القائمة وزر اللعبة)
-    const buttons = [document.getElementById('main-sound-toggle'), document.getElementById('game-sound-toggle')];
-    buttons.forEach(btn => {
-        if(btn) {
-            const pathElem = btn.querySelector('path');
-            if(pathElem) pathElem.setAttribute('d', path);
-        }
+    [document.getElementById('main-sound-toggle'), document.getElementById('game-sound-toggle')].forEach(b => {
+        if(b) b.querySelector('path').setAttribute('d', path);
     });
 }
 
@@ -90,32 +67,21 @@ function forceShowElement(id, show) {
     else { el.classList.add('hidden'); el.style.display = 'none'; }
 }
 
-// ===================== 3. بدء اللعب =====================
-
 function startGame() {
     playSound('sound-click');
     const p1 = document.getElementById('player-1-name-input').value.trim();
     const p2 = document.getElementById('player-2-name-input').value.trim();
     
-    const t1Name = "الأحمر";
-    const t2Name = "البنفسجي";
-
     if (gameSettings.teams === 'individual') {
         if(!p1 && !p2) { alert('الرجاء كتابة أسماء اللاعبين'); return; }
-        gameSettings.team1Name = "الأحمر"; 
-        gameSettings.team2Name = "البنفسجي";
-        gameSettings.team1Members = [p1]; 
-        gameSettings.team2Members = [p2];
+        gameSettings.team1Name = "الأحمر"; gameSettings.team2Name = "البنفسجي";
+        gameSettings.team1Members = [p1]; gameSettings.team2Members = [p2];
     } else {
         const m1 = Array.from(document.querySelectorAll('#team-1-members-list input')).map(i => i.value.trim()).filter(v => v);
         const m2 = Array.from(document.querySelectorAll('#team-2-members-list input')).map(i => i.value.trim()).filter(v => v);
-        
         if(m1.length === 0 || m2.length === 0) { alert('الرجاء إضافة عضو واحد على الأقل لكل فريق'); return; }
-
-        gameSettings.team1Name = t1Name;
-        gameSettings.team2Name = t2Name;
-        gameSettings.team1Members = m1;
-        gameSettings.team2Members = m2;
+        gameSettings.team1Name = "الأحمر"; gameSettings.team2Name = "البنفسجي";
+        gameSettings.team1Members = m1; gameSettings.team2Members = m2;
     }
 
     fillRoster('red-roster-display', gameSettings.team1Members);
@@ -156,12 +122,8 @@ function startNewRound() {
 function updatePlayerTurnDisplay() {
     const rIndex = currentMemberIndex.red % gameSettings.team1Members.length;
     const pIndex = currentMemberIndex.purple % gameSettings.team2Members.length;
-    
-    const rName = gameSettings.team1Members[rIndex];
-    const pName = gameSettings.team2Members[pIndex];
-    
-    document.getElementById('red-current-player').textContent = rName;
-    document.getElementById('purple-current-player').textContent = pName;
+    document.getElementById('red-current-player').textContent = gameSettings.team1Members[rIndex];
+    document.getElementById('purple-current-player').textContent = gameSettings.team2Members[pIndex];
 }
 
 function updateSidebars() {
@@ -173,8 +135,6 @@ function updateSidebars() {
     if(currentTurn === 'red') redPanel.classList.add('active-turn-red');
     else purplePanel.classList.add('active-turn-purple');
 }
-
-// ===================== 4. اللوحة والأسئلة =====================
 
 function initializeBoard() {
     const container = document.getElementById('game-board-container');
@@ -188,15 +148,12 @@ function initializeBoard() {
         row.forEach((type, c) => {
             const cell = document.createElement('div');
             cell.className = 'hex-cell';
-            cell.dataset.r = r;
-            cell.dataset.c = c;
-
+            cell.dataset.r = r; cell.dataset.c = c;
             if(type === 'G') {
                 cell.classList.add('hex-cell-default', 'playable');
                 if(idx < 25) {
                     const l = shuffled[idx++];
-                    cell.dataset.id = l.id;
-                    cell.dataset.name = l.name;
+                    cell.dataset.id = l.id; cell.dataset.name = l.name;
                     cell.innerHTML = `<span class="hex-letter">${l.char}</span>`;
                 }
                 cell.addEventListener('click', handleCellClick);
@@ -221,7 +178,6 @@ async function handleCellClick(e) {
     document.getElementById('question-text').textContent = '...';
     document.getElementById('question-modal-overlay').classList.remove('hidden');
     
-    // إظهار أزرار التحكم الأولية (إظهار + تخطي مبكر)
     document.getElementById('show-answer-button').classList.remove('hidden');
     const esBtn = document.getElementById('early-skip-button');
     if(esBtn) esBtn.classList.remove('hidden');
@@ -238,7 +194,6 @@ async function handleCellClick(e) {
             const data = await res.json();
             const available = data.filter((_, i) => !usedQuestions[`${cell.dataset.id}_${i}`]);
             const selected = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : data[0];
-            
             currentQuestion = selected;
             currentQuestion.uid = `${cell.dataset.id}_${data.indexOf(selected)}`;
             document.getElementById('question-text').textContent = selected.question;
@@ -253,8 +208,6 @@ async function handleCellClick(e) {
     else document.getElementById('question-timer').classList.add('hidden');
 }
 
-// ===================== 5. النتائج =====================
-
 function handleResult(result) {
     stopTimer();
     document.getElementById('question-modal-overlay').classList.add('hidden');
@@ -265,7 +218,6 @@ function handleResult(result) {
     }
 
     let winnerColor = null;
-    
     if (result === 'skip' || (result !== 'red' && result !== 'purple' && result !== 'turn_correct')) {
         playSound(result === 'skip' ? 'sound-click' : 'sound-wrong');
         if (gameSettings.mode === 'turns') {
@@ -285,15 +237,12 @@ function handleResult(result) {
         playSound('sound-correct');
         currentClickedCell.classList.remove('playable', 'hex-cell-default');
         currentClickedCell.classList.add(`hex-cell-${winnerColor}-owned`);
-        
         setTimeout(() => { if (checkWin(winnerColor)) handleGameWin(winnerColor); }, 100);
-        
         if (gameSettings.mode === 'turns') {
             currentMemberIndex[currentTurn]++;
             currentTurn = (currentTurn === 'red') ? 'purple' : 'red';
         }
     }
-
     updatePlayerTurnDisplay();
     updateSidebars();
 }
@@ -362,67 +311,66 @@ function startTimer(dur) {
 }
 function stopTimer() { if(timerInterval) clearInterval(timerInterval); }
 
+// ===[ تحديث مهم: دالة تحجيم اللوحة المتجاوبة ]===
 function resizeBoard() {
     if(document.getElementById('game-screen').style.display === 'none') return;
-    const h = window.innerHeight; const w = window.innerWidth;
-    const scale = Math.min((w - 450) / 800, (h - 120) / 650);
-    const c = document.getElementById('game-board-container');
-    if(w < 768) c.style.transform = `scale(${Math.min(w/850, 0.6)})`;
-    else c.style.transform = `scale(${Math.max(0.4, Math.min(scale, 1.3))})`;
-}
+    const h = window.innerHeight; 
+    const w = window.innerWidth;
+    const container = document.getElementById('game-board-container');
 
-// ===================== 6. تهيئة الأحداث (التشغيل) =====================
+    if(w < 768) {
+        // منطق الجوال: نحسب المساحة المتاحة بعد خصم الأشرطة
+        // الارتفاع المتاح = الارتفاع الكلي - (ارتفاع الشريطين 140px) - (ارتفاع عناصر التحكم 50px)
+        const availableHeight = h - 200; 
+        const availableWidth = w * 0.95; 
+
+        // أبعاد اللوحة الأصلية تقريباً 850x700
+        const scaleW = availableWidth / 850;
+        const scaleH = availableHeight / 700;
+        
+        // نختار المقياس الأصغر لضمان عدم القص
+        const scale = Math.min(scaleW, scaleH);
+        container.style.transform = `scale(${scale})`;
+    } else {
+        // منطق اللابتوب (القديم الممتاز)
+        const scale = Math.min((w - 450) / 800, (h - 120) / 650);
+        container.style.transform = `scale(${Math.max(0.4, Math.min(scale, 1.3))})`;
+    }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     
     const add1 = document.getElementById('add-team-1-member-button');
-    if(add1) {
-        add1.addEventListener('click', () => {
-            const i = document.createElement('input'); 
-            i.placeholder = 'اسم العضو'; 
-            i.className = 'member-input';
-            document.getElementById('team-1-members-list').appendChild(i);
-            i.focus();
-        });
-    }
+    if(add1) add1.addEventListener('click', () => {
+        const i = document.createElement('input'); i.placeholder = 'اسم العضو'; i.className = 'member-input';
+        document.getElementById('team-1-members-list').appendChild(i); i.focus();
+    });
 
     const add2 = document.getElementById('add-team-2-member-button');
-    if(add2) {
-        add2.addEventListener('click', () => {
-            const i = document.createElement('input'); 
-            i.placeholder = 'اسم العضو'; 
-            i.className = 'member-input';
-            document.getElementById('team-2-members-list').appendChild(i);
-            i.focus();
-        });
-    }
+    if(add2) add2.addEventListener('click', () => {
+        const i = document.createElement('input'); i.placeholder = 'اسم العضو'; i.className = 'member-input';
+        document.getElementById('team-2-members-list').appendChild(i); i.focus();
+    });
 
     document.querySelectorAll('.mode-tab').forEach(b => b.onclick = (e) => {
         document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
         gameSettings.teams = e.target.dataset.value;
         const isIndiv = gameSettings.teams === 'individual';
-        forceShowElement('indiv-red', isIndiv);
-        forceShowElement('team-red', !isIndiv);
-        forceShowElement('indiv-purple', isIndiv);
-        forceShowElement('team-purple', !isIndiv);
+        forceShowElement('indiv-red', isIndiv); forceShowElement('team-red', !isIndiv);
+        forceShowElement('indiv-purple', isIndiv); forceShowElement('team-purple', !isIndiv);
     });
 
     document.getElementById('start-game-button').onclick = startGame;
     
-    // === برمجة أزرار السؤال ===
     document.getElementById('show-answer-button').onclick = () => {
         document.getElementById('answer-reveal-section').style.display = 'block';
         document.getElementById('show-answer-button').classList.add('hidden');
-        document.getElementById('early-skip-button').classList.add('hidden'); // إخفاء زر التخطي المبكر أيضاً
+        document.getElementById('early-skip-button').classList.add('hidden');
         playSound('sound-click');
     };
-
-    const earlySkipBtn = document.getElementById('early-skip-button');
-    if(earlySkipBtn) {
-        earlySkipBtn.onclick = () => handleResult('skip');
-    }
-    // ===========================
+    const esBtn = document.getElementById('early-skip-button');
+    if(esBtn) esBtn.onclick = () => handleResult('skip');
 
     document.getElementById('turn-correct-button').onclick = () => handleResult('turn_correct');
     document.getElementById('turn-wrong-button').onclick = () => handleResult('skip');
@@ -434,7 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('exit-confirm-yes').onclick = () => { stopTimer(); switchScreen('main-menu-screen'); };
     document.getElementById('exit-confirm-no').onclick = () => document.getElementById('exit-confirm-modal').classList.add('hidden');
     
-    // برمجة أزرار الفوز الجديدة
     const restartBtn = document.getElementById('restart-round-button');
     if(restartBtn) restartBtn.onclick = () => startNewRound();
     const backMenuBtn = document.getElementById('back-to-menu-button');
@@ -443,7 +390,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('instructions-button').onclick = () => document.getElementById('instructions-modal-overlay').classList.remove('hidden');
     document.getElementById('close-instructions-button').onclick = () => document.getElementById('instructions-modal-overlay').classList.add('hidden');
     
-    // ربط زري الصوت بوظيفة التبديل
     document.getElementById('main-sound-toggle').onclick = toggleSound;
     document.getElementById('game-sound-toggle').onclick = toggleSound;
 
@@ -460,36 +406,22 @@ document.addEventListener('DOMContentLoaded', () => {
 function startConfetti() {
     const c = document.getElementById('confetti-canvas');
     const ctx = c.getContext('2d');
-    c.width = window.innerWidth; 
-    c.height = window.innerHeight;
-    const pieces = [];
-    const colors = ['#f1c40f', '#e74c3c', '#8e44ad', '#3498db'];
-    
+    c.width = window.innerWidth; c.height = window.innerHeight;
+    const pieces = []; const colors = ['#f1c40f', '#e74c3c', '#8e44ad', '#3498db'];
     for(let i=0; i<150; i++) pieces.push({
-        x: Math.random() * c.width,
-        y: Math.random() * c.height - c.height,
-        rotation: Math.random() * 360,
-        scale: Math.random() * 0.5 + 0.5,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        speed: Math.random() * 3 + 2
+        x: Math.random() * c.width, y: Math.random() * c.height - c.height,
+        rotation: Math.random() * 360, scale: Math.random() * 0.5 + 0.5,
+        color: colors[Math.floor(Math.random() * colors.length)], speed: Math.random() * 3 + 2
     });
-
     function draw() {
         ctx.clearRect(0, 0, c.width, c.height);
         pieces.forEach(p => {
-            p.y += p.speed;
-            p.rotation += 2;
-            if(p.y > c.height) p.y = -10;
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate(p.rotation * Math.PI / 180);
-            ctx.fillStyle = p.color;
-            ctx.fillRect(-5 * p.scale, -5 * p.scale, 10 * p.scale, 10 * p.scale);
+            p.y += p.speed; p.rotation += 2; if(p.y > c.height) p.y = -10;
+            ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rotation * Math.PI / 180);
+            ctx.fillStyle = p.color; ctx.fillRect(-5 * p.scale, -5 * p.scale, 10 * p.scale, 10 * p.scale);
             ctx.restore();
         });
-        if(document.getElementById('confetti-canvas').style.display !== 'none') {
-            requestAnimationFrame(draw);
-        }
+        if(document.getElementById('confetti-canvas').style.display !== 'none') requestAnimationFrame(draw);
     }
     draw();
 }
