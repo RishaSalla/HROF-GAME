@@ -275,34 +275,109 @@ body {
         left: auto;
     }
 
-/* === إصلاح نهائي وقوي لزر الصوت داخل اللعبة === */
-#game-screen #game-sound-toggle {
-    /* 1. إلغاء التموضع المطلق ليعود داخل الصندوق */
+/* === إصلاح جذري لتموضع وتنسيق أزرار التحكم (الخروج والصوت) أسفل اللعبة === */
+
+/* 1. تنسيق الحاوية الأم للأزرار */
+.game-controls {
+    /* استخدام Flexbox لترتيب الأزرار بجانب بعضها */
+    display: flex !important;
+    /* محاذاة الأزرار عمودياً في منتصف الحاوية */
+    align-items: center !important;
+    /* محاذاة الأزرار أفقياً في منتصف الشاشة */
+    justify-content: center !important;
+    /* إضافة مسافة ثابتة بين الزرين */
+    gap: 15px !important;
+    /* ضمان أن الحاوية تأخذ عرضاً كافياً لمحتواها فقط */
+    width: auto !important;
+    
+    /* تموضع الحاوية أسفل الشاشة (تأكد من أن هذا لا يتعارض مع تنسيقات أخرى) */
+    position: absolute !important;
+    bottom: 20px !important; /* المسافة من الأسفل */
+    left: 50% !important; /* التموضع في المنتصف أفقياً */
+    transform: translateX(-50%) !important; /* تصحيح التموضع الأفقي */
+    z-index: 50 !important; /* ضمان ظهورها فوق العناصر الأخرى */
+}
+
+/* 2. تنسيق عام لجميع الأزرار داخل الحاوية */
+.game-controls button {
+    /* إلغاء أي تموضع مطلق فردي قد يكون مطبقاً على الأزرار */
     position: static !important;
+    /* إلغاء أي تحويلات (transform) سابقة */
     transform: none !important;
+    /* إعادة تعيين الهوامش */
+    margin: 0 !important;
+    /* ضمان ظهور مؤشر الماوس كيد عند المرور */
+    cursor: pointer !important;
+    /* خط وإعدادات النص الأساسية */
+    font-family: var(--font-primary) !important;
+    color: white !important;
+}
+
+/* 3. تنسيق خاص لزر الخروج (ليكون مستطيلاً مع نص) */
+#exit-game-button {
+    /* خلفية شفافة مع حدود */
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    /* حواف دائرية للمستطيل */
+    border-radius: 20px !important;
+    /* مسافات داخلية للنص */
+    padding: 8px 20px !important;
+    /* حجم الخط */
+    font-size: 1rem !important;
+    font-weight: bold !important;
+}
+
+/* 4. تنسيق خاص لزر الصوت (ليكون دائرياً مع أيقونة) */
+#game-screen #game-sound-toggle {
+    /* تحديد عرض وارتفاع ثابتين لجعله دائرياً */
+    width: 45px !important;
+    height: 45px !important;
+    min-width: 45px !important; /* منع الانكماش على الشاشات الصغيرة */
     
-    /* 2. فرض المقاسات بالقوة */
-    width: 50px !important;
-    height: 50px !important;
-    min-width: 50px !important; /* منع الانكماش */
-    
-    /* 3. المظهر والتوسط */
+    /* استخدام Flexbox لمحاذاة الأيقونة داخل الزر */
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    background: rgba(255, 255, 255, 0.15) !important;
+    
+    /* خلفية وحدود مماثلة لزر الخروج */
+    background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    /* جعل الشكل دائرياً تماماً */
     border-radius: 50% !important;
     
-    /* 4. تنظيف أي مسافات داخلية قد تسبب "النقطة" */
+    /* تنظيف أي مسافات داخلية قد تؤثر على المحاذاة */
     padding: 0 !important;
-    margin: 0 !important;
-    opacity: 1 !important;
 }
 
-/* تكبير الأيقونة داخل الزر */
+/* 5. تنسيق الأيقونة داخل زر الصوت */
 #game-screen #game-sound-toggle svg {
-    width: 28px !important;
-    height: 28px !important;
+    /* حجم الأيقونة */
+    width: 24px !important;
+    height: 24px !important;
+    /* ضمان ظهورها كعنصر كتلة */
     display: block !important;
+}
+
+/* === تحسينات للجوال (اختياري - لضبط المسافات على الشاشات الضيقة جداً) === */
+@media (max-width: 360px) {
+    .game-controls {
+        /* تقليل المسافة بين الأزرار على الهواتف الضيقة جداً */
+        gap: 10px !important;
+    }
+    #exit-game-button {
+        /* تقليل المسافات الداخلية وحجم الخط قليلاً */
+        padding: 6px 15px !important;
+        font-size: 0.9rem !important;
+    }
+    #game-screen #game-sound-toggle {
+        /* تصغير زر الصوت قليلاً */
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+    }
+    #game-screen #game-sound-toggle svg {
+        /* تصغير الأيقونة قليلاً */
+        width: 20px !important;
+        height: 20px !important;
+    }
 }
